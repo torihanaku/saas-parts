@@ -1,0 +1,15 @@
+export {
+  LeadScorer,
+  InMemoryLeadScoringStore,
+  getDefaultScoringConfig,
+  calculateBehaviorScore,
+  calculateFitScore,
+  calculateEngagementScore,
+  type LeadScore,
+  type ScoringConfig,
+  type LeadScoringStore,
+  type LeadScorerOptions,
+  type ContactRecord,
+  type DealRecord,
+  type CampaignRecord,
+} from "./lead-scorer";

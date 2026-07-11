@@ -1,6 +1,6 @@
 # saas-parts — AI向け利用ガイド
 
-SaaS開発用の共有部品monorepo（全37パッケージ）。失敗プロダクト dev-dashboard（torihanaku/dev-dashboard）から抽出・脱結合した実戦コード。全部品はテスト付き・自己完結（パッケージ間import無し・process.env読み取り無し・依存はすべて注入式）。
+SaaS開発用の共有部品monorepo（全68パッケージ＝汎用部品64＋機能キット4）。失敗プロダクト dev-dashboard（torihanaku/dev-dashboard）から抽出・脱結合した実戦コード。全部品はテスト付き・自己完結（パッケージ間import無し・process.env読み取り無し・依存はすべて注入式）。
 
 ## 使い方（コンテクスト消費を最小にする手順）
 
@@ -23,6 +23,15 @@ SaaS開発用の共有部品monorepo（全37パッケージ）。失敗プロダ
 - **@torihanaku/api-keys** — 公開APIキー管理（生成/SHA-256ハッシュ保存/認証/スコープ/期限/失効、Store注入）（runtime: Node18+/Bun/Edge, deps: なし）
 - **@torihanaku/reauth** — 再認証トークン（15分TTL）＋タイミング攻撃緩和つき資格情報再検証（OTP/2FA可）（runtime: Node18+/Bun, deps: なし）
 - **@torihanaku/validation** — リクエスト入力バリデーション＋400/500エラー封筒（runtime: node/edge, deps: なし）
+- **@torihanaku/security-utils** — Webhook署名(HMAC)/SSRF対策URL検証/パストラバーサル安全join/PIIハッシュ/Kintone署名検証（runtime: node/edge, deps: なし）
+- **@torihanaku/rls-jwt** — Postgres RLS段階ロールアウト用テナントJWTミント＋canaryシャドー比較（runtime: node, deps: なし）
+
+### アルゴリズム・統計
+- **@torihanaku/bm25** — BM25スコアリング・習熟度重み付きランキング（runtime: any, deps: なし）
+- **@torihanaku/thompson-bandit** — ThompsonサンプリングによるA/Bバリアント割当・勝者事後確率（runtime: any, deps: なし）
+- **@torihanaku/stats-sim** — モンテカルロ分布シミュレーション＋MMM弾力性テーブル抽出・因果オーバーライド（runtime: any, deps: なし）
+- **@torihanaku/sql-generator** — 自然言語→BigQuery SQL生成＋SELECT限定安全バリデータ（runtime: any, deps: なし／LLMとDWHは注入）
+- **@torihanaku/anomaly-detection** — ローリングベースライン閾値検出器(スパイク/配信失敗/順位下落)＋テナント走査監視オーケストレータ（runtime: any, deps: なし）
 
 ### テナント・組織管理
 - **@torihanaku/tenant-resolver** — メール→tenant_id解決（デフォルトテナントキャッシュ・ドメインバックフィル・requireTenant/requireUserガード）（runtime: Node18+/Bun, deps: なし）
@@ -36,16 +45,33 @@ SaaS開発用の共有部品monorepo（全37パッケージ）。失敗プロダ
 
 ### コンプライアンス
 - **@torihanaku/audit-log** — SHA-256ハッシュチェーン付き監査ログ（記録＋改ざん検証）（runtime: Node 18+/Bun, deps: なし）
+- **@torihanaku/audit-archive** — 監査イベントのJSONLコールドアーカイブ（ObjectStorage注入・スケジューラ非依存）（runtime: any, deps: なし）
 - **@torihanaku/gdpr** — GDPRカスケード削除＋残渣検証＋JSON/CSVエクスポート（runtime: Node 18+/Bun, deps: なし）
 - **@torihanaku/consent** — 目的ベース同意チェック（60秒キャッシュ・失効カスケード・法的根拠）（runtime: Node 18+/Bun/Edge, deps: なし）
 
 ### 通信
 - **@torihanaku/email** — Resend APIラッパー＋日本語メールテンプレート（招待/トライアル終了/ドリップ）（runtime: Node18+/Bun/Edge, deps: なし）
 - **@torihanaku/push-notifications** — Web Push土台（購読検証/VAPID解決/注入式sender/期限切れ判定）（runtime: Node18+/Bun/Edge, deps: なし）
+- **@torihanaku/notifications** — アプリ内通知フルスタック（server: 注入Store+認可のCRUD/SSEハンドラ, client: useNotifications）（runtime: server=any/client=browser, deps: react(client)）
+- **@torihanaku/slack-harness** — SlackユーザーID⇔アプリユーザー解決(1hキャッシュ)＋承認Block Kit構築/DM送信(copy注入)（runtime: node/edge, deps: なし）
+- **@torihanaku/channel-summarizer** — マルチチャネル統合LLM要約（200字サマリ＋actionItems、LLM/BYOK注入）（runtime: any, deps: なし）
+- **@torihanaku/email-decision-parser** — メール返信から承認/却下＋理由を抽出（日英キーワード設定可・ヘッドレス承認用）（runtime: any, deps: なし）
 
-### 信頼性・可観測性
+### 信頼性・可観測性・運用
 - **@torihanaku/resilience** — リトライ(指数バックオフ+ジッター)・サーキットブレーカー・TTL付きLRUキャッシュ（runtime: any, deps: なし）
 - **@torihanaku/logger** — PIIマスキング付き構造化JSONログ+AsyncLocalStorageリクエストコンテキスト（runtime: Node 19+/Bun, deps: なし）
+- **@torihanaku/canary-rollout** — 決定的ハッシュによるテナント別段階ロールアウト判定（状態共有不要・単調拡大）（runtime: any, deps: なし）
+- **@torihanaku/deployment-snapshot** — デプロイ前スナップショット取得＋ロールバック監査記録の汎用契約（store全注入）（runtime: any, deps: なし）
+- **@torihanaku/config-management** — 設定変数カタログ(検証/マスク/.envテンプレ生成)＋外部サービスヘルスチェック(組み込み8種プラガブル)（runtime: node/edge, deps: なし）
+
+### ビジネスサービス
+- **@torihanaku/okr-service** — OKRのCRUD・進捗計算・データソース連動の自動進捗更新（runtime: any, deps: なし）
+- **@torihanaku/lead-scorer** — 行動+適合度+エンゲージメントの3軸リードスコアリング・MQL判定・次元別内訳（runtime: any, deps: なし）
+- **@torihanaku/benchmark-aggregator** — 業界ベンチマーク集計（k-匿名性ガード+オプトイン同意+テナントID匿名化）（runtime: node, deps: なし）
+- **@torihanaku/template-marketplace** — テンプレのマーケットプレイス（パターン匿名化・投稿/クローン/レビュー・LLM抽出コア）（runtime: node, deps: なし）
+- **@torihanaku/customer-intelligence** — 統合顧客プロファイル構築＋チャーンリスク・購買意欲分析（LLM注入/ヒューリスティックfallback）（runtime: any, deps: なし）
+- **@torihanaku/widget-store** — dashboard/widget/favoriteのCRUD永続化（daily upsert・shot履歴・pin順favorites、ドライバ注入）（runtime: node/edge, deps: なし）
+- **@torihanaku/bigquery-admin** — テナント別暗号化BigQuery認証情報の保存/解決/クエリ実行(SDK非依存・store注入)（runtime: node, deps: なし）
 
 ### データ・状態
 - **@torihanaku/cache** — 注入Redis＋メモリフォールバックのキャッシュ層（TTL/プレフィックス無効化/統計/分散レート制限）（runtime: any, deps: ioredis(optional)）
@@ -63,11 +89,22 @@ SaaS開発用の共有部品monorepo（全37パッケージ）。失敗プロダ
 - **@torihanaku/embeddings** — マルチプロバイダ埋め込み抽象化（レジストリ/OpenAIプロバイダ/月次コストガードレール注入ストア方式）（runtime: any, deps: なし）
 - **@torihanaku/transcribe-client** — AssemblyAI話者分離書き起こし（ポーリング+バックオフ+10分タイムアウト）（runtime: node, deps: なし）
 - **@torihanaku/storage-upload** — Supabase Storageテナント分離アップロード+画像MIME許可リスト（runtime: node/edge, deps: なし）
+- **@torihanaku/image-gen** — マルチプロバイダAI画像生成（OpenAI/fal.aiルーティング・モデル5分キャッシュ・ImageSink注入・BYOK対応）（runtime: node/bun, deps: なし）
 
 ### フロントエンド
 - **@torihanaku/api-client** — 認証トークン注入・タイムアウト・使用量上限フィードバックを一元化した型付きfetchラッパー（runtime: browser, deps: なし）
 - **@torihanaku/react-hooks** — ビューポート判定・fetch・フォーカストラップ・フィーチャーフラグ・認証コンテキストの汎用Reactフック集（runtime: browser, deps: react）
 - **@torihanaku/browser-utils** — BOM付きCSVダウンロード+日付フォーマッタ(ロケール可変)（runtime: browser, deps: なし）
+- **@torihanaku/command-palette** — コマンドパレットclient（useCommands+ルール注入型classifier）（runtime: browser, deps: react）
+- **@torihanaku/live-state** — polling+SSEハイブリッド状態同期フック（useLiveState）（runtime: browser, deps: react）
+- **@torihanaku/analytics-client** — page/feature/session計測フック（useAnalytics・sendBeacon対応・transport注入）（runtime: browser, deps: react）
+- **@torihanaku/push-client** — Web Push購読ライフサイクルフック（push-notificationsと対）（runtime: browser, deps: react）
+
+### 機能キット（機能丸ごとの大型部品。コアはDI化済み・ルート層はアダプタ例）
+- **@torihanaku/kit-approval-workflow** — 申請→リスク評価→承認→監査の承認ワークフロー汎用コア（稟議・Slack承認・複数承認者and/or集約・タイムアウトエスカレーション付き）（runtime: Node 20+/Bun, deps: なし）
+- **@torihanaku/kit-causal-inference** — 因果推論エンジン(DID/PSM/RDD/FuzzyRDD/IK帯域/BOCD変化点/MMM/反実仮想/ショック検出/検定力/MAPE/WhatIf・純関数)（runtime: any, deps: なし）
+- **@torihanaku/kit-ai-agent** — AIエージェント基盤（計画→承認ゲート→実行→ロールバック＋監視/自動切戻し/コスト/レポート＋MCPサーバー雛形）（runtime: node/bun, deps: なし・LlmCaller/Store注入）
+- **@torihanaku/kit-decision-memory** — 意思決定ログ/why検索/組織記憶/オンボーディングAI/引き継ぎ生成（LLM・埋め込み・ストア全注入、BM25フォールバック内蔵）（runtime: node/bun, deps: なし）
 
 ### インフラ・DB雛形
 - **@torihanaku/infra-templates** — Bun+Cloud Run向けDockerfile/CI/pre-push/起動検証スクリプトの雛形集（runtime: template, deps: なし。`templates/` のファイルを `{{PLACEHOLDER}}` 置換してコピー）
