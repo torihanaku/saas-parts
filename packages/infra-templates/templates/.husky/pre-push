@@ -1,0 +1,162 @@
+# Pre-push: build → phantom-import → Dockerfile COPY coverage → named-export → test/coverage → AIレビュー確認
+#
+# Template placeholders (置換必須):
+#   {{GITHUB_OWNER}}          — GitHub org/ユーザー名
+#   {{GITHUB_REPO_NAME}}      — リポジトリ名
+#   {{AI_REVIEW_FIX_SCRIPT}}  — AIレビューコメント自動修正スクリプトのパス
+#                               （無ければ「AI レビューコメント確認」ブロックごと削除可）
+
+BRANCH=$(git rev-parse --abbrev-ref HEAD)
+# Fallback to HEAD~1 so `git diff "$MERGE_BASE" HEAD` never receives empty arg,
+# which has undefined behavior. On a first commit or detached branch this
+# means we compare against the immediate previous commit — still a
+# reasonable diff target for push-time checks.
+MERGE_BASE=$(git merge-base HEAD origin/main 2>/dev/null || git rev-parse HEAD~1 2>/dev/null || git rev-parse HEAD)
+
+echo "🔍 Pre-push: Running build check..."
+bun run build || { echo "❌ Build failed. Push aborted."; exit 1; }
+
+# --- Phantom import detection ---
+# Shared with CI (.github/workflows/ci.yml) so `--no-verify` doesn't bypass.
+echo "🔍 Pre-push: Checking for phantom local imports..."
+bash scripts/check-phantom-imports.sh "$MERGE_BASE" HEAD || exit 1
+
+# --- Dockerfile COPY coverage check ---
+# Server-side relative import が Dockerfile final stage の COPY 範囲内かを static に検証。
+# （shared/ が COPY されてなく Cloud Run container startup crash する事故の再発防止）
+echo "🔍 Pre-push: Verifying Dockerfile COPY coverage..."
+bash scripts/check-dockerfile-coverage.sh || exit 1
+
+# --- Named-export validation (server entrypoint import graph) ---
+# Catches the class of bug phantom-import misses: target file exists but does
+# not export the named symbol. Briefly runs the server entrypoint with stubbed
+# env, greps for "Cannot find module" / "Export named X not found" in startup log.
+echo "🔍 Pre-push: Validating server entrypoint import graph..."
+bash scripts/check-named-exports.sh || exit 1
+
+# --- Test with coverage (matches CI: 90% statements threshold) ---
+# CI で coverage が 89% 台で落ちるパターンを push 前に防ぐ。
+# Coverage run implicitly covers the plain `bun run test` so we skip the
+# non-coverage run when coverage is needed.
+if [ "$BRANCH" = "main" ]; then
+  bun run test || { echo "❌ Tests failed. Push aborted."; exit 1; }
+else
+  CODE_DIFF=$(git diff "$MERGE_BASE" HEAD --name-only -- 'server/**/*.ts' 'src/**/*.ts' 'src/**/*.tsx' '*.ts' 2>/dev/null | grep -v '\.test\.' | head -1 || true)
+  if [ -n "$CODE_DIFF" ]; then
+    echo "🔍 Pre-push: Running tests with coverage (must be ≥ 90% statements)..."
+    # Use mktemp so the log lands in a private per-user location (not world-readable /tmp).
+    # Kept on failure for troubleshooting; removed on success.
+    COVERAGE_LOG=$(mktemp "${TMPDIR:-/tmp}/pre-push-coverage.XXXXXX")
+    chmod 600 "$COVERAGE_LOG"
+    bun run test:coverage > "$COVERAGE_LOG" 2>&1
+    if [ $? -ne 0 ]; then
+      grep -E "ERROR: Coverage for|does not meet|Test Files.*failed" "$COVERAGE_LOG" || tail -20 "$COVERAGE_LOG"
+      echo "❌ test:coverage failed. Push aborted."
+      echo "   Full log: $COVERAGE_LOG"
+      exit 1
+    fi
+    rm -f "$COVERAGE_LOG"
+    echo "✅ Coverage threshold met."
+  else
+    bun run test || { echo "❌ Tests failed. Push aborted."; exit 1; }
+  fi
+fi
+
+echo "✅ Build/test/coverage checks passed."
+
+# --- AI レビューコメント確認 ---
+# 未対応コメントがあれば自動修正してプッシュを中断する
+# review-compliance が失敗するパターン（返信なしで解決）も事前にチェックする
+PR_NUMBER=$(gh pr view "$BRANCH" --json number --jq '.number' 2>/dev/null || true)
+
+# PR が存在しない場合はスキップ（新規ブランチ等）
+if [ -z "$PR_NUMBER" ]; then
+  exit 0
+fi
+
+echo "🤖 PR #$PR_NUMBER の AI レビューコメントを確認中..."
+
+RESULT=$(gh api graphql -f query='
+  query($owner: String!, $repo: String!, $number: Int!) {
+    repository(owner: $owner, name: $repo) {
+      pullRequest(number: $number) {
+        reviewThreads(first: 50) {
+          nodes {
+            isResolved
+            comments(first: 20) {
+              nodes { author { login } body }
+            }
+          }
+        }
+      }
+    }
+  }
+' -F owner={{GITHUB_OWNER}} -F repo={{GITHUB_REPO_NAME}} -F number="$PR_NUMBER")
+
+if [ $? -ne 0 ]; then
+  echo "⚠️  GitHub API の呼び出しに失敗しました。AIレビューチェックをスキップします。"
+  exit 0
+fi
+
+BOT_COUNTS=$(echo "$RESULT" | python3 -c "
+import sys, json
+data = sys.stdin.read()
+try:
+    d = json.loads(data, strict=False)
+except json.JSONDecodeError:
+    # Fallback: strip invalid backslash escapes that can appear when AI review
+    # comments quote diff lines containing trailing backslashes (YAML continuations)
+    import re
+    cleaned = re.sub(r'\\\\(?![\"\\\\/bfnrtu])', '', data)
+    try:
+        d = json.loads(cleaned, strict=False)
+    except Exception:
+        print('0 0')
+        sys.exit(0)
+bots = {'github-actions[bot]', 'gemini-code-assist[bot]'}
+threads = d.get('data', {}).get('repository', {}).get('pullRequest', {}).get('reviewThreads', {}).get('nodes', [])
+violations = unresolved = 0
+for t in threads:
+    comments = t['comments']['nodes']
+    if not comments:
+        continue
+    if t['isResolved']:
+        if comments[-1]['author']['login'] in bots:
+            violations += 1
+    else:
+        if comments[-1]['author']['login'] in bots:
+            unresolved += 1
+print(f'{violations} {unresolved}')
+" || echo "0 0")
+
+if [ $? -ne 0 ]; then
+  echo "⚠️  AIレビューコメントの解析に失敗しました。手動で確認してください。"
+  exit 0
+fi
+
+VIOLATIONS=$(echo "$BOT_COUNTS" | awk '{print $1}')
+UNRESOLVED=$(echo "$BOT_COUNTS" | awk '{print $2}')
+
+# 返信なしで解決されたスレッド → review-compliance が失敗するので中断
+if [ "$VIOLATIONS" -gt 0 ]; then
+  echo ""
+  echo "❌ review-compliance が失敗します: ${VIOLATIONS}件のAIコメントが返信なしで解決されています。"
+  echo "   対応方法: コードを修正 or コメントに返信してから解決してください。"
+  echo "   強制プッシュする場合: git push --no-verify"
+  echo ""
+  exit 1
+fi
+
+# 未対応コメントがあれば自動修正スクリプトを実行
+if [ "$UNRESOLVED" -gt 0 ]; then
+  echo "🔧 未対応のAIレビューコメントが ${UNRESOLVED}件あります。自動修正を試みます..."
+  echo ""
+  python3 {{AI_REVIEW_FIX_SCRIPT}} "$PR_NUMBER"
+  # スクリプトが exit 1 を返したとき（修正済みファイルあり、またはエラー）はpushを中断
+  if [ $? -ne 0 ]; then
+    exit 1
+  fi
+  exit 0
+fi
+
+echo "✅ AIレビューコメントの対応状況: 問題なし"

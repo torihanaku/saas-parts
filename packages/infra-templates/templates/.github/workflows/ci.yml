@@ -1,0 +1,258 @@
+# CI: lint → build → test → container build + smoke → Cloud Run deploy (Workload Identity)
+#
+# Template placeholders (置換必須):
+#   {{BUN_VERSION}}          — 例: "1.3.8"
+#   {{GCP_PROJECT_ID}}       — 本番 GCP プロジェクトID
+#   {{GCP_REGION}}           — 例: asia-northeast1
+#   {{GAR_REPOSITORY}}       — Artifact Registry リポジトリ名
+#   {{IMAGE_NAME}}           — コンテナイメージ名
+#   {{SERVICE_NAME}}         — 本番 Cloud Run サービス名
+#   {{SERVICE_NAME_STAGING}} — ステージング Cloud Run サービス名
+#   {{STAGING_URL}}          — ステージングの公開URL（スモークテスト先）
+#   {{HEALTHCHECK_PATH}}     — 例: /health
+#   {{STAGING_ENV_VARS}} / {{PROD_ENV_VARS}}       — カンマ区切りの KEY=VALUE 列
+#   {{STAGING_SECRETS}} / {{PROD_SECRETS}}         — カンマ区切りの ENV=SecretManager名:latest 列
+#   {{VPC_CONNECTOR}}        — VPC コネクタ名（不要なら --vpc-* 2行を削除）
+# GitHub Secrets（リポジトリ側で設定）: WIF_PROVIDER / WIF_SERVICE_ACCOUNT ほか
+#   Workload Identity Federation のプロバイダ/SA。キーJSONは使わない。
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  lint-and-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: "{{BUN_VERSION}}"
+
+      - name: Cache bun dependencies
+        uses: actions/cache@v5
+        with:
+          path: ~/.bun/install/cache
+          key: bun-${{ runner.os }}-${{ hashFiles('bun.lock') }}
+          restore-keys: bun-${{ runner.os }}-
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Lint
+        run: bun run lint
+
+      - name: Build
+        run: bun run build
+
+      - name: Upload dist artifact
+        if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
+        continue-on-error: true
+        uses: actions/upload-artifact@v7
+        with:
+          name: dist-${{ github.sha }}
+          path: dist/
+          retention-days: 1
+
+  test:
+    needs: lint-and-build
+    if: >
+      (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
+      github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: "{{BUN_VERSION}}"
+
+      - name: Cache bun dependencies
+        uses: actions/cache@v5
+        with:
+          path: ~/.bun/install/cache
+          key: bun-${{ runner.os }}-${{ hashFiles('bun.lock') }}
+          restore-keys: bun-${{ runner.os }}-
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Test
+        run: bun run test
+
+  deploy-staging:
+    needs: [lint-and-build, test]
+    if: >
+      always() &&
+      needs.lint-and-build.result == 'success' &&
+      (needs.test.result == 'success' || needs.test.result == 'skipped') &&
+      (
+        (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
+        github.event_name == 'workflow_dispatch'
+      )
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v6
+
+      # Workload Identity Federation: サービスアカウントキー不要の認証
+      - id: auth
+        uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
+          service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
+
+      - uses: google-github-actions/setup-gcloud@v3
+
+      - name: Download pre-built dist
+        uses: actions/download-artifact@v8
+        with:
+          name: dist-${{ github.sha }}
+          path: dist/
+
+      - name: Configure Docker
+        run: gcloud auth configure-docker {{GCP_REGION}}-docker.pkg.dev --quiet
+
+      - name: Build and push image
+        run: |
+          IMAGE={{GCP_REGION}}-docker.pkg.dev/{{GCP_PROJECT_ID}}/{{GAR_REPOSITORY}}/{{IMAGE_NAME}}
+          docker build \
+            --cache-from $IMAGE:latest \
+            --build-arg BUILDKIT_INLINE_CACHE=1 \
+            -t $IMAGE:${{ github.sha }} -t $IMAGE:latest .
+          docker push $IMAGE:${{ github.sha }}
+          docker push $IMAGE:latest
+        env:
+          DOCKER_BUILDKIT: "1"
+
+      # push 前にローカルでコンテナ起動確認（COPY漏れ/import切れを30秒で検出）
+      - name: Container smoke test
+        run: |
+          IMAGE={{GCP_REGION}}-docker.pkg.dev/{{GCP_PROJECT_ID}}/{{GAR_REPOSITORY}}/{{IMAGE_NAME}}:${{ github.sha }}
+          bash scripts/docker-smoke-test.sh "$IMAGE"
+
+      - name: Deploy to staging Cloud Run
+        run: |
+          gcloud run deploy {{SERVICE_NAME_STAGING}} \
+            --image {{GCP_REGION}}-docker.pkg.dev/{{GCP_PROJECT_ID}}/{{GAR_REPOSITORY}}/{{IMAGE_NAME}}:${{ github.sha }} \
+            --region {{GCP_REGION}} \
+            --platform managed \
+            --port 8080 \
+            --allow-unauthenticated \
+            --update-env-vars "APP_URL={{STAGING_URL}},{{STAGING_ENV_VARS}}" \
+            --set-secrets "{{STAGING_SECRETS}}"
+
+      - name: Smoke test staging
+        run: |
+          echo "Smoke testing {{STAGING_URL}}{{HEALTHCHECK_PATH}} ..."
+          for i in 1 2 3 4 5; do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 \
+              "{{STAGING_URL}}{{HEALTHCHECK_PATH}}" || echo "000")
+            echo "Attempt $i: HTTP $STATUS"
+            if [ "$STATUS" = "200" ]; then
+              echo "Staging smoke test passed"
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "Staging smoke test failed after 5 attempts"
+          exit 1
+
+  deploy:
+    needs: deploy-staging
+    if: >
+      github.event_name == 'workflow_dispatch' &&
+      needs.deploy-staging.result == 'success'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - id: auth
+        uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
+          service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
+
+      - uses: google-github-actions/setup-gcloud@v3
+
+      - name: Configure Docker
+        run: gcloud auth configure-docker {{GCP_REGION}}-docker.pkg.dev --quiet
+
+      # デプロイ前に現行リビジョンを記録（スモーク失敗時のロールバック先）
+      - name: Record previous revision for rollback
+        id: prev-revision
+        run: |
+          PREV=$(gcloud run revisions list \
+            --service {{SERVICE_NAME}} \
+            --region {{GCP_REGION}} \
+            --filter="status.conditions.type=Active AND status.conditions.status=True" \
+            --format="value(metadata.name)" \
+            --limit=1 2>/dev/null || echo "")
+          echo "revision=${PREV}" >> $GITHUB_OUTPUT
+
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy {{SERVICE_NAME}} \
+            --image {{GCP_REGION}}-docker.pkg.dev/{{GCP_PROJECT_ID}}/{{GAR_REPOSITORY}}/{{IMAGE_NAME}}:${{ github.sha }} \
+            --region {{GCP_REGION}} \
+            --platform managed \
+            --port 8080 \
+            --allow-unauthenticated \
+            --vpc-connector={{VPC_CONNECTOR}} \
+            --vpc-egress=private-ranges-only \
+            --update-env-vars "{{PROD_ENV_VARS}}" \
+            --update-secrets "{{PROD_SECRETS}}"
+
+      - name: Smoke test
+        id: smoke
+        run: |
+          SERVICE_URL=$(gcloud run services describe {{SERVICE_NAME}} \
+            --region {{GCP_REGION}} \
+            --format='value(status.url)')
+          echo "Smoke testing $SERVICE_URL{{HEALTHCHECK_PATH}} ..."
+          for i in 1 2 3 4 5; do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 "$SERVICE_URL{{HEALTHCHECK_PATH}}" || echo "000")
+            echo "Attempt $i: HTTP $STATUS"
+            if [ "$STATUS" = "200" ]; then
+              echo "Smoke test passed"
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "Smoke test failed after 5 attempts"
+          exit 1
+
+      - name: Rollback on smoke test failure
+        if: failure() && steps.smoke.outcome == 'failure' && steps.prev-revision.outputs.revision != ''
+        run: |
+          PREV="${{ steps.prev-revision.outputs.revision }}"
+          echo "Rolling back to $PREV ..."
+          gcloud run services update-traffic {{SERVICE_NAME}} \
+            --region {{GCP_REGION}} \
+            --to-revisions "$PREV=100"
+          echo "Rollback complete"
+
+      - name: Update cloud-run-deployed tag
+        if: success()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag -f cloud-run-deployed ${{ github.sha }}
+          git push origin cloud-run-deployed --force
