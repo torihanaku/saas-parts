@@ -1,0 +1,36 @@
+{
+  "name": "{{PROJECT_NAME}}",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:22",
+  "features": {
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/shyim/devcontainers-features/bun:0": {
+      "version": "{{BUN_VERSION}}"
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "biomejs.biome",
+        "dbaeumer.vscode-eslint",
+        "bradlc.vscode-tailwindcss",
+        "esbenp.prettier-vscode",
+        "ms-vscode.vscode-typescript-next",
+        "vitest.explorer",
+        "ms-vscode-remote.remote-containers"
+      ],
+      "settings": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "typescript.preferences.importModuleSpecifier": "relative"
+      }
+    }
+  },
+  "forwardPorts": [5173, 3333],
+  "portsAttributes": {
+    "5173": { "label": "Vite Dev Server" },
+    "3333": { "label": "API Server" }
+  },
+  "postCreateCommand": "bun install",
+  "postStartCommand": "echo 'Run: bun run dev (frontend) | bun run {{SERVER_ENTRYPOINT}} (backend)'",
+  "remoteUser": "node"
+}

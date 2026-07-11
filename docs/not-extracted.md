@@ -67,6 +67,13 @@
 - ~~SaaS棚卸し/ホワイトラベル/デイリーブリーフィング/Slackレポート~~ → **saas-inventory / white-label-branding / daily-briefing / slack-reports**
 - ~~Python実験ラボ/OpenAPI共有/locale辞書/運用playbook~~ → **eval-lab-py / openapi-pipeline / locale-starter / ops-playbooks**（テンプレート）
 
+## 最終総ざらい（2026-07-11・3体エージェントでリポ全体を再走査）
+「本当に一つも残っていないか」を server/フロント・shared/インフラ の3方向で全数再監査。結果=**重要な見落としゼロ・全SaaS能力カテゴリ網羅・過去の分類も全て正しい**と確認。実地検証で見つかった小粒な取りこぼしも全回収:
+- ~~transcriptParser（字幕VTT/SRTパーサ160行）~~ → **@torihanaku/transcript-parser**
+- ~~RLSトリガー雛形（set_updated_at/ソフトデリート/テナント・ユーザー分離）~~ → **sql-templates** に追加
+- ~~security-check.yml（gitleaks+設定検証）~~ → **ops-playbooks** に追加
+- ~~devcontainer/pre-commit/prettier設定~~ → **infra-templates** に追加
+
 ## 本当に残したもの（部品化しても意味がないもの・打ち止め）
 - **HTTPルート302本・画面135枚（JSX）** — 配線とUIそのもの。ロジックは全キット/パッケージに抽出済み。移植先で必ず書き直す部分なので生ファイルは元リポ（dev-dashboard-v2）に保存
 - **製品テストコード** — 対象コードとセットでのみ意味を持つ。再利用価値のあるテストは各パッケージに移植済み

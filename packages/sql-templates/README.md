@@ -18,6 +18,21 @@
 | `006_audit_hash_chain.sql` | `audit_log` へのハッシュチェーン列追加（prev_hash/entry_hash 等・BYTEA）＋`(tenant_id, entry_hash)` UNIQUE＋UPDATE/DELETE REVOKE で改ざん検知 | `202604200003_003_audit_hash_chain.sql` |
 | `007_consent_registry.sql` | GDPR 同意台帳 `consent_registry`（tenant×user×purpose PK・revoked_at で撤回）＋`auth.users.deleted_member_flag`（権限不足時はスキップ） | `202604200005_005_consent_registry.sql` |
 | `008_email_deliveries.sql` | テナント別メール配信ログ `email_deliveries`（bounce 率監視用。status CHECK・tenant RLS・監視用インデックス2本） | `20260507_dd_email_deliveries.sql` |
+| `_helpers_triggers_rls.sql` | 特定テーブルに紐づかない**汎用トリガー・RLS ヘルパー集**（下記「再利用トリガー・RLSヘルパー」参照） | 複数マイグレーションに散在する共通パターンを集約 |
+
+## 再利用トリガー・RLSヘルパー
+
+`_helpers_triggers_rls.sql` は、個別テーブルのマイグレーションに毎回コピペされていた**横断的な定型パターン**を 1 ファイルに切り出したものです。テーブル名はすべて `{{TABLE}}` に汎用化し、必要なブロックだけを取り出して置換して使います。
+
+| ヘルパー | 何をするか | 適用方法 |
+|---|---|---|
+| **1) updated_at 自動更新トリガー** | `set_updated_at()` 関数（`NEW.updated_at = now()` を返す・`CREATE OR REPLACE` で重複安全）＋各テーブルへの `BEFORE UPDATE` トリガー例。行が更新されるたびに `updated_at` を自動で現在時刻にする | 関数はプロジェクトに 1 回だけ定義。以後は各テーブルで `trg_{{TABLE}}_updated_at` トリガーを張るだけ（対象テーブルに `updated_at TIMESTAMPTZ` 列が必要） |
+| **2) ソフトデリート** | `deleted_at` 列の追加＋生存行のみを効率よく引く部分インデックス＋ソフトデリート済みを除外するビュー `vw_{{TABLE}}_active`。物理削除せず削除フラグで論理削除（GDPR 用途にも） | `{{TABLE}}` を置換。アプリは原則ビューを参照。RLS で除外したい場合は既存ポリシーの `USING` に `deleted_at IS NULL AND …` を足す注釈付き |
+| **3-a) テナント分離 RLS（GUC）** | `USING (tenant_id::text = current_setting('app.current_tenant_id', true))` の全操作ポリシー。API がリクエスト毎に `SET app.current_tenant_id` する構成向け。service_role へ全行 SELECT を開ける任意ブロック付き | `{{TABLE}}` と tenant 列名を置換。`ENABLE ROW LEVEL SECURITY` 込み |
+| **3-b) ユーザー分離 RLS（auth.uid）** | Supabase ネイティブの `USING (auth.uid() = user_id)`。authenticated ロールが直接テーブルを触る構成向け | `{{TABLE}}` を置換。`user_id` は Supabase auth のユーザー UUID である前提 |
+| **3-c) ユーザー分離 RLS（JWT email + service_role）** | 所有者をメールアドレスで持ち、`current_setting('request.jwt.claim.email', true)` で判定＋`role = 'service_role'` フォールバック。API を service_role で通す構成向け | `{{TABLE}}` を置換。`user_id` が TEXT（email）の前提 |
+
+適用時の注意: RLS は 3-a / 3-b / 3-c の**いずれか 1 つ**を構成に合わせて選ぶ（複数を同一テーブルに重ねない）。トリガーとソフトデリートは RLS パターンと独立に併用可。
 
 ## テーブル関係図
 
@@ -79,4 +94,4 @@ PostgreSQL 14+（`gen_random_uuid()` 標準搭載）。RLS・`auth.users`・serv
 
 ## 出典
 
-`dev-dashboard-v2/supabase/migrations/`（8 ファイル、計 314 行）。
+`dev-dashboard-v2/supabase/migrations/`（8 ファイル + 汎用ヘルパー 1 ファイル）。ヘルパーは 165 マイグレーションに散在する `set_updated_at()` トリガー／`deleted_at` ソフトデリート／tenant・user 分離 RLS の定型を集約したもの。

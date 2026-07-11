@@ -4,7 +4,7 @@
 
 Bun + Cloud Run 構成の SaaS 向けインフラ雛形集です。コンパイル対象のコードではなく、**新規プロジェクトにコピーして `{{PLACEHOLDER}}` を置換して使うテンプレートファイル**を `templates/` 以下に元リポジトリと同じ相対構造で収録しています（tsc / vitest の対象外）。
 
-出典: `dev-dashboard-v2`（Dockerfile / scripts / .github/workflows/ci.yml / .husky/pre-push）。秘密情報は含みません（元ファイルも Secret Manager / GitHub Secrets 参照のみで、値の直書きなしを確認済み）。
+出典: `dev-dashboard-v2`（Dockerfile / scripts / .github/workflows/ci.yml / .husky/pre-push / .devcontainer / .pre-commit-config.yaml / .prettierrc.json）。秘密情報は含みません（元ファイルも Secret Manager / GitHub Secrets 参照のみで、値の直書きなしを確認済み）。
 
 ## 収録ファイル一覧
 
@@ -17,7 +17,10 @@ templates/
 │   ├── check-dockerfile-coverage.sh
 │   └── check-named-exports.sh
 ├── .github/workflows/ci.yml
-└── .husky/pre-push
+├── .husky/pre-push
+├── .devcontainer/devcontainer.json   # Bun + Node 22 の VS Code / Codespaces devcontainer
+├── .pre-commit-config.yaml           # gitleaks の pre-commit フック
+└── .prettierrc.json                  # Prettier 設定（semi / singleQuote / printWidth 100 等）
 ```
 
 ---
@@ -107,6 +110,32 @@ push 前ゲート: ①build ②phantom-import 検査 ③Dockerfile COPY coverage
 | `{{AI_REVIEW_FIX_SCRIPT}}` | AIレビュー自動修正スクリプトのパス。運用しない場合は「AI レビューコメント確認」ブロック（`PR_NUMBER=` 以降）を丸ごと削除可 |
 
 前提: `bun run build` / `test` / `test:coverage` スクリプトと `gh` CLI・`python3`。
+
+---
+
+### templates/.devcontainer/devcontainer.json
+
+VS Code / GitHub Codespaces 用の開発コンテナ定義。ベースは `javascript-node:22` に GitHub CLI と Bun の features を足した構成。推奨拡張（Biome / ESLint / Tailwind / Prettier / TypeScript next / Vitest）・保存時フォーマット・フロント/API 用のポートフォワード（5173 / 3333）・`postCreateCommand` に `bun install` を設定済みです。
+
+| プレースホルダ | 意味 | 例 |
+|---|---|---|
+| `{{PROJECT_NAME}}` | devcontainer の表示名 | `my-saas` |
+| `{{BUN_VERSION}}` | 導入する Bun のバージョン | `1.3.8` |
+| `{{SERVER_ENTRYPOINT}}` | 起動ヒントに出す本番サーバーファイル | `server-prod.ts` |
+
+**適用時の注意**: `forwardPorts` / `portsAttributes` は Vite(5173) + API(3333) 前提。自プロジェクトのポート構成に合わせて書き換えてください。
+
+---
+
+### templates/.pre-commit-config.yaml
+
+`pre-commit` フレームワーク用の設定。commit 時にローカルで gitleaks（v8.22.1 固定）を走らせ、secret の混入を push 前に止めます。CI 側の security-check（ops-playbooks 収録）と対で使うと二重防御になります。**プレースホルダなし・そのまま使用可**。導入は `pip install pre-commit && pre-commit install`。gitleaks の `rev` は必要に応じて更新。
+
+---
+
+### templates/.prettierrc.json
+
+Prettier のフォーマット設定（`semi: true` / `singleQuote: true` / `tabWidth: 2` / `trailingComma: all` / `printWidth: 100`）。devcontainer の `editor.defaultFormatter` とも整合します。**プレースホルダなし**。チームの規約に合わせて数値を調整可。
 
 ---
 

@@ -1,0 +1,92 @@
+name: Security Check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  merge_group:
+    types: [checks_requested]
+
+permissions:
+  contents: read
+
+jobs:
+  secret-scan:
+    name: Secret Leak Detection
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - name: Install gitleaks
+        run: |
+          curl -sSfL https://github.com/gitleaks/gitleaks/releases/download/v8.22.1/gitleaks_8.22.1_linux_x64.tar.gz | tar xz -C /usr/local/bin gitleaks
+      - name: Run gitleaks
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            gitleaks detect --source . --log-opts "${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }}" --verbose
+          elif [ "${{ github.event_name }}" = "merge_group" ]; then
+            gitleaks detect --source . --log-opts "${{ github.event.merge_group.base_sha }}..${{ github.event.merge_group.head_sha }}" --verbose
+          else
+            gitleaks detect --source . --verbose
+          fi
+
+  config-check:
+    name: Repository Config Validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Validate required files
+        run: |
+          MISSING=""
+          [ ! -f .gitignore ] && MISSING="$MISSING .gitignore"
+          [ ! -f .editorconfig ] && MISSING="$MISSING .editorconfig"
+
+          if grep -r "process\.env\|os\.environ\|getenv" --include="*.ts" --include="*.js" --include="*.py" --include="*.sh" . 2>/dev/null | grep -v node_modules | grep -v .git > /dev/null 2>&1; then
+            [ ! -f .env.example ] && MISSING="$MISSING .env.example"
+          fi
+
+          if [ -f package.json ]; then
+            [ ! -f .nvmrc ] && [ ! -f .node-version ] && [ ! -f .tool-versions ] && MISSING="$MISSING runtime-version-file"
+          fi
+          if find . -name "*.py" -not -path "./node_modules/*" -not -path "./.git/*" | head -1 | grep -q .; then
+            [ ! -f .python-version ] && [ ! -f .tool-versions ] && MISSING="$MISSING python-version-file"
+          fi
+
+          if [ -n "$MISSING" ]; then
+            echo "::error::Missing required files:$MISSING"
+            exit 1
+          fi
+          echo "✓ All required config files present"
+
+      - name: Check for security issues
+        run: |
+          ISSUES=""
+
+          # Dual lock files
+          COUNT=0
+          [ -f package-lock.json ] && COUNT=$((COUNT+1))
+          [ -f bun.lock ] || [ -f bun.lockb ] && COUNT=$((COUNT+1))
+          [ -f yarn.lock ] && COUNT=$((COUNT+1))
+          [ -f pnpm-lock.yaml ] && COUNT=$((COUNT+1))
+          [ $COUNT -gt 1 ] && ISSUES="$ISSUES dual-lockfiles"
+
+          # Error suppression in workflows
+          if grep -rn '|| true' .github/workflows/ 2>/dev/null | grep -v 'security-check'; then
+            echo "::warning::Found '|| true' in workflows - errors may be silently swallowed"
+          fi
+
+          # Hardcoded secret patterns
+          if grep -rn 'AKIA[0-9A-Z]\{16\}\|sk-[a-zA-Z0-9]\{20,\}' --include="*.ts" --include="*.js" --include="*.py" --include="*.sh" . 2>/dev/null | grep -v node_modules | grep -v .git | grep -v test; then
+            ISSUES="$ISSUES potential-hardcoded-secrets"
+          fi
+
+          if [ -n "$ISSUES" ]; then
+            echo "::error::Security issues found:$ISSUES"
+            exit 1
+          fi
+          echo "✓ No common security issues found"
+
+# NOTE: 依存監査（dependency-audit）は weekly schedule（例: weekly-security.yml）に分離することを推奨。
+# Dependabot が daily で同等の scan を走らせているため PR 毎の実行は冗長。

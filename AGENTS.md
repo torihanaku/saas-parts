@@ -1,6 +1,6 @@
 # saas-parts — AI向け利用ガイド
 
-SaaS開発用の共有部品monorepo（全111パッケージ＝汎用部品95＋機能キット10＋テンプレート6）。失敗プロダクト dev-dashboard（torihanaku/dev-dashboard）から**全数抽出完了**した実戦コード。全部品はテスト付き・自己完結（パッケージ間import無し・process.env読み取り無し・依存はすべて注入式）。約3,300テストgreen。
+SaaS開発用の共有部品monorepo（全112パッケージ＝汎用部品96＋機能キット10＋テンプレート6）。失敗プロダクト dev-dashboard（torihanaku/dev-dashboard）から**全数抽出完了**した実戦コード（3体エージェントの最終総ざらいで取りこぼしゼロを確認済み）。全部品はテスト付き・自己完結（パッケージ間import無し・process.env読み取り無し・依存はすべて注入式）。約3,300テストgreen。
 
 ## 使い方（コンテクスト消費を最小にする手順）
 
@@ -94,6 +94,7 @@ SaaS開発用の共有部品monorepo（全111パッケージ＝汎用部品95＋
 - **@torihanaku/claude-api** — Anthropic Messages APIのraw-fetchラッパー（チャット/Tool Useループ/JSON出力/使用量フック/prompt caching）（runtime: any, deps: なし）
 - **@torihanaku/embeddings** — マルチプロバイダ埋め込み抽象化（レジストリ/OpenAIプロバイダ/月次コストガードレール注入ストア方式）（runtime: any, deps: なし）
 - **@torihanaku/transcribe-client** — AssemblyAI話者分離書き起こし（ポーリング+バックオフ+10分タイムアウト）（runtime: node, deps: なし）
+- **@torihanaku/transcript-parser** — VTT/SRT/プレーンテキストを話者ラベル付き素テキストに変換（Zoom/Otter/Tactiq対応・依存ゼロ）（runtime: any, deps: なし）
 - **@torihanaku/storage-upload** — Supabase Storageテナント分離アップロード+画像MIME許可リスト（runtime: node/edge, deps: なし）
 - **@torihanaku/image-gen** — マルチプロバイダAI画像生成（OpenAI/fal.aiルーティング・モデル5分キャッシュ・ImageSink注入・BYOK対応）（runtime: node/bun, deps: なし）
 
@@ -151,12 +152,12 @@ SaaS開発用の共有部品monorepo（全111パッケージ＝汎用部品95＋
 - **@torihanaku/asset-debt-scanner** — 資産劣化の巡回スキャン→修繕提案フレームワーク（7スキャナ例同梱・AssetScanner注入）（runtime: node, deps: なし）
 
 ### インフラ・DB・アセット雛形
-- **@torihanaku/infra-templates** — Bun+Cloud Run向けDockerfile/CI/pre-push/起動検証スクリプトの雛形集（runtime: template, deps: なし。`templates/` のファイルを `{{PLACEHOLDER}}` 置換してコピー）
-- **@torihanaku/sql-templates** — マルチテナントSaaSのPostgresマイグレーション雛形8本（テナント分離/代理店/課金/監査/GDPR）（runtime: PostgreSQL 14+/Supabase, deps: なし）
+- **@torihanaku/infra-templates** — Bun+Cloud Run向けDockerfile/CI/pre-push/起動検証スクリプト＋開発設定(devcontainer/pre-commit gitleaks/prettier)の雛形集（runtime: template, deps: なし。`templates/` のファイルを `{{PLACEHOLDER}}` 置換してコピー）
+- **@torihanaku/sql-templates** — マルチテナントSaaSのPostgresマイグレーション雛形8本＋汎用トリガー・RLSヘルパー(updated_at自動更新/ソフトデリート/tenant・user分離RLS)（テナント分離/代理店/課金/監査/GDPR）（runtime: PostgreSQL 14+/Supabase, deps: なし）
 - **@torihanaku/eval-lab-py** — AI検索/マッチング機能のLLM評価実験ラボ（FastAPI+SQLite・Python）（runtime: template, deps: なし）
 - **@torihanaku/openapi-pipeline** — client/server型共有パイプライン（OpenAPI+Zod+共有型）（runtime: template, deps: なし）
 - **@torihanaku/locale-starter** — SaaS汎用UI文言の日英対訳スターター（i18next）（runtime: template, deps: なし）
-- **@torihanaku/ops-playbooks** — Sentryアラート/E2E7本/AI-PR運用ランブック集（runtime: template, deps: なし）
+- **@torihanaku/ops-playbooks** — Sentryアラート/E2E7本/AI-PR運用ランブック＋GitHub Actions security-check(gitleaks+設定検証)集（runtime: template, deps: なし）
 
 ## 組み合わせのヒント
 
