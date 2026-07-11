@@ -1,0 +1,197 @@
+openapi: "3.1.0"
+info:
+  title: Dev Dashboard API — User
+  version: "1.0.0"
+  description: |
+    ユーザープロフィール・プラン・使用量の管理エンドポイント。
+    全エンドポイント（/api/plans を除く）はセッションCookieによる認証が必要。
+
+servers:
+  - url: /api
+
+paths:
+  /user/me:
+    get:
+      summary: 現在のユーザー情報を取得
+      description: 認証済みユーザーのプロフィール・プラン・当日使用量を返す
+      tags: [user]
+      security:
+        - sessionCookie: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserMe"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /user/plan:
+    patch:
+      summary: ユーザーのプランを変更（admin専用）
+      tags: [user]
+      security:
+        - sessionCookie: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, plan]
+              properties:
+                email:
+                  type: string
+                  format: email
+                plan:
+                  $ref: "#/components/schemas/Plan"
+      responses:
+        "200":
+          description: プラン変更成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok: { type: boolean }
+                  email: { type: string }
+                  plan: { $ref: "#/components/schemas/Plan" }
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+
+  /user/usage:
+    get:
+      summary: 使用履歴一覧を取得
+      tags: [user]
+      security:
+        - sessionCookie: []
+      responses:
+        "200":
+          description: 使用履歴配列（最大100件）
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /user/usage/summary:
+    get:
+      summary: 当日の使用量サマリーを取得
+      tags: [user]
+      security:
+        - sessionCookie: []
+      responses:
+        "200":
+          description: プラン別制限と当日使用量
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UsageSummary"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /plans:
+    get:
+      summary: プラン機能一覧を取得（認証不要）
+      tags: [plans]
+      responses:
+        "200":
+          description: 全プランの機能定義
+          content:
+            application/json:
+              schema:
+                type: object
+
+components:
+  securitySchemes:
+    sessionCookie:
+      type: apiKey
+      in: cookie
+      name: session
+
+  schemas:
+    Plan:
+      type: string
+      enum: [free, pro, team]
+
+    PlanLimits:
+      type: object
+      properties:
+        contentPerDay: { type: integer }
+        intelligenceRefresh: { type: integer }
+        aiAnalysis: { type: integer }
+        channels: { type: integer }
+
+    UserMe:
+      type: object
+      properties:
+        email: { type: string, format: email }
+        role: { type: string, enum: [admin, editor, viewer] }
+        plan: { $ref: "#/components/schemas/Plan" }
+        limits: { $ref: "#/components/schemas/PlanLimits" }
+        usage:
+          type: object
+          properties:
+            contentGenerate:
+              type: object
+              properties:
+                used: { type: integer }
+                limit: { type: integer }
+            aiAnalysis:
+              type: object
+              properties:
+                used: { type: integer }
+                limit: { type: integer }
+        config:
+          type: object
+          properties:
+            keywords: { type: array, items: { type: string } }
+            industry: { type: string, nullable: true }
+            goal: { type: string, nullable: true }
+            channels: { type: array, items: { type: string } }
+
+    UsageSummary:
+      type: object
+      properties:
+        plan: { $ref: "#/components/schemas/Plan" }
+        usage:
+          type: object
+          additionalProperties:
+            type: object
+            properties:
+              used: { type: integer }
+              limit: { type: integer }
+              percent: { type: integer }
+        resetAt: { type: string, format: date-time }
+
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error: { type: string }
+        code: { type: string }
+
+  responses:
+    Unauthorized:
+      description: 認証が必要です
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+    Forbidden:
+      description: この操作に必要な権限がありません
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+    BadRequest:
+      description: リクエストが不正です
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }

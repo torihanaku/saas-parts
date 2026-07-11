@@ -1,0 +1,379 @@
+{
+  "common": {
+    "edit": "Edit",
+    "cancel": "Cancel",
+    "retry": "Retry",
+    "loading": "Loading...",
+    "generating": "Generating...",
+    "error": "Error",
+    "fetchError": "Failed to fetch data.",
+    "yes": "Yes",
+    "no": "No",
+    "all": "All",
+    "noData": "No data",
+    "save": "Save",
+    "delete": "Delete",
+    "refresh": "Refresh",
+    "unlink": "Unlink",
+    "back": "Back",
+    "name": "Name",
+    "loadingDots": "...",
+    "aiNotConfigured": "AI is not configured. Please add an API key in admin settings."
+  },
+  "settings": {
+    "title": "Settings",
+    "subtitle": "Dashboard settings and external tool integrations",
+    "tabGeneral": "General",
+    "tabIntegrations": "Integrations",
+    "tabSso": "SSO",
+    "tabSecurity": "Security",
+    "tabPrivacy": "Privacy",
+    "generalPlaceholder": "General settings coming soon",
+    "connect": "Connect",
+    "disconnect": "Disconnect",
+    "connected": "Connected",
+    "apiKey": "API Key / Token",
+    "apiKeyPlaceholder": "Enter API key or access token",
+    "confirmDisconnect": "Disconnect this integration?",
+    "connectSuccess": "Connected successfully",
+    "disconnectSuccess": "Disconnected successfully",
+    "privacy": {
+      "title": "Privacy Settings",
+      "description": "Manage your consent for data usage purposes",
+      "purpose": "Purpose",
+      "status": "Status",
+      "purposes": {
+        "slack_ingestion": {
+          "label": "Slack Message Ingestion",
+          "description": "Automatically ingest project-related Slack messages for summarization and task extraction"
+        },
+        "external_data_processing": {
+          "label": "External Data Processing",
+          "description": "Use data from connected services for analysis and summarization"
+        },
+        "slack_content_analysis": {
+          "label": "Slack Content Analysis",
+          "description": "Analyze Slack conversations to extract decisions and task candidates"
+        },
+        "email_content_analysis": {
+          "label": "Email Content Analysis",
+          "description": "Analyze email content to generate summaries and follow-up candidates"
+        },
+        "meeting_transcript_analysis": {
+          "label": "Meeting Transcript Analysis",
+          "description": "Analyze meeting transcripts to extract key points, decisions, and action items"
+        },
+        "ai_learning": {
+          "label": "AI Learning & Embeddings",
+          "description": "Allow AI to learn from your messages and documents for semantic search and recommendations"
+        },
+        "email_digest": {
+          "label": "Email Digest",
+          "description": "Send activity summaries and important announcements via email"
+        },
+        "behavior_analytics": {
+          "label": "Behavioral Analytics",
+          "description": "Collect and analyze dashboard usage logs to improve the service"
+        }
+      }
+    },
+    "billing": {
+      "contentGeneration": "Content Generation",
+      "aiAnalysis": "AI Analysis",
+      "apiCalls": "API Calls",
+      "nearLimit": "Approaching limit. Consider upgrading your plan.",
+      "over80": "Usage has exceeded 80%.",
+      "currentPlan": "Current Plan",
+      "planSubtitle": "Review and change your plan",
+      "changePlan": "Change Plan",
+      "manageSubscription": "Manage Subscription",
+      "todayUsage": "Today's Usage",
+      "loading": "Loading...",
+      "usageDataError": "Could not load usage data",
+      "usageHistory": "Usage History",
+      "historyDate": "Date",
+      "historyAction": "Action",
+      "historyCredits": "Credits",
+      "noHistory": "No usage history yet",
+      "upgradeSuccess": "🎉 Successfully upgraded to Pro plan!",
+      "fetchError": "Failed to load plan information.",
+      "retrying": "Loading...",
+      "retry": "Retry",
+      "resetIn": "Resets at",
+      "upgradePrompt": "Upgrade your plan to unlock more",
+      "unlimited": "Unlimited",
+      "notConfiguredTitle": "Billing is not configured",
+      "notConfiguredHint": "Set the STRIPE_SECRET_KEY environment variable on Cloud Run to enable billing. The account is treated as Free until then."
+    },
+    "page": {
+      "title": "Settings",
+      "subtitle": "Dashboard settings and external tool integrations",
+      "loading": "Loading..."
+    },
+    "general": {
+      "languageTitle": "Language Settings",
+      "langJa": "日本語",
+      "langEn": "English",
+      "themeTitle": "Theme",
+      "lightMode": "Light",
+      "darkModeComingSoon": "Dark mode coming soon",
+      "permittedEmails": "Permitted Emails",
+      "permittedEmailsDesc": "Manage email addresses that can access this dashboard",
+      "emailPlaceholder": "user@example.com",
+      "addEmail": "Add",
+      "noPermittedEmails": "No permitted emails configured",
+      "dataExport": "Data Export",
+      "dataExportDesc": "Export your dashboard data",
+      "exportFormat": "Export format",
+      "exportBtn": "Export",
+      "exporting": "Exporting...",
+      "exportError": "Export failed"
+    },
+    "tenant": {
+      "loading": "Loading...",
+      "fetchError": "Could not load tenant information",
+      "title": "Tenant Info",
+      "description": "Manage your organization's basic settings",
+      "nameLabel": "Tenant Name",
+      "slugLabel": "Slug",
+      "retentionLabel": "Applicant Data Retention (Months)",
+      "months": "months",
+      "invalidRetention": "Retention period must be between 6 and 120 months.",
+      "planLabel": "Plan",
+      "ownerLabel": "Owner",
+      "idLabel": "Tenant ID",
+      "nameRequired": "Please enter a tenant name",
+      "updateSuccess": "Tenant name updated",
+      "updateFailed": "Update failed",
+      "networkError": "A network error occurred",
+      "saveTip": "Save",
+      "cancelTip": "Cancel"
+    },
+    "webhooks": {
+      "title": "Webhook Endpoints",
+      "subtitle": "Receive real-time notifications about events in your dashboard",
+      "add": "Add Endpoint",
+      "save": "Save",
+      "cancel": "Cancel",
+      "noEndpoints": "No webhook endpoints configured",
+      "viewLogs": "View Logs",
+      "confirmDelete": "Are you sure you want to delete this webhook endpoint?",
+      "logsTitle": "Recent Deliveries",
+      "noLogs": "No recent deliveries found for this endpoint",
+      "statusPendingError": "Pending/Error",
+      "notConfiguredTitle": "Webhooks are not enabled",
+      "notConfiguredHint": "Set ENABLE_PUBLIC_API=true on Cloud Run to enable the public API + webhooks."
+    }
+  },
+  "topBar": {
+    "openMenu": "Open menu",
+    "title": "{{APP_NAME}} Dev Dashboard",
+    "checking": "Checking...",
+    "live": "Live",
+    "offline": "Offline",
+    "serverStatus": "Server status:",
+    "lastUpdated": "Last updated:"
+  },
+  "login": {
+    "title": "Sign In",
+    "subtitle": "Dev Dashboard",
+    "email": "Email address",
+    "password": "Password",
+    "submit": "Sign In",
+    "loggingIn": "Signing in...",
+    "invalidCredentials": "Incorrect email or password",
+    "emailNotConfirmed": "Email address not confirmed. Please check your confirmation email.",
+    "networkError": "A network error occurred",
+    "forgotPassword": "Forgot password?",
+    "noAccount": "Don't have an account?",
+    "createAccount": "Create account",
+    "ssoDetected": "{{provider}} single sign-on is available",
+    "ssoDetectedHint": "This domain has SSO configured. Click the button to sign in via your organization.",
+    "continueWithSso": "Continue with {{provider}} (SSO)",
+    "or": "or",
+    "continueWithGoogle": "Continue with Google"
+  },
+  "signup": {
+    "title": "Create account",
+    "passwordConfirm": "Confirm password",
+    "submit": "Create account",
+    "signingUp": "Creating...",
+    "passwordMismatch": "Passwords do not match",
+    "passwordTooShort": "Password must be at least 6 characters",
+    "accountExists": "This account already exists. Sign in with the existing password or reset it.",
+    "successMessage": "Account created. Continue to sign in.",
+    "genericError": "Could not create the account. Please try again later.",
+    "backToLogin": "Back to login",
+    "haveAccount": "Already have an account?",
+    "signIn": "Sign in"
+  },
+  "forgotPassword": {
+    "title": "Reset password",
+    "description": "Enter your registered email address and we'll send you a password reset link.",
+    "submit": "Send reset email",
+    "sending": "Sending...",
+    "successMessage": "Password reset email sent. Please check your email.",
+    "backToLogin": "Back to login"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "markAllRead": "Mark all read",
+    "empty": "No notifications",
+    "countOverflow": "9+"
+  },
+  "errorBoundary": {
+    "title": "An unexpected error occurred",
+    "description": "We apologize for the inconvenience. An unexpected error has occurred.",
+    "retry": "Retry",
+    "backToHome": "Back to Home"
+  },
+  "onboarding": {
+    "skipSetup": "Skip setup",
+    "step0": {
+      "title": "Welcome",
+      "subtitle": "Set up intelligence tailored to your industry",
+      "keywordsLabel": "Enter keywords to track (up to 5)",
+      "keywordsExample": "e.g. AI, Marketing, EC, Ads, SaaS",
+      "keywordPlaceholder": "Enter keyword...",
+      "addButton": "Add",
+      "noKeywords": "No keywords yet",
+      "suggestions": "Suggestions:",
+      "addKeywordPrefix": "+ ",
+      "removeKeyword": "Remove {{kw}}"
+    },
+    "step1": {
+      "title": "Industry & Goal",
+      "subtitle": "Help AI provide optimal insights",
+      "industryQuestion": "Your industry?",
+      "goalQuestion": "Primary goal?"
+    },
+    "step2": {
+      "title": "Distribution Channels",
+      "subtitle": "Where do you publish content?",
+      "configSummaryTitle": "Your Configuration"
+    },
+    "backButton": "Back",
+    "nextButton": "Next",
+    "getStartedButton": "Get Started",
+    "industries": {
+      "saas": "SaaS / IT",
+      "ec": "EC / D2C",
+      "consulting": "Consulting",
+      "media": "Media / Publishing",
+      "manufacturing": "Manufacturing",
+      "finance": "Finance / FinTech",
+      "healthcare": "Healthcare",
+      "education": "Education / EdTech",
+      "other": "Other"
+    },
+    "goals": {
+      "content": "Drive traffic with content",
+      "leads": "Generate leads",
+      "brand": "Build brand awareness",
+      "intelligence": "Track industry trends",
+      "efficiency": "Improve marketing efficiency"
+    },
+    "channels": {
+      "note": "note.com",
+      "x": "X (Twitter)",
+      "linkedin": "LinkedIn",
+      "blog": "Company Blog",
+      "email": "Newsletter",
+      "youtube": "YouTube"
+    },
+    "welcomeTitle": "Welcome to the Dev Dashboard",
+    "welcomeDescription": "A unified tool for managing development progress, GitHub activity, costs, and backlog. AI chat assistant included.",
+    "welcomeHint": "A quick tour of the key features.",
+    "teamTitle": "Development Team",
+    "teamDescription": "Specialists supporting the project",
+    "featuresTitle": "Key Features",
+    "featuresDescription": "Available tools in the dashboard",
+    "settingsTitle": "Quick Settings",
+    "settingsDescription": "You can change these anytime",
+    "notifications": "Notifications",
+    "notificationsDescription": "Receive alerts for task completion and errors",
+    "enableNotifications": "Enable notifications",
+    "disableNotifications": "Disable notifications",
+    "theme": "Theme",
+    "themeDescription": "Dashboard display theme",
+    "themeLight": "Light",
+    "themeSystem": "System",
+    "completeTitle": "All Set",
+    "completeDescription": "The dashboard is ready. Access features from the sidebar.",
+    "completeHint": "You can restart this tour from the sidebar at any time.",
+    "skip": "Skip",
+    "back": "Back",
+    "next": "Next",
+    "getStarted": "Get Started",
+    "stepWelcome": "Welcome",
+    "stepTeam": "Team",
+    "stepFeatures": "Features",
+    "stepSettings": "Settings",
+    "stepComplete": "Ready!",
+    "featureOverviewName": "Overview",
+    "featureOverviewDesc": "Dashboard for project progress and status at a glance",
+    "featureBacklogName": "Backlog",
+    "featureBacklogDesc": "Task priority management with AI suggestions",
+    "featureGithubName": "GitHub",
+    "featureGithubDesc": "Real-time repository activity, PRs, and issues",
+    "featureCostName": "Cost Management",
+    "featureCostDesc": "Cloud service cost visualization and optimization",
+    "featureChatName": "AI Chat",
+    "featureChatDesc": "Consult the AI assistant about development questions"
+  },
+  "language": {
+    "ja": "JP",
+    "en": "EN"
+  },
+  "cookieConsent": {
+    "message": "We use cookies to improve your experience. See our",
+    "privacyPolicy": "Privacy Policy",
+    "messageSuffix": " for details.",
+    "accept": "Accept"
+  },
+  "mobileNav": {
+    "ariaLabel": "Bottom navigation",
+    "home": "Home",
+    "tasks": "Tasks",
+    "chat": "Chat",
+    "reports": "Reports",
+    "settings": "Settings"
+  },
+  "status": {
+    "industries": {
+      "tech": "Technology",
+      "marketing": "Marketing",
+      "manufacturing": "Manufacturing",
+      "retail": "Retail / E-Commerce",
+      "finance": "Finance",
+      "realestate": "Real Estate",
+      "education": "Education",
+      "healthcare": "Healthcare",
+      "media": "Media & Entertainment",
+      "consulting": "Consulting",
+      "other": "Other"
+    },
+    "project": {
+      "active": "Active",
+      "planning": "Planning",
+      "paused": "On Hold",
+      "completed": "Completed",
+      "archived": "Archived"
+    },
+    "client": {
+      "active": "Active",
+      "inactive": "Inactive",
+      "archived": "Archived"
+    }
+  },
+  "pwa": {
+    "install": {
+      "aria": "Install {{APP_NAME}}",
+      "title": "Install {{APP_NAME}} to your home screen",
+      "description": "Open without a browser. Notifications and content one tap away.",
+      "install": "Install",
+      "installing": "Installing...",
+      "dismiss": "Later"
+    }
+  }
+}

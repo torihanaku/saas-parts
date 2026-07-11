@@ -1,0 +1,379 @@
+{
+  "common": {
+    "edit": "編集",
+    "cancel": "キャンセル",
+    "retry": "再試行",
+    "loading": "読み込み中...",
+    "generating": "生成中...",
+    "error": "エラー",
+    "fetchError": "データの取得に失敗しました。",
+    "yes": "はい",
+    "no": "いいえ",
+    "all": "すべて",
+    "noData": "データがありません",
+    "save": "保存",
+    "delete": "削除",
+    "refresh": "更新",
+    "unlink": "解除",
+    "back": "戻る",
+    "name": "名前",
+    "loadingDots": "...",
+    "aiNotConfigured": "AI機能が設定されていません。管理者設定でAPIキーを追加してください。"
+  },
+  "settings": {
+    "title": "設定",
+    "subtitle": "ダッシュボードの設定と外部ツール連携",
+    "tabGeneral": "一般",
+    "tabIntegrations": "連携",
+    "tabSso": "SSO",
+    "tabSecurity": "セキュリティ",
+    "tabPrivacy": "プライバシー",
+    "generalPlaceholder": "一般設定は準備中です",
+    "connect": "接続",
+    "disconnect": "切断",
+    "connected": "接続済み",
+    "apiKey": "APIキー / トークン",
+    "apiKeyPlaceholder": "APIキーまたはアクセストークンを入力",
+    "confirmDisconnect": "この連携を切断しますか？",
+    "connectSuccess": "接続しました",
+    "disconnectSuccess": "切断しました",
+    "privacy": {
+      "title": "プライバシー設定",
+      "description": "データの利用目的ごとの同意状況を管理します",
+      "purpose": "利用目的",
+      "status": "同意状況",
+      "purposes": {
+        "slack_ingestion": {
+          "label": "Slackメッセージの取り込み",
+          "description": "プロジェクトに関連するSlackメッセージを自動的に取り込み、要約やタスク抽出に利用します"
+        },
+        "external_data_processing": {
+          "label": "外部データ処理",
+          "description": "連携サービスから取得したデータを分析・要約に利用します"
+        },
+        "slack_content_analysis": {
+          "label": "Slackコンテンツ分析",
+          "description": "Slackの会話内容を分析し、意思決定やタスク候補の抽出に利用します"
+        },
+        "email_content_analysis": {
+          "label": "メールコンテンツ分析",
+          "description": "メール本文を分析し、要約やフォローアップ候補の抽出に利用します"
+        },
+        "meeting_transcript_analysis": {
+          "label": "会議文字起こし分析",
+          "description": "会議の文字起こしを分析し、要点・決定事項・アクション項目の抽出に利用します"
+        },
+        "ai_learning": {
+          "label": "AI学習・埋め込み生成",
+          "description": "メッセージやドキュメントをAIに学習（ベクトル化）させ、セマンティック検索や推薦に利用します"
+        },
+        "email_digest": {
+          "label": "メールダイジェスト送信",
+          "description": "活動サマリーや重要なお知らせをメールで送信します"
+        },
+        "behavior_analytics": {
+          "label": "行動ログ分析",
+          "description": "サービスの改善を目的として、ダッシュボード上の操作ログを収集・分析します"
+        }
+      }
+    },
+    "billing": {
+      "contentGeneration": "コンテンツ生成",
+      "aiAnalysis": "AI分析",
+      "apiCalls": "API呼び出し",
+      "nearLimit": "上限に近づいています。プランのアップグレードを検討してください。",
+      "over80": "使用量が80%を超えています。",
+      "currentPlan": "現在のプラン",
+      "planSubtitle": "プランの確認と変更",
+      "changePlan": "プランを変更",
+      "manageSubscription": "サブスクリプション管理",
+      "todayUsage": "本日の使用量",
+      "loading": "読み込み中...",
+      "usageDataError": "使用量データを取得できませんでした",
+      "usageHistory": "使用履歴",
+      "historyDate": "日時",
+      "historyAction": "アクション",
+      "historyCredits": "クレジット",
+      "noHistory": "使用履歴はまだありません",
+      "upgradeSuccess": "🎉 Proプランへのアップグレードが完了しました！",
+      "fetchError": "プラン情報の取得に失敗しました。",
+      "retrying": "取得中...",
+      "retry": "再試行",
+      "resetIn": "次のリセット",
+      "upgradePrompt": "プランをアップグレードして制限を解除",
+      "unlimited": "無制限",
+      "notConfiguredTitle": "課金機能は未設定です",
+      "notConfiguredHint": "Stripe を有効化するには Cloud Run の環境変数 STRIPE_SECRET_KEY を設定してください。設定までは Free プラン扱いです。"
+    },
+    "page": {
+      "title": "設定",
+      "subtitle": "ダッシュボードの設定と外部ツール連携",
+      "loading": "読み込み中..."
+    },
+    "general": {
+      "languageTitle": "言語設定",
+      "langJa": "日本語",
+      "langEn": "English",
+      "themeTitle": "テーマ",
+      "lightMode": "ライト",
+      "darkModeComingSoon": "ダークモードは今後対応予定です",
+      "permittedEmails": "許可メールアドレス管理",
+      "permittedEmailsDesc": "ダッシュボードにアクセスできるメールアドレスを管理します",
+      "emailPlaceholder": "user@example.com",
+      "addEmail": "追加",
+      "noPermittedEmails": "許可メールアドレスは未設定です",
+      "dataExport": "データエクスポート",
+      "dataExportDesc": "ダッシュボードのデータをエクスポートします",
+      "exportFormat": "エクスポート形式",
+      "exportBtn": "エクスポート",
+      "exporting": "エクスポート中...",
+      "exportError": "エクスポートに失敗しました"
+    },
+    "tenant": {
+      "loading": "読み込み中...",
+      "fetchError": "テナント情報を取得できませんでした",
+      "title": "テナント情報",
+      "description": "組織の基本設定を管理します",
+      "nameLabel": "テナント名",
+      "slugLabel": "スラグ",
+      "retentionLabel": "応募データ保持期間 (月)",
+      "months": "ヶ月",
+      "invalidRetention": "保持期間は 6〜120 ヶ月の間で指定してください",
+      "planLabel": "プラン",
+      "ownerLabel": "オーナー",
+      "idLabel": "テナント ID",
+      "nameRequired": "テナント名を入力してください",
+      "updateSuccess": "テナント名を更新しました",
+      "updateFailed": "更新に失敗しました",
+      "networkError": "ネットワークエラーが発生しました",
+      "saveTip": "保存",
+      "cancelTip": "キャンセル"
+    },
+    "webhooks": {
+      "title": "Webhook エンドポイント",
+      "subtitle": "ダッシュボード内のイベントをリアルタイムで通知として受け取ります",
+      "add": "エンドポイント追加",
+      "save": "保存",
+      "cancel": "キャンセル",
+      "noEndpoints": "Webhook エンドポイントが設定されていません",
+      "viewLogs": "ログを表示",
+      "confirmDelete": "この Webhook エンドポイントを削除してもよろしいですか？",
+      "logsTitle": "最近の配信履歴",
+      "noLogs": "このエンドポイントの配信履歴はありません",
+      "statusPendingError": "保留/エラー",
+      "notConfiguredTitle": "Webhook 機能は未設定です",
+      "notConfiguredHint": "Public API + Webhook を有効化するには Cloud Run の環境変数 ENABLE_PUBLIC_API=true を設定してください。"
+    }
+  },
+  "topBar": {
+    "openMenu": "メニューを開く",
+    "title": "{{APP_NAME}} 開発ダッシュボード",
+    "checking": "確認中...",
+    "live": "稼働中",
+    "offline": "オフライン",
+    "serverStatus": "サーバーステータス:",
+    "lastUpdated": "最終更新:"
+  },
+  "login": {
+    "title": "ログイン",
+    "subtitle": "開発ダッシュボード",
+    "email": "メールアドレス",
+    "password": "パスワード",
+    "submit": "ログイン",
+    "loggingIn": "ログイン中...",
+    "invalidCredentials": "メールアドレスまたはパスワードが正しくありません",
+    "emailNotConfirmed": "メールアドレスが確認されていません。確認メールをご確認ください。",
+    "networkError": "ネットワークエラーが発生しました",
+    "forgotPassword": "パスワードを忘れた場合",
+    "noAccount": "アカウントをお持ちでない方は",
+    "createAccount": "アカウントを作成",
+    "ssoDetected": "{{provider}} のシングルサインオンが利用できます",
+    "ssoDetectedHint": "このドメインはSSOが設定されています。ボタンを押すと会社の認証画面に移動します。",
+    "continueWithSso": "{{provider}} でログイン（SSO）",
+    "or": "または",
+    "continueWithGoogle": "Googleでログイン"
+  },
+  "signup": {
+    "title": "アカウントを作成",
+    "passwordConfirm": "パスワード（確認）",
+    "submit": "アカウントを作成",
+    "signingUp": "作成中...",
+    "passwordMismatch": "パスワードが一致しません",
+    "passwordTooShort": "パスワードは6文字以上で入力してください",
+    "accountExists": "このアカウントは既に存在します。既存のパスワードでログインするか、パスワードをリセットしてください。",
+    "successMessage": "アカウントを作成しました。ログインに進んでください。",
+    "genericError": "アカウント作成に失敗しました。時間をおいてもう一度お試しください。",
+    "backToLogin": "ログインに戻る",
+    "haveAccount": "すでにアカウントをお持ちの方は",
+    "signIn": "ログイン"
+  },
+  "forgotPassword": {
+    "title": "パスワードをリセット",
+    "description": "登録済みのメールアドレスを入力してください。パスワードリセット用のリンクをお送りします。",
+    "submit": "リセットメールを送信",
+    "sending": "送信中...",
+    "successMessage": "パスワードリセットメールを送信しました。メールをご確認ください。",
+    "backToLogin": "ログインに戻る"
+  },
+  "notifications": {
+    "title": "通知",
+    "markAllRead": "すべて既読",
+    "empty": "通知はありません",
+    "countOverflow": "9+"
+  },
+  "errorBoundary": {
+    "title": "予期しないエラーが発生しました",
+    "description": "申し訳ありません。予期しないエラーが発生しました。",
+    "retry": "リトライ",
+    "backToHome": "ホームに戻る"
+  },
+  "onboarding": {
+    "skipSetup": "セットアップをスキップ",
+    "step0": {
+      "title": "ようこそ",
+      "subtitle": "あなたの業界に合わせたインテリジェンスを設定する",
+      "keywordsLabel": "追跡するキーワードを入力（最大5件）",
+      "keywordsExample": "例: AI, マーケティング, EC, 広告, SaaS",
+      "keywordPlaceholder": "キーワードを入力...",
+      "addButton": "追加",
+      "noKeywords": "キーワードがありません",
+      "suggestions": "候補:",
+      "addKeywordPrefix": "+ ",
+      "removeKeyword": "{{kw}} を削除"
+    },
+    "step1": {
+      "title": "業界 & 目標",
+      "subtitle": "AIが最適なインサイトを提供できるよう設定する",
+      "industryQuestion": "あなたの業界は?",
+      "goalQuestion": "主な目標は?"
+    },
+    "step2": {
+      "title": "配信チャンネル",
+      "subtitle": "どこでコンテンツを発信していますか?",
+      "configSummaryTitle": "あなたの設定"
+    },
+    "backButton": "戻る",
+    "nextButton": "次へ",
+    "getStartedButton": "はじめる",
+    "industries": {
+      "saas": "SaaS / IT",
+      "ec": "EC / D2C",
+      "consulting": "コンサルティング",
+      "media": "メディア / 出版",
+      "manufacturing": "製造業",
+      "finance": "金融 / フィンテック",
+      "healthcare": "ヘルスケア",
+      "education": "教育 / エドテック",
+      "other": "その他"
+    },
+    "goals": {
+      "content": "コンテンツでトラフィックを増やす",
+      "leads": "リード獲得",
+      "brand": "ブランド認知の向上",
+      "intelligence": "業界トレンドの追跡",
+      "efficiency": "マーケティング効率の改善"
+    },
+    "channels": {
+      "note": "note.com",
+      "x": "X (Twitter)",
+      "linkedin": "LinkedIn",
+      "blog": "会社ブログ",
+      "email": "ニュースレター",
+      "youtube": "YouTube"
+    },
+    "welcomeTitle": "Dev Dashboardへようこそ",
+    "welcomeDescription": "開発進捗・GitHubアクティビティ・コスト・バックログを一元管理するツール。AIチャットアシスタント付き。",
+    "welcomeHint": "主要機能の簡単なツアーです。",
+    "teamTitle": "開発チーム",
+    "teamDescription": "プロジェクトを支えるスペシャリストたち",
+    "featuresTitle": "主要機能",
+    "featuresDescription": "ダッシュボードで利用可能なツール",
+    "settingsTitle": "クイック設定",
+    "settingsDescription": "いつでも変更できます",
+    "notifications": "通知",
+    "notificationsDescription": "タスク完了やエラーのアラートを受け取る",
+    "enableNotifications": "通知を有効にする",
+    "disableNotifications": "通知を無効にする",
+    "theme": "テーマ",
+    "themeDescription": "ダッシュボードの表示テーマ",
+    "themeLight": "ライト",
+    "themeSystem": "システム",
+    "completeTitle": "準備完了",
+    "completeDescription": "ダッシュボードの準備ができました。サイドバーから各機能にアクセスしてください。",
+    "completeHint": "サイドバーからいつでもこのツアーを再開できます。",
+    "skip": "スキップ",
+    "back": "戻る",
+    "next": "次へ",
+    "getStarted": "はじめる",
+    "stepWelcome": "ようこそ",
+    "stepTeam": "チーム",
+    "stepFeatures": "機能",
+    "stepSettings": "設定",
+    "stepComplete": "完了！",
+    "featureOverviewName": "概要",
+    "featureOverviewDesc": "プロジェクトの進捗と状況をひと目で把握するダッシュボード",
+    "featureBacklogName": "バックログ",
+    "featureBacklogDesc": "AI提案付きのタスク優先度管理",
+    "featureGithubName": "GitHub",
+    "featureGithubDesc": "リポジトリのリアルタイムアクティビティ、PR、イシュー",
+    "featureCostName": "コスト管理",
+    "featureCostDesc": "クラウドサービスのコスト可視化と最適化",
+    "featureChatName": "AIチャット",
+    "featureChatDesc": "開発に関する質問をAIアシスタントに相談"
+  },
+  "language": {
+    "ja": "JP",
+    "en": "EN"
+  },
+  "cookieConsent": {
+    "message": "当サイトではサービス向上のためCookieを使用しています。",
+    "privacyPolicy": "プライバシーポリシー",
+    "messageSuffix": "をご確認ください。",
+    "accept": "同意する"
+  },
+  "mobileNav": {
+    "ariaLabel": "ボトムナビゲーション",
+    "home": "ホーム",
+    "tasks": "タスク",
+    "chat": "チャット",
+    "reports": "レポート",
+    "settings": "設定"
+  },
+  "status": {
+    "industries": {
+      "tech": "テクノロジー",
+      "marketing": "マーケティング",
+      "manufacturing": "製造業",
+      "retail": "小売・EC",
+      "finance": "金融",
+      "realestate": "不動産",
+      "education": "教育",
+      "healthcare": "医療・ヘルスケア",
+      "media": "メディア・エンタメ",
+      "consulting": "コンサルティング",
+      "other": "その他"
+    },
+    "project": {
+      "active": "進行中",
+      "planning": "企画中",
+      "paused": "一時停止",
+      "completed": "完了",
+      "archived": "アーカイブ"
+    },
+    "client": {
+      "active": "アクティブ",
+      "inactive": "非アクティブ",
+      "archived": "アーカイブ"
+    }
+  },
+  "pwa": {
+    "install": {
+      "aria": "{{APP_NAME}} をインストール",
+      "title": "{{APP_NAME}} をホーム画面に追加",
+      "description": "ブラウザを開かずに、 通知やコンテンツに 1 タップで届きます",
+      "install": "インストール",
+      "installing": "インストール中...",
+      "dismiss": "後で"
+    }
+  }
+}

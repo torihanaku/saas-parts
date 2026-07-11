@@ -55,7 +55,22 @@
 - ~~COS / navigator / nango統合~~ → **kit-chief-of-staff / kit-research-navigator / kit-integration-manager**
 - ~~eval-lab/firewall-eval の評価骨格~~ → **@torihanaku/eval-harness**（Python製eval-lab本体2,200行は移植せず設計思想のみ取込）
 
-## まだ残っているもの（最終・これで打ち止め）
-- **budgetGuard** — 実装がモックのまま（実データ集計が入れば予算ガードとして汎用化可）
-- 広告予算最適化・CPAガードレール・マーケ負債スキャナ・PR文生成・記者CRM・ABM・brandLint・challenger・twin残部・legal/first-opinion — マーケティング製品固有。その製品を作る時に元リポから直接掘る
-- ルート302本・画面135枚・製品テスト・locale JSON — 配線とUI（部品価値なし）
+## バッチ5で回収済み（2026-07-11・全機能抽出完了）
+「まだ残っているもの」として挙げていた製品固有機能も、バッチ5で全部パッケージ化しました:
+- ~~AI社員システム~~ → **kit-ai-workforce**（書籍2冊も同梱）
+- ~~DORA/デプロイ運用~~ → **kit-devops-metrics**
+- ~~採用/文書/書き起こし/スキル/セットアップ~~ → **hiring / documents / transcripts-manager / skills-service / setup-wizard**
+- ~~バイアス検知/A/B運用/twin/メモリコネクタ~~ → **bias-detector / ab-testing-service / scenario-twin / memory-connectors**
+- ~~広告予算最適化/CPA/analytics正規化/AI露出監視~~ → **ad-budget-optimizer / cpa-guardrail / analytics-normalizer / ai-visibility-monitor**
+- ~~brandLint/content生成/challenger~~ → **brand-lint / content-generation / challenger-copy**
+- ~~PR/記者CRM/ABM/炎上監視/法務/自律デプロイ/負債スキャナ~~ → **press-media / abm / brand-crisis-monitor / legal-first-opinion / autonomous-deploy / asset-debt-scanner**
+- ~~SaaS棚卸し/ホワイトラベル/デイリーブリーフィング/Slackレポート~~ → **saas-inventory / white-label-branding / daily-briefing / slack-reports**
+- ~~Python実験ラボ/OpenAPI共有/locale辞書/運用playbook~~ → **eval-lab-py / openapi-pipeline / locale-starter / ops-playbooks**（テンプレート）
+
+## 本当に残したもの（部品化しても意味がないもの・打ち止め）
+- **HTTPルート302本・画面135枚（JSX）** — 配線とUIそのもの。ロジックは全キット/パッケージに抽出済み。移植先で必ず書き直す部分なので生ファイルは元リポ（dev-dashboard-v2）に保存
+- **製品テストコード** — 対象コードとセットでのみ意味を持つ。再利用価値のあるテストは各パッケージに移植済み
+- **budgetGuard** — 実装がモックのまま（実データ集計が入れば汎用化可）
+- **knowledge-base/・docs/の当時の設計文書** — 参照資料として元リポに保存
+
+元リポ `~/torihanaku/dev-dashboard-v2` は全工程を通じて無変更。いつでも掘り出せる。

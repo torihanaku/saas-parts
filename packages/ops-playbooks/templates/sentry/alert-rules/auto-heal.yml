@@ -1,0 +1,99 @@
+# Auto-Heal Alert Rules (#1197)
+# Register with: sentry-cli alert-rules upload --project {{SENTRY_PROJECT_SLUG}} auto-heal.yml
+
+version: 1
+rules:
+  # Rule 0: Successful auto-heal action → Slack audit trail
+  - name: "Auto-Heal Action Succeeded → Slack Notification"
+    condition_set:
+      - type: "event_attribute"
+        attribute: "message"
+        match: "equal"
+        value: "auto_heal_action_succeeded"
+      - type: "event_attribute"
+        attribute: "level"
+        match: "equal"
+        value: "info"
+    action_set:
+      - type: "slack"
+        channel: "{{SLACK_OPS_CHANNEL}}"
+        tags: "auto-heal,success"
+    frequency: 600  # 10 min cooldown
+    environment: "production"
+    owner: "{{SENTRY_OWNER_TEAM}}"
+
+  # Rule 0b: Failed auto-heal action → PagerDuty page
+  - name: "Auto-Heal Action Failed → PagerDuty"
+    condition_set:
+      - type: "event_attribute"
+        attribute: "message"
+        match: "equal"
+        value: "auto_heal_action_failed"
+      - type: "event_attribute"
+        attribute: "level"
+        match: "equal"
+        value: "error"
+    action_set:
+      - type: "pagerduty"
+        integration_key: "${PAGERDUTY_INTEGRATION_KEY}"
+        severity: "critical"
+    frequency: 300  # 5 min cooldown
+    environment: "production"
+    owner: "{{SENTRY_OWNER_TEAM}}"
+
+  # Rule 1: Critical severity → PagerDuty/Opsgenie paging
+  - name: "Auto-Heal Critical → On-Call Page"
+    condition_set:
+      - type: "event_attribute"
+        attribute: "level"
+        match: "equal"
+        value: "critical"
+      - type: "event_attribute"
+        attribute: "logger"
+        match: "contains"
+        value: "auto_heal"
+    action_set:
+      - type: "pagerduty"
+        # Integration key from PagerDuty service
+        integration_key: "${PAGERDUTY_INTEGRATION_KEY}"
+        severity: "critical"
+    frequency: 300  # 5 min cooldown
+    environment: "production"
+    owner: "{{SENTRY_OWNER_TEAM}}"
+
+  # Rule 2: Warning severity → Slack thread
+  - name: "Auto-Heal Warning → Slack Notification"
+    condition_set:
+      - type: "event_attribute"
+        attribute: "level"
+        match: "equal"
+        value: "warning"
+      - type: "event_attribute"
+        attribute: "logger"
+        match: "contains"
+        value: "auto_heal"
+    action_set:
+      - type: "slack"
+        channel: "{{SLACK_ALERTS_CHANNEL}}"
+        tags: "auto-heal,warning"
+    frequency: 600  # 10 min cooldown
+    environment: "production"
+    owner: "{{SENTRY_OWNER_TEAM}}"
+
+  # Rule 3: Circuit breaker open → Low-priority notice
+  - name: "Auto-Heal Circuit Open → On-Call Notice"
+    condition_set:
+      - type: "event_attribute"
+        attribute: "message"
+        match: "contains"
+        value: "auto_heal_circuit_open"
+    action_set:
+      - type: "slack"
+        channel: "{{SLACK_ALERTS_CHANNEL}}"
+        tags: "circuit-breaker"
+      - type: "pagerduty"
+        integration_key: "${PAGERDUTY_INTEGRATION_KEY}"
+        severity: "warning"
+    frequency: 1800  # 30 min cooldown
+    environment: "production"
+    owner: "{{SENTRY_OWNER_TEAM}}"
