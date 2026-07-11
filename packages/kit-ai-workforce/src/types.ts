@@ -141,6 +141,12 @@ export interface CharacterStore {
   update(id: string, patch: Partial<Character>): Promise<void>;
   /** isCustom=true のみ削除する実装が望ましい。 */
   remove(id: string): Promise<void>;
+  /**
+   * 名前で 1 件検索（dashboard_characters?name=eq.<name> 相当）。
+   * 成長ループが assignee 名からキャラクターを引き当てるのに使う。
+   * 未実装なら list() を線形走査するフォールバックが使われる。
+   */
+  findByName?(name: string): Promise<Character | null>;
 }
 
 /** スキル永続化（character_skills 相当）。 */
@@ -150,6 +156,12 @@ export interface SkillStore {
   upsert(skill: CharacterSkill): Promise<void>;
   /** マッチング用: 全キャラの全スキルを走査（小規模前提の参照実装）。 */
   all(): Promise<CharacterSkill[]>;
+  /**
+   * 既存スキルの熟練度を書き換える（character_skills?character_id=eq&name=eq を
+   * PATCH proficiency 相当）。成長ループのスキル自動昇格で使う。
+   * 未実装だと昇格は no-op になる。
+   */
+  setProficiency?(characterId: string, name: string, proficiency: string): Promise<void>;
 }
 
 /** ロールモデル永続化（role_models 相当）。 */
@@ -159,4 +171,76 @@ export interface RoleModelStore {
   insert(model: RoleModel): Promise<RoleModel>;
   update(id: string, patch: Partial<RoleModel>): Promise<void>;
   remove(id: string): Promise<void>;
+}
+
+// ─── タスク（AI社員への仕事の割り当て） ──────────────────────────────────────
+
+/**
+ * 1 件のタスク。cockpit_tasks 行に対応。`assignee` は担当する AI社員（Character）の
+ * 名前で、完了評価時にこの名前からキャラクターを引き当てて成長ループを回す。
+ */
+export interface Task {
+  id: string;
+  title: string;
+  description?: string;
+  /** todo | in-progress | done */
+  status?: string;
+  /** critical | high | medium | low */
+  priority?: string;
+  /** 担当 AI社員の名前（dashboard_characters.name と照合）。 */
+  assignee?: string | null;
+  dueDate?: string | null;
+  clientId?: string | null;
+  projectId?: string | null;
+  /** manual | transcript | slack — 由来。 */
+  sourceType?: string;
+  sourceId?: string | null;
+  metadata?: Record<string, unknown>;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+/** タスク作成入力（id は任意。未指定なら生成）。 */
+export type TaskInput = Partial<Task> & { title: string };
+
+/**
+ * 職務経歴（CV）1 件。character_cv_entries 行に対応。
+ * 完了評価のたびに担当キャラクターへ積み上がる「実績」。
+ */
+export interface CvEntry {
+  character_id: string;
+  task_id?: string | null;
+  title: string;
+  outcome?: string;
+  skills_used?: string[];
+  rating?: number | null;
+  completed_at: string;
+}
+
+/** スターター用のタスクひな型（task_seeds 相当）。 */
+export interface TaskSeed {
+  id: string | number;
+  title: string;
+  description?: string;
+  priority?: string;
+  [key: string]: unknown;
+}
+
+// ─── タスク・成長ループのストア注入ポイント ──────────────────────────────────
+
+/** タスク永続化（cockpit_tasks 相当）。 */
+export interface TaskStore {
+  list(filter?: { clientId?: string | null; projectId?: string | null; status?: string }): Promise<Task[]>;
+  get(id: string): Promise<Task | null>;
+  insert(task: Task): Promise<Task>;
+  update(id: string, patch: Partial<Task>): Promise<void>;
+  remove(id: string): Promise<void>;
+  /** スターター用のタスクひな型一覧（未対応なら空配列でよい）。 */
+  listSeeds?(): Promise<TaskSeed[]>;
+}
+
+/** 職務経歴（CV）永続化（character_cv_entries 相当）。 */
+export interface CvStore {
+  insert(entry: CvEntry): Promise<void>;
+  listByCharacter(characterId: string): Promise<CvEntry[]>;
 }

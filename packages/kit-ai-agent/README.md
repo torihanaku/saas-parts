@@ -71,6 +71,42 @@ await rollback.rollbackAction(actionId, "ops@example.com");
 
 その他: `runOrchestration`（マルチエージェント逐次協調・役割プリセット `AGENT_ROLES`）、`ToolRegistry` + `runToolLoop`（Claude tool-use ループ）、`createMonitor` / `createAutoRollback` / `CostTracker` / `createReporter` / `createEvidenceAgent`（運用系）、`createSnapshotRollback`（デプロイ前スナップショット→復元）。
 
+## 協調チームプリセット
+
+`runOrchestration` のエンジンはそのままに、「名前付きチーム（役割の並び）」を選べるようにする薄いプリセット層です（`src/orchestration-presets.ts`）。プリセットは `AGENT_ROLES` の役割IDを合成しただけのデータで、`resolveTeam` がそれを `runOrchestration` が受け取る `AgentRole[]` に解決します。
+
+同梱の**例**チーム（`listOrchestrationPresets()` で一覧）:
+
+| id | 名前 | 構成（役割の並び） |
+|---|---|---|
+| `market-research` | 市場調査チーム | リサーチ → 戦略 → 批評 → 統合（`researcher` → `strategist` → `critic` → `synthesizer`） |
+| `content-team` | コンテンツチーム | アイデア → 公開準備（`researcher` → `synthesizer`） |
+
+> これらはあくまで**例**です。呼び出し側は自分のチームを自由に定義してください（役割IDリストを直接渡す／`AgentRole[]` を組み立てる／`AGENT_ROLES` を上書き・拡張する）。
+
+`resolveTeam(team, customAgents?)` は3つの形を受け付けます:
+
+```ts
+import { resolveTeam, runOrchestration, listOrchestrationPresets } from "@torihanaku/kit-ai-agent";
+
+// 1) プリセットID
+const teamA = resolveTeam("market-research");
+
+// 2) 役割IDの明示リスト（順序 = 実行順）
+const teamB = resolveTeam(["researcher", "critic", "synthesizer"]);
+
+// 3) 組み立て済み AgentRole[]（そのまま素通し）＋ カスタムエージェントを末尾に追加
+const teamC = resolveTeam(
+  [{ id: "lead", name: "リード", systemPrompt: "..." }],
+  [{ name: "編集者", systemPrompt: "文章を編集してください" }], // id は自動採番
+);
+
+// 解決したチームを LlmCaller（generateText）注入でそのまま実行
+const result = await runOrchestration(complete, { objective: "...", agents: teamA, max_rounds: 4 });
+```
+
+未知のプリセットID・未知の役割ID・空チームは、利用可能な候補を含む明確なエラーで即座に失敗します（元ルートの「未知役割を黙って読み飛ばす」挙動とは異なり、fail-loud）。HTTP / auth / Supabase / env の配線は落としてあり、純粋関数＋データのみです。
+
 ## 注入ポイント
 
 | インターフェース | 役割 | 備考 |

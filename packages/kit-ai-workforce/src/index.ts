@@ -27,6 +27,9 @@ export * from "./characters";
 // ロールモデル + チームコンポーザー
 export * from "./role-models";
 
+// タスク割り当て + 完了評価 → CV 記録 → スキル自動昇格（成長ループ）
+export * from "./tasks";
+
 // テンプレート（一覧 / クローン）
 export * from "./templates";
 

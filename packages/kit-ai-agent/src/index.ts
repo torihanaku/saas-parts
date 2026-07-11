@@ -28,6 +28,9 @@ export * from "./evidence";
 // Multi-agent orchestration
 export * from "./orchestrator";
 
+// Collaboration-team presets (named teams of AGENT_ROLES + resolveTeam)
+export * from "./orchestration-presets";
+
 // Claude tool-use loop + registry
 export * from "./tool-registry";
 export * from "./tool-loop";

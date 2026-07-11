@@ -109,13 +109,13 @@ SaaS開発用の共有部品monorepo（全111パッケージ＝汎用部品95＋
 ### 機能キット（機能丸ごとの大型部品。コアはDI化済み・ルート層はアダプタ例）
 - **@torihanaku/kit-approval-workflow** — 申請→リスク評価→承認→監査の承認ワークフロー汎用コア（稟議・Slack承認・複数承認者and/or集約・タイムアウトエスカレーション付き）（runtime: Node 20+/Bun, deps: なし）
 - **@torihanaku/kit-causal-inference** — 因果推論エンジン(DID/PSM/RDD/FuzzyRDD/IK帯域/BOCD変化点/MMM/反実仮想/ショック検出/検定力/MAPE/WhatIf・純関数)（runtime: any, deps: なし）
-- **@torihanaku/kit-ai-agent** — AIエージェント基盤（計画→承認ゲート→実行→ロールバック＋監視/自動切戻し/コスト/レポート＋MCPサーバー雛形）（runtime: node/bun, deps: なし・LlmCaller/Store注入）
+- **@torihanaku/kit-ai-agent** — AIエージェント基盤（計画→承認ゲート→実行→ロールバック＋監視/自動切戻し/コスト/レポート＋MCPサーバー雛形＋**マルチエージェント協調エンジン(複数役割が順に作業→統合)＋協調チームプリセット**）（runtime: node/bun, deps: なし・LlmCaller/Store注入）
 - **@torihanaku/kit-decision-memory** — 意思決定ログ/why検索/組織記憶/オンボーディングAI/引き継ぎ生成（LLM・埋め込み・ストア全注入、BM25フォールバック内蔵）（runtime: node/bun, deps: なし）
 - **@torihanaku/kit-pattern-dna** — 組織パターンDNA学習・判定（良い例/悪い例取り込み→文体・成功要因・顧客反応の学習→下書き照合アラート→反応予測）（runtime: node/browser, deps: react(client hooksのみ)）
 - **@torihanaku/kit-chief-of-staff** — AI経営アシスタント（Slack/メール/会議ingest→digest→ブリーフィング→Q&A→タスク抽出/人間レビュー/外部同期。ソース/LLM/同期先全注入）（runtime: node/bun, deps: react(client hooksのみ)）
 - **@torihanaku/kit-research-navigator** — 調査アシスタント（外部シグナル取込→LLM verdict判定→トレンドクラスタ昇格→仮説カード生成→学び記録。ソース/LLM/トラッカー全注入）（runtime: node/bun, deps: なし）
 - **@torihanaku/kit-integration-manager** — 外部SaaS統合マネージャー（接続管理/fire-and-wait同期/正規化レジストリ/マルチ発行/ヘルス。IntegrationProvider契約+Nango実装注入式）（runtime: any, deps: なし）
-- **@torihanaku/kit-ai-workforce** — 「AI社員」チーム編成・稼働の中核（状態機械＋SSE／BM25マッチング／キャラCRUD／ロールモデル／テンプレート／チームコンポーザー。docs/に製品コンセプト本2冊同梱）（runtime: node+React, deps: react(client)）
+- **@torihanaku/kit-ai-workforce** — 「AI社員」チーム編成・稼働の中核（状態機械＋SSE／BM25で**得意分野タスクマッチング**／キャラCRUD／ロールモデル／テンプレート／チームコンポーザー／**タスク割当→評価→スキル自動昇格→CV記録の成長ループ**。docs/に製品コンセプト本2冊同梱）（runtime: node+React, deps: react(client)）
 - **@torihanaku/kit-devops-metrics** — DORA4指標＋デプロイ運用（健全性/タイムライン/オーケストレーション/昇格制御。GitProvider・store・通知を注入、DORA計算式verbatim）（runtime: node/bun, deps: react(client)）
 
 ### 業務機能（そのまま小さなSaaSになる粒度・バッチ5）

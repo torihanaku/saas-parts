@@ -27,6 +27,7 @@
 | Character Studio | `generateInterviewQuestions` / `generateCharacterDefinition` | 役割イメージ → LLM で AI社員定義を生成。 |
 | ロールモデル | `createRoleModel` / `extractRoleModel` / … | 実在人物などの情報源から LLM で代表スキル・傾向を抽出し、ひな型化。 |
 | チームコンポーザー | `composeTeam` | プロジェクト説明 → 必要なチーム構成を提案し既存 AI社員とマッチング。 |
+| タスク・成長ループ | `createTask` / `updateTask` / `listTasks` / `recordTaskFeedback` | AI社員へのタスク割り当て（`assignee`）と、完了評価 → 職務経歴（CV）記録 → スキル自動昇格。 |
 | テンプレート | `filterTemplates` / `cloneTemplate` | AI社員ひな型の一覧・タグ絞り込み・クローン。 |
 | プリセット | `EXAMPLE_PRESETS` / `EXAMPLE_TEMPLATES` / `ORIGINAL_*` | 世界観プリセット。汎用サンプルとオリジナル IP（温存）。 |
 | メモリ内ストア | `createInMemoryCharacterStore` ほか | テスト・クイックスタート用の参照実装。 |
@@ -54,6 +55,77 @@ const { matches } = await matchCharacters(characters, skills, {
 });
 // → バックエンドエンジニアが上位に
 ```
+
+## タスク割り当てと成長ループ
+
+「AI社員が専門業務をこなして成長する」ライフサイクルです。人間の同僚と同じように、
+タスクを任せ → 完了して評価され → 職務経歴が積み上がり → 得意分野が伸びる、という
+サイクルを回します。
+
+```
+タスク作成(assignee=社員名) ──▶ 完了評価(rating/comment)
+        │                              │
+        ▼                              ▼
+  cockpit_tasks              ①assignee 名でキャラクター引き当て
+                                       │
+                        ┌──────────────┴──────────────┐
+                        ▼                              ▼
+              ②CV エントリを挿入          ③rating>=4 ならスキル自動昇格
+              (職務経歴の蓄積)             (最大 3 件を 1 段階アップ)
+              character_cv_entries         character_skills.proficiency
+```
+
+- **割り当て**: `createTask(taskStore, { title, assignee, ... })`。`assignee` は
+  担当 AI社員の **名前**（`dashboard_characters.name` と照合）。`updateTask` で
+  付け替え＝再割り当て。
+- **完了評価（成長ループの中核）**: `recordTaskFeedback(taskId, { rating, comment,
+  taskTitle, assignee }, { characters, skills, cv })`。
+  1. `assignee` 名からキャラクターを引き当てる（`CharacterStore.findByName`、
+     未実装なら `list()` を線形走査でフォールバック）。
+  2. **CV エントリ**を 1 件挿入する（`character_cv_entries`: character_id / task_id /
+     title / outcome / skills_used / rating / completed_at）— これが「職務経歴」の蓄積。
+  3. **スキル自動昇格**: `rating >= 4` のとき、そのキャラクターのスキルを **最大 3 件**、
+     熟練度ラダー `PROFICIENCY_LEVELS`（`beginner → intermediate → advanced → expert`）で
+     **1 段階** 昇格させる。`expert` は上限で頭打ち。しきい値（`rating>=4`・最大 3 件）と
+     ラダーは元実装から **verbatim**（`PROMOTION_RATING_THRESHOLD` /
+     `MAX_PROMOTIONS_PER_TASK` / `PROFICIENCY_LEVELS` としてエクスポート）。
+  - `assignee` 未指定、または名前が引き当たらない（**未知の担当**）場合は、CV 記録・
+    昇格ともに **no-op**（例外を投げず、`character: null` を返す）。`rating` は 1〜5。
+
+```ts
+import {
+  createInMemoryCharacterStore,
+  createInMemorySkillStore,
+  createInMemoryCvStore,
+  createInMemoryTaskStore,
+  createTask,
+  recordTaskFeedback,
+} from "@torihanaku/kit-ai-workforce";
+
+const characters = createInMemoryCharacterStore([{ id: "c1", name: "太郎", team: "eng" }]);
+const skills = createInMemorySkillStore([
+  { character_id: "c1", name: "API設計", proficiency: "beginner", source: "manual" },
+]);
+const cv = createInMemoryCvStore();
+const tasks = createInMemoryTaskStore();
+
+const task = await createTask(tasks, { title: "認証APIを実装", assignee: "太郎" });
+const res = await recordTaskFeedback(task.id, { rating: 5, assignee: "太郎", taskTitle: "認証API" }, { characters, skills, cv });
+// res.promotedSkills → [{ name: "API設計", from: "beginner", to: "intermediate" }]
+// cv.listByCharacter("c1") → 職務経歴 1 件
+```
+
+### 注入ポイント（成長ループ）
+
+- **`TaskStore`** — `cockpit_tasks` 相当。`list` / `get` / `insert` / `update` /
+  `remove`、任意で `listSeeds`（スターター用ひな型 `task_seeds`）。
+- **`CvStore`** — `character_cv_entries` 相当。`insert` / `listByCharacter`。
+- **`CharacterStore.findByName`**（任意）— assignee 名の引き当て。未実装でも
+  `list()` フォールバックで動く。
+- **`SkillStore.setProficiency`**（任意）— 昇格の書き込み。未実装だと昇格は no-op。
+
+いずれも `createInMemory{Task,Cv}Store()` と、既存 `createInMemory{Character,Skill}Store()`
+（`findByName` / `setProficiency` を実装済み）が参照実装です。
 
 ## 注入ポイント
 
@@ -131,6 +203,39 @@ CREATE TABLE role_models (
   updated_at            TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- タスク（AI社員への仕事の割り当て）
+CREATE TABLE cockpit_tasks (
+  id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  project_id   UUID,
+  client_id    UUID,
+  user_id      TEXT NOT NULL,
+  title        TEXT NOT NULL,
+  description  TEXT,
+  status       TEXT NOT NULL DEFAULT 'todo',      -- todo | in-progress | done
+  priority     TEXT NOT NULL DEFAULT 'medium',    -- critical | high | medium | low
+  assignee     TEXT,                              -- 担当 AI社員の名前（dashboard_characters.name）
+  due_date     TEXT,
+  source_type  TEXT,                              -- manual | transcript | slack
+  source_id    UUID,
+  metadata     JSONB NOT NULL DEFAULT '{}'::jsonb,
+  created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- 職務経歴（CV）— 完了評価のたびに担当キャラクターへ積み上がる実績
+CREATE TABLE character_cv_entries (
+  id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  character_id TEXT NOT NULL REFERENCES dashboard_characters(id) ON DELETE CASCADE,
+  task_id      UUID,
+  title        TEXT NOT NULL,
+  outcome      TEXT DEFAULT '',
+  skills_used  JSONB DEFAULT '[]'::jsonb,
+  rating       INTEGER CHECK (rating BETWEEN 1 AND 5),
+  completed_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+-- 成長ループでは character_skills.proficiency を beginner→intermediate→advanced→expert の
+-- 文字列ラダーで 1 段階ずつ UPDATE する（rating>=4 のとき最大 3 件）。上の character_skills 参照。
+
 -- プリセット（世界観の切り替え）
 CREATE TABLE character_presets (
   id          TEXT PRIMARY KEY,
@@ -152,6 +257,10 @@ CREATE TABLE character_presets (
 - **アバターアップロード（Supabase Storage / base64 デコード）** — ストレージ依存。
 - **パイプライントリガー・BigQuery コスト集計・resume/CV ルート** — プロダクト固有の
   外部連携（GitHub Actions dispatch / BigQuery）で AI社員コンセプトの中核ではない。
+- **議事録 action_items からのタスク一括生成**（`tasks.ts` の
+  `POST /api/tasks/import-from-transcript`）— `cockpit_transcripts` テーブル依存で
+  製品・書き起こし固有のため移植していない。タスク作成の一般 API（`createTask`）で
+  代替可能（source_type を "transcript" にして呼ぶだけ）。
 - **fs による state.json / activity.json / commands.json 永続化** — `StateStore`
   フック注入に置換（デフォルトはメモリ内）。SSE と状態機械のロジック自体は verbatim。
 - **`process.env` / Redis キャッシュ** — 撤去。
@@ -165,6 +274,8 @@ CREATE TABLE character_presets (
     → `characters.ts` / `role-models.ts` / `presets.ts`
   - `server/routes/character-templates/{templates,match,shared}.ts`
     → `templates.ts` / `matching.ts`
+  - `server/routes/tasks.ts` → `tasks.ts`（タスク割り当て＋成長ループ。
+    transcript 由来のタスク生成は除外）
   - `server/routes/project-characters.ts`（型・デフォルト設計の参考）
   - `src/pages/team/useTeamState.ts` + `src/hooks/useLiveState.ts` → `client/`
   - `supabase/migrations`（スキーマ）
