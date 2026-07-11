@@ -45,9 +45,17 @@
 - kit-ai-agent: cms/sns/adアダプタ・cloud-run/nangoエグゼキュータ・異常検知マーケ指標・auto-rollbackのcron部
 - kit-decision-memory: slack/notion抽出器・embedding-pipeline（コスト上限管理）・90日リテンションスイープ
 
-## 部分的に価値が残っているもの（再発掘候補・優先度順）
-1. **compliance/ 日本規制ルール**（景表法/特商法/薬機法）— 日本向けマーケ/EC系SaaSなら即戦力
-2. **forecast/ 時系列エンジン群** — 抽象を整えれば汎用化可能
-3. **marketing-roi/markov.ts + shapley.ts** — アトリビューションの純アルゴリズム部分（~100行）
-4. **company-dna のパターン学習構造** — 「良い例/悪い例から組織の声を学習」という枠組み
-5. **budgetGuard** — 実装がモックのまま。実データ集計が入れば予算ガードとして汎用化可
+## 再発掘候補 → バッチ4で回収済み（2026-07-11）
+以下は本台帳の初版で「再発掘候補」だったが、バッチ4ですべて抽出済み:
+- ~~compliance/ 日本規制ルール~~ → **@torihanaku/compliance-jp**
+- ~~forecast/ 時系列エンジン群~~ → **@torihanaku/forecast-engines**
+- ~~markov/shapley アトリビューション~~ → **@torihanaku/attribution-algos**（+ ab-significance）
+- ~~company-dna パターン学習~~ → **@torihanaku/kit-pattern-dna**
+- ~~white-label/cname-verifier + ssl-provisioner~~（初版で誤って製品固有と分類）→ **@torihanaku/custom-domains**
+- ~~COS / navigator / nango統合~~ → **kit-chief-of-staff / kit-research-navigator / kit-integration-manager**
+- ~~eval-lab/firewall-eval の評価骨格~~ → **@torihanaku/eval-harness**（Python製eval-lab本体2,200行は移植せず設計思想のみ取込）
+
+## まだ残っているもの（最終・これで打ち止め）
+- **budgetGuard** — 実装がモックのまま（実データ集計が入れば予算ガードとして汎用化可）
+- 広告予算最適化・CPAガードレール・マーケ負債スキャナ・PR文生成・記者CRM・ABM・brandLint・challenger・twin残部・legal/first-opinion — マーケティング製品固有。その製品を作る時に元リポから直接掘る
+- ルート302本・画面135枚・製品テスト・locale JSON — 配線とUI（部品価値なし）
