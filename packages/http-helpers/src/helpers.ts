@@ -38,8 +38,13 @@ export function checkConditionalRequest(req: Request, etag: string): Response | 
 
 /** Parse pagination params: ?page=1&limit=20 */
 export function parsePagination(url: URL, defaultLimit = 20, maxLimit = 100): { page: number; limit: number; offset: number } {
-  const page = Math.max(1, parseInt(url.searchParams.get("page") || "1"));
-  const limit = Math.min(maxLimit, Math.max(1, parseInt(url.searchParams.get("limit") || String(defaultLimit))));
+  // parseInt returns NaN for non-numeric input (e.g. ?page=abc). Math.max/min
+  // propagate NaN silently, which would flow into SQL `LIMIT NaN` / `OFFSET NaN`.
+  // Coerce NaN back to the safe default before clamping.
+  const rawPage = parseInt(url.searchParams.get("page") ?? "", 10);
+  const rawLimit = parseInt(url.searchParams.get("limit") ?? "", 10);
+  const page = Math.max(1, Number.isNaN(rawPage) ? 1 : rawPage);
+  const limit = Math.min(maxLimit, Math.max(1, Number.isNaN(rawLimit) ? defaultLimit : rawLimit));
   return { page, limit, offset: (page - 1) * limit };
 }
 

@@ -41,7 +41,7 @@ describe('PersistenceLayer.list', () => {
     expect(result).toEqual(rows)
     expect(mockGet).toHaveBeenCalledWith(
       'my_table',
-      'project_id=eq.proj-1',
+      'project_id=eq.proj-1&deleted=not.is.true',
     )
   })
 
@@ -65,8 +65,72 @@ describe('PersistenceLayer.list', () => {
     await layer.list('order=created_at.desc')
     expect(mockGet).toHaveBeenCalledWith(
       'my_table',
-      'project_id=eq.proj-1&order=created_at.desc',
+      'project_id=eq.proj-1&deleted=not.is.true&order=created_at.desc',
     )
+  })
+})
+
+describe('PersistenceLayer read-side delete filtering (regression)', () => {
+  it('list() excludes flag-deleted rows in default (hard) mode', async () => {
+    mockGet.mockResolvedValue([])
+    const layer = new PersistenceLayer<TestItem>(dal, 'my_table', 'project_id', 'proj-1')
+    await layer.list()
+    expect(mockGet).toHaveBeenCalledWith('my_table', 'project_id=eq.proj-1&deleted=not.is.true')
+  })
+
+  it('list() excludes status="deleted" rows in soft-delete mode', async () => {
+    mockGet.mockResolvedValue([])
+    const layer = new PersistenceLayer<TestItem>(dal, 'my_table', 'project_id', 'proj-1', { softDelete: true })
+    await layer.list()
+    expect(mockGet).toHaveBeenCalledWith('my_table', 'project_id=eq.proj-1&status=neq.deleted')
+  })
+
+  it('get() applies the not-deleted clause (default mode)', async () => {
+    mockGet.mockResolvedValue([])
+    const layer = new PersistenceLayer<TestItem>(dal, 'my_table', 'project_id', 'proj-1')
+    await layer.get('item-1')
+    expect(mockGet).toHaveBeenCalledWith(
+      'my_table',
+      'id=eq.item-1&project_id=eq.proj-1&deleted=not.is.true&limit=1',
+    )
+  })
+
+  it('get() applies the status clause in soft-delete mode', async () => {
+    mockGet.mockResolvedValue([])
+    const layer = new PersistenceLayer<TestItem>(dal, 'my_table', 'project_id', 'proj-1', { softDelete: true })
+    await layer.get('item-1')
+    expect(mockGet).toHaveBeenCalledWith(
+      'my_table',
+      'id=eq.item-1&project_id=eq.proj-1&status=neq.deleted&limit=1',
+    )
+  })
+
+  it('end-to-end: a soft-removed row no longer appears in list()/get()', async () => {
+    const rows = [
+      { id: 'a', project_id: 'proj-1', title: 'A' } as Record<string, unknown>,
+      { id: 'b', project_id: 'proj-1', title: 'B' } as Record<string, unknown>,
+    ]
+    const match = (row: Record<string, unknown>, q: string): boolean => {
+      for (const clause of q.split('&')) {
+        let m = clause.match(/^([^=]+)=eq\.(.*)$/)
+        if (m) { if (String(row[m[1]!]) !== decodeURIComponent(m[2]!)) return false; continue }
+        m = clause.match(/^([^=]+)=neq\.(.*)$/)
+        if (m) { if (String(row[m[1]!]) === decodeURIComponent(m[2]!)) return false; continue }
+        m = clause.match(/^([^=]+)=not\.is\.true$/)
+        if (m) { if (row[m[1]!] === true) return false; continue }
+      }
+      return true
+    }
+    const liveDal: DalClient = {
+      get: async (_t, q = '') => rows.filter((r) => match(r, q)),
+      insert: async () => ({ ok: true }),
+      patch: async (_t, filter, data) => { for (const r of rows) if (match(r, filter)) Object.assign(r, data); return { ok: true } },
+    }
+    const layer = new PersistenceLayer<TestItem>(liveDal, 'my_table', 'project_id', 'proj-1', { softDelete: true })
+    await layer.remove('a')
+    const listed = await layer.list()
+    expect(listed.map((r) => r.id)).toEqual(['b'])
+    expect(await layer.get('a')).toBeNull()
   })
 })
 
@@ -247,7 +311,7 @@ describe('projectLayer factory', () => {
     mockGet.mockResolvedValue([{ id: 'item-1' }])
     const layer = projectLayer<TestItem>(dal, 'my_table', 'project-abc')
     await layer.list()
-    expect(mockGet).toHaveBeenCalledWith('my_table', 'project_id=eq.project-abc')
+    expect(mockGet).toHaveBeenCalledWith('my_table', 'project_id=eq.project-abc&deleted=not.is.true')
   })
 })
 
@@ -258,7 +322,7 @@ describe('userLayer factory', () => {
     mockGet.mockResolvedValue([])
     const layer = userLayer<TestItem>(dal, 'user_items', 'user-xyz')
     await layer.list()
-    expect(mockGet).toHaveBeenCalledWith('user_items', 'user_id=eq.user-xyz')
+    expect(mockGet).toHaveBeenCalledWith('user_items', 'user_id=eq.user-xyz&deleted=not.is.true')
   })
 })
 
@@ -269,6 +333,6 @@ describe('tenantLayer factory', () => {
     mockGet.mockResolvedValue([])
     const layer = tenantLayer<TestItem>(dal, 'tenant_items', 'tenant-123')
     await layer.list()
-    expect(mockGet).toHaveBeenCalledWith('tenant_items', 'tenant_id=eq.tenant-123')
+    expect(mockGet).toHaveBeenCalledWith('tenant_items', 'tenant_id=eq.tenant-123&deleted=not.is.true')
   })
 })

@@ -4,6 +4,7 @@ import {
   isAllowedImageMime,
   extensionForImageMime,
   ALLOWED_IMAGE_MIME,
+  assertSafePathSegment,
   type StorageUploadConfig,
 } from "./index";
 
@@ -30,6 +31,23 @@ describe("MIME allowlist", () => {
     expect(extensionForImageMime("image/jpeg")).toBe("jpg");
     expect(extensionForImageMime("image/webp")).toBe("webp");
     expect(extensionForImageMime("image/png")).toBe("png");
+  });
+});
+
+describe("assertSafePathSegment", () => {
+  it("accepts a plain single segment", () => {
+    expect(() => assertSafePathSegment("filename", "logo.png")).not.toThrow();
+    expect(() => assertSafePathSegment("tenantId", "tenant-123")).not.toThrow();
+  });
+
+  it("rejects empty, traversal, separators and control bytes", () => {
+    expect(() => assertSafePathSegment("filename", "")).toThrow(/non-empty/);
+    expect(() => assertSafePathSegment("filename", "..")).toThrow(/path traversal/);
+    expect(() => assertSafePathSegment("filename", ".")).toThrow(/path traversal/);
+    expect(() => assertSafePathSegment("filename", "a/b")).toThrow(/path separators/);
+    expect(() => assertSafePathSegment("filename", "a\\b")).toThrow(/path separators/);
+    expect(() => assertSafePathSegment("filename", "a\tb")).toThrow(/control characters/);
+    expect(() => assertSafePathSegment("filename", "a\u0000b")).toThrow(/control characters/);
   });
 });
 
@@ -81,6 +99,43 @@ describe("uploadTenantAsset", () => {
     expect(result.publicUrl).toBe(
       "https://proj.supabase.co/storage/v1/object/public/avatars/t1/a.webp",
     );
+  });
+
+  it("rejects a filename that escapes the tenant prefix (path traversal)", async () => {
+    const fetchMock = vi.fn().mockResolvedValue(new Response("{}", { status: 200 }));
+    await expect(
+      uploadTenantAsset(
+        config(fetchMock as unknown as typeof fetch),
+        "tenant-A",
+        new Uint8Array([1]),
+        "../tenant-B/logo.png",
+        "image/png",
+      ),
+    ).rejects.toThrow(/invalid filename: path separators/);
+    // Must never reach the network — no cross-tenant write is attempted.
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("rejects an absolute-path filename and a NUL-byte filename", async () => {
+    const fetchMock = vi.fn().mockResolvedValue(new Response("{}", { status: 200 }));
+    await expect(
+      uploadTenantAsset(config(fetchMock as unknown as typeof fetch), "t1", new Uint8Array([1]), "/etc/passwd", "image/png"),
+    ).rejects.toThrow(/invalid filename/);
+    await expect(
+      uploadTenantAsset(config(fetchMock as unknown as typeof fetch), "t1", new Uint8Array([1]), "logo\u007f.png", "image/png"),
+    ).rejects.toThrow(/control characters/);
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("rejects a tenantId containing traversal or separators", async () => {
+    const fetchMock = vi.fn().mockResolvedValue(new Response("{}", { status: 200 }));
+    await expect(
+      uploadTenantAsset(config(fetchMock as unknown as typeof fetch), "..", new Uint8Array([1]), "logo.png", "image/png"),
+    ).rejects.toThrow(/invalid tenantId: path traversal/);
+    await expect(
+      uploadTenantAsset(config(fetchMock as unknown as typeof fetch), "a/b", new Uint8Array([1]), "logo.png", "image/png"),
+    ).rejects.toThrow(/invalid tenantId: path separators/);
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 
   it("throws when supabaseUrl or serviceKey is missing", async () => {

@@ -409,11 +409,66 @@ describe('Redis code path', () => {
     const fallbackMap = new Map<string, number[]>()
     const result = await redisCache.slidingWindowRateLimit('rl:redis:test', 10, 60_000, fallbackMap)
     // Mock exec returns [[null, 0], [null, 0], [null, 1], [null, 1]]
-    // Destructuring [, , countResult] takes index 2 = [null, 1]
-    // countBefore = 1, count = countBefore + 1 = 2, remaining = 10 - 1 - 1 = 8
+    //   index 0 = ZREMRANGEBYSCORE, index 1 = ZCARD (count before add) = 0,
+    //   index 2 = ZADD, index 3 = PEXPIRE.
+    // We gate on the ZCARD result at index 1 = 0, so:
+    // countBefore = 0, count = 0 + 1 = 1, remaining = 10 - 0 - 1 = 9.
     expect(result.allowed).toBe(true)
-    expect(result.count).toBe(2)
-    expect(result.remaining).toBe(8)
+    expect(result.count).toBe(1)
+    expect(result.remaining).toBe(9)
+  })
+
+  it('enforces the limit on the Redis path (regression: reads ZCARD, not ZADD)', async () => {
+    // A faithful sorted-set mock: exec() returns REAL pipeline results in order
+    // [ZREMRANGEBYSCORE, ZCARD, ZADD, PEXPIRE]. ZADD always returns 1 (one new
+    // member), so a limiter that reads index 2 would be stuck at countBefore=1
+    // and never block for max>=2 — this test proves it actually blocks.
+    const zset: { score: number; member: string }[] = []
+    const realRedis = {
+      status: 'ready',
+      get: vi.fn().mockResolvedValue(null),
+      set: vi.fn(),
+      del: vi.fn().mockResolvedValue(0),
+      scan: vi.fn().mockResolvedValue(['0', []]),
+      multi: vi.fn(() => {
+        const ops: Array<() => [null, number]> = []
+        const pipe: any = {
+          zremrangebyscore: (_k: string, _min: unknown, max: unknown) => {
+            ops.push(() => {
+              const before = zset.length
+              for (let i = zset.length - 1; i >= 0; i--) if (zset[i]!.score <= Number(max)) zset.splice(i, 1)
+              return [null, before - zset.length]
+            })
+            return pipe
+          },
+          zcard: () => { ops.push(() => [null, zset.length]); return pipe },
+          zadd: (_k: string, score: number, member: string) => {
+            ops.push(() => { zset.push({ score, member }); return [null, 1] })
+            return pipe
+          },
+          pexpire: () => { ops.push(() => [null, 1]); return pipe },
+          exec: async () => ops.map((fn) => fn()),
+        }
+        return pipe
+      }),
+      zrem: vi.fn((_k: string, member: string) => {
+        const before = zset.length
+        for (let i = zset.length - 1; i >= 0; i--) if (zset[i]!.member === member) zset.splice(i, 1)
+        return Promise.resolve(before - zset.length)
+      }),
+      on: vi.fn(),
+    }
+    const rl = createCache({ redis: realRedis as unknown as RedisLike, cleanupIntervalMs: false })
+    const key = 'rl:regression:redis'
+    const max = 3
+    const outcomes: boolean[] = []
+    for (let i = 0; i < 5; i++) {
+      outcomes.push((await rl.slidingWindowRateLimit(key, max, 60_000)).allowed)
+    }
+    // First 3 allowed, the rest blocked.
+    expect(outcomes).toEqual([true, true, true, false, false])
+    // Blocked requests must not accumulate in the sorted set (zrem undo works).
+    expect(zset.length).toBe(max)
   })
 
   it('falls back to memory after the client emits an error', async () => {
