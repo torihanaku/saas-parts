@@ -1,0 +1,39 @@
+name: CI
+
+# 基本ゲート: これまで CI が無く、テストはローカル実行に依存していた。
+# 毎 PR で型チェックと全テストを回し、壊れた変更が main に入らないようにする。
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - run: bun install --frozen-lockfile
+      - name: Typecheck (all packages)
+        run: |
+          fail=0
+          for d in packages/*/tsconfig.json; do
+            p=$(dirname "$d")
+            if ! bunx tsc --noEmit -p "$d"; then
+              echo "::error::typecheck failed: $p"
+              fail=1
+            fi
+          done
+          exit $fail
+      - name: Test (vitest)
+        run: bun run test

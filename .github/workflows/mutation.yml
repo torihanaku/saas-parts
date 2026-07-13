@@ -1,0 +1,38 @@
+name: Mutation Testing
+
+# Stryker で「テストの効き」を測る。全パッケージ×毎PRは高コストなので、既定は
+# 中核パッケージのみを週次＋手動で回す（非ブロッキング＝可視化目的）。
+# 生き残った変異 = テストの穴。今回の 43 件の多くはこの穴に潜んでいた。
+on:
+  workflow_dispatch:
+    inputs:
+      mutate:
+        description: "対象glob (例: packages/audit-log/src/**/*.ts)。空なら中核パッケージ"
+        required: false
+        default: ""
+  schedule:
+    - cron: "0 17 * * 1" # 毎週月曜 JST 2:00
+
+permissions:
+  contents: read
+
+jobs:
+  stryker:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - run: bun install --frozen-lockfile
+      - name: Stryker mutation run
+        env:
+          MUTATE: ${{ github.event.inputs.mutate }}
+        run: bunx stryker run
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mutation-report
+          path: reports/mutation
+          if-no-files-found: ignore

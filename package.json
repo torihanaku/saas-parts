@@ -8,13 +8,19 @@
   ],
   "scripts": {
     "test": "vitest run",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test:property": "vitest run **/*.property.test.ts",
+    "test:rls": "bash scripts/run-rls-test.sh",
+    "mutation": "stryker run"
   },
   "devDependencies": {
     "@node-saml/node-saml": "^5.1.0",
+    "@stryker-mutator/core": "^9.6.1",
+    "@stryker-mutator/vitest-runner": "^9.6.1",
     "@testing-library/react": "^16.3.2",
     "@types/node": "^26.1.1",
     "@types/react": "^19.2.17",
+    "fast-check": "^4.9.0",
     "ioredis": "^5.11.1",
     "jsdom": "^29.1.1",
     "react": "^19.2.7",

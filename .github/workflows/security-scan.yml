@@ -1,0 +1,66 @@
+name: Security Scan
+
+# private repo でも動く構成（GitHub Advanced Security 不要）:
+# - gitleaks / osv-scanner / semgrep をジョブログに出力してゲートにする。
+# - Security タブ(SARIF)連携が欲しくなったらリポを public にするか GHAS を有効化し、
+#   codeql.yml と各ジョブの upload-sarif を有効にする。
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: "0 18 * * 1" # 毎週月曜 JST 3:00 に定期フルスキャン
+
+permissions:
+  contents: read
+
+jobs:
+  # 秘密情報スキャン（検出したら fail = マージ阻止）。secret は絶対に混入させない方針。
+  gitleaks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITLEAKS_ENABLE_UPLOAD_ARTIFACT: "false"
+
+  # 依存の既知脆弱性（初期は report のみ・非ブロッキング。棚卸し後に fail へ）。
+  osv-scanner:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: google/osv-scanner-action/osv-scanner-action@v2.0.2
+        with:
+          scan-args: |-
+            --lockfile=bun.lock
+            --recursive
+            ./
+
+  # SAST（注入 / XSS / SSRF 等）。初期は非ブロッキングで可視化 → 棚卸し後に --error でゲート化。
+  semgrep:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    container:
+      image: semgrep/semgrep
+    steps:
+      - uses: actions/checkout@v4
+      - name: Semgrep scan
+        run: |
+          semgrep scan \
+            --config p/typescript \
+            --config p/javascript \
+            --config p/security-audit \
+            --config p/secrets \
+            --exclude 'packages/*/*.test.ts' \
+            --sarif --output semgrep.sarif \
+            --text
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: semgrep-sarif
+          path: semgrep.sarif
+          if-no-files-found: ignore
