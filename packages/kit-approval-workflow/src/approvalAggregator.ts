@@ -42,8 +42,14 @@ export function aggregate(
   if (totalRequired <= 0) return { status: "approved" };
   if (responses.length === 0) return { status: "pending" };
 
-  const approves = responses.filter((r) => r.decision === "approve");
-  const rejects = responses.filter((r) => r.decision === "reject");
+  // Deduplicate by approver_id so a single approver cannot satisfy an
+  // AND-of-N gate (or veto an OR gate) by submitting multiple responses.
+  // The latest response per approver wins (by responded_at, falling back to
+  // arrival order), matching a "one approver = one current vote" model.
+  const deduped = dedupeByApprover(responses);
+
+  const approves = deduped.filter((r) => r.decision === "approve");
+  const rejects = deduped.filter((r) => r.decision === "reject");
 
   switch (mode) {
     case "single":
@@ -82,4 +88,24 @@ export function aggregate(
     default:
       return { status: "pending" };
   }
+}
+
+/**
+ * Collapse multiple responses from the same approver into a single current
+ * vote. The last response wins, ordered by `responded_at` when parseable and
+ * otherwise by arrival order. This prevents a single approver from being
+ * counted N times toward an AND/OR threshold.
+ */
+function dedupeByApprover(responses: ApprovalResponse[]): ApprovalResponse[] {
+  const latest = new Map<string, { resp: ApprovalResponse; ts: number; idx: number }>();
+  responses.forEach((resp, idx) => {
+    const parsed = Date.parse(resp.responded_at);
+    const ts = Number.isNaN(parsed) ? idx : parsed;
+    const existing = latest.get(resp.approver_id);
+    // Newer timestamp wins; on tie/unparseable, later arrival wins.
+    if (!existing || ts > existing.ts || (ts === existing.ts && idx >= existing.idx)) {
+      latest.set(resp.approver_id, { resp, ts, idx });
+    }
+  });
+  return [...latest.values()].map((e) => e.resp);
 }

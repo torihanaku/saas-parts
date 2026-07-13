@@ -74,30 +74,94 @@ export class WorkforceState {
   /** リアルタイム通知用の SSE クライアント。 */
   readonly sseClients: Map<string, ReadableStreamDefaultController> = new Map();
 
+  /**
+   * SSE クライアントの所属スコープ（tenant / user 等の任意ラベル）。
+   * `addSseClient(id, controller, scope)` で登録した場合のみ記録される。
+   *
+   * ⚠️ マルチテナント安全性: 元実装（dev-dashboard-v2）は「1 プロセス =
+   * 1 テナント」前提で全クライアントへ無差別ブロードキャストしていた。
+   * 複数テナントが同一プロセスの `sseClients` を共有すると、あるテナントの
+   * 通知が別テナントの購読者へ漏れる。scope を登録し broadcast に scope /
+   * predicate を渡すと、宛先を該当スコープのクライアントだけに限定できる
+   * （デフォルトは後方互換のため従来どおり全員へ送る）。
+   */
+  readonly sseClientScope: Map<string, string> = new Map();
+
   constructor(private readonly store: StateStore = {}) {}
 
-  // ─── SSE ブロードキャスト（元実装のまま） ──────────────────────────────────
+  // ─── SSE クライアント登録（scope 付き） ────────────────────────────────────
 
-  broadcastNotification(notification: Notification): void {
-    const encoder = new TextEncoder();
-    const data = `data: ${JSON.stringify(notification)}\n\n`;
-    for (const [clientId, controller] of this.sseClients.entries()) {
-      try {
-        controller.enqueue(encoder.encode(data));
-      } catch {
-        this.sseClients.delete(clientId);
-      }
-    }
+  /**
+   * SSE クライアントを登録する。`scope`（tenantId / userId 等）を渡すと、
+   * 以降の scoped ブロードキャストの宛先制御に使われる。
+   */
+  addSseClient(
+    clientId: string,
+    controller: ReadableStreamDefaultController,
+    scope?: string,
+  ): void {
+    this.sseClients.set(clientId, controller);
+    if (scope !== undefined) this.sseClientScope.set(clientId, scope);
+    else this.sseClientScope.delete(clientId);
   }
 
-  broadcastStateChange(): void {
+  /** SSE クライアントを登録解除する（scope も破棄）。 */
+  removeSseClient(clientId: string): void {
+    this.sseClients.delete(clientId);
+    this.sseClientScope.delete(clientId);
+  }
+
+  private dropSseClient(clientId: string): void {
+    this.sseClients.delete(clientId);
+    this.sseClientScope.delete(clientId);
+  }
+
+  // ─── SSE ブロードキャスト ───────────────────────────────────────────────────
+
+  /**
+   * 通知をブロードキャストする。
+   *
+   * @param target 宛先の絞り込み（任意）:
+   *   - 省略時: 従来どおり全クライアントへ送る（後方互換・単一テナント想定）。
+   *   - 文字列: `sseClientScope` がその値に一致するクライアントにのみ送る
+   *     （マルチテナントでの tenant/user 分離）。scope 未登録のクライアントは
+   *     除外される（漏洩しない安全側デフォルト）。
+   *   - 述語関数: `(clientId, scope) => boolean` が true のクライアントにのみ送る。
+   */
+  broadcastNotification(
+    notification: Notification,
+    target?: string | ((clientId: string, scope: string | undefined) => boolean),
+  ): void {
+    const encoder = new TextEncoder();
+    const data = `data: ${JSON.stringify(notification)}\n\n`;
+    this.emitToClients(encoder.encode(data), target);
+  }
+
+  broadcastStateChange(
+    target?: string | ((clientId: string, scope: string | undefined) => boolean),
+  ): void {
     const encoder = new TextEncoder();
     const data = `event: state-change\ndata: {}\n\n`;
+    this.emitToClients(encoder.encode(data), target);
+  }
+
+  private emitToClients(
+    payload: Uint8Array,
+    target?: string | ((clientId: string, scope: string | undefined) => boolean),
+  ): void {
+    const match =
+      target === undefined
+        ? () => true
+        : typeof target === "function"
+          ? target
+          : (_id: string, scope: string | undefined) => scope === target;
+
     for (const [clientId, controller] of this.sseClients.entries()) {
+      if (!match(clientId, this.sseClientScope.get(clientId))) continue;
       try {
-        controller.enqueue(encoder.encode(data));
+        controller.enqueue(payload);
       } catch {
-        this.sseClients.delete(clientId);
+        this.dropSseClient(clientId);
       }
     }
   }

@@ -130,6 +130,18 @@ describe("connection-id convention", () => {
     expect(extractClientId("plain-connection")).toBeNull();
   });
 
+  it("extracts client IDs containing underscores round-trip (cross-client safety)", () => {
+    // Regression: a clientId with an underscore (e.g. "acme_corp") must not be
+    // truncated to "acme", which would mis-attribute the connection to a
+    // different client within the tenant.
+    for (const clientId of ["acme_corp", "team_a_b", "abc"]) {
+      const cid = buildConnectionId(clientId, "slack");
+      expect(extractClientId(cid)).toBe(clientId);
+      expect(isClientConnection(cid, clientId)).toBe(true);
+    }
+    expect(extractClientId("client_acme_corp_google-analytics")).toBe("acme_corp");
+  });
+
   it("checks ownership", () => {
     expect(isClientConnection("client_abc_slack", "abc")).toBe(true);
     expect(isClientConnection("client_abc_slack", "xyz")).toBe(false);
