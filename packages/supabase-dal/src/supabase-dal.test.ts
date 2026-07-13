@@ -5,7 +5,7 @@
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 
-import { createSupabaseDal, escapePostgrestValue } from './index'
+import { createSupabaseDal, escapePostgrestValue, assertSafeStoragePath } from './index'
 
 const dal = createSupabaseDal({
   url: 'https://test.supabase.co',
@@ -199,6 +199,50 @@ describe('delete', () => {
     const result = await dal.delete('my_table', 'id=eq.1')
     expect(result.ok).toBe(false)
     expect(result.error).toContain('net error')
+  })
+})
+
+describe('assertSafeStoragePath', () => {
+  it('accepts normal nested paths', () => {
+    expect(() => assertSafeStoragePath('tenant-1/2026/report.pdf')).not.toThrow()
+    expect(() => assertSafeStoragePath('file.pdf')).not.toThrow()
+  })
+
+  it('rejects "../" traversal segments', () => {
+    expect(() => assertSafeStoragePath('../../secret-bucket/creds.json')).toThrow(/traversal/)
+    expect(() => assertSafeStoragePath('a/../../b')).toThrow(/traversal/)
+  })
+
+  it('rejects "." and ".." segments and absolute paths', () => {
+    expect(() => assertSafeStoragePath('./a')).toThrow(/traversal/)
+    expect(() => assertSafeStoragePath('/etc/passwd')).toThrow(/relative/)
+  })
+
+  it('rejects backslashes and empty paths', () => {
+    expect(() => assertSafeStoragePath('a\\..\\b')).toThrow(/backslash/)
+    expect(() => assertSafeStoragePath('')).toThrow(/non-empty/)
+  })
+})
+
+describe('storage path traversal is blocked at the wrapper', () => {
+  it('upload with a traversal path returns ok:false and never calls fetch', async () => {
+    const result = await dal.upload('tenant-abc', '../../secret-bucket/creds.json', 'x', 'application/json')
+    expect(result.ok).toBe(false)
+    expect(result.error).toMatch(/traversal/)
+    expect(fetchSpy).not.toHaveBeenCalled()
+  })
+
+  it('download with a traversal path returns null and never calls fetch', async () => {
+    const result = await dal.download('tenant-abc', '../../secret-bucket/creds.json')
+    expect(result).toBeNull()
+    expect(fetchSpy).not.toHaveBeenCalled()
+  })
+
+  it('still allows a legitimate nested upload path', async () => {
+    fetchSpy.mockImplementation(() => Promise.resolve(makeOkResponse({ Key: 'ok' })))
+    const result = await dal.upload('docs', 'tenant-1/2026/file.pdf', 'content', 'application/pdf')
+    expect(result.ok).toBe(true)
+    expect(fetchSpy).toHaveBeenCalled()
   })
 })
 

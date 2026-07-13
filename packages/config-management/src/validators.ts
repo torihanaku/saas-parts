@@ -62,6 +62,12 @@ export function createSupabaseValidator(config: SupabaseValidatorConfig): Health
           Authorization: `Bearer ${config.serviceRoleKey}`,
         },
         signal: AbortSignal.timeout(timeoutMs),
+        // Never follow redirects on a health check: a 30x from a
+        // misconfigured/hostile endpoint would otherwise replay the
+        // request (incl. the apikey header, which the fetch spec does NOT
+        // strip cross-origin) to an attacker-controlled host. A redirect is
+        // treated as a non-ok response instead.
+        redirect: "manual",
       });
       return {
         service: "supabase", category: "database",
@@ -89,6 +95,12 @@ export function createAnthropicValidator(config: AnthropicValidatorConfig): Heal
       const res = await doFetch("https://api.anthropic.com/v1/models", {
         headers: { "x-api-key": key, "anthropic-version": "2023-06-01" },
         signal: AbortSignal.timeout(timeoutMs),
+        // Never follow redirects on a health check: a 30x from a
+        // misconfigured/hostile endpoint would otherwise replay the
+        // request (incl. the apikey header, which the fetch spec does NOT
+        // strip cross-origin) to an attacker-controlled host. A redirect is
+        // treated as a non-ok response instead.
+        redirect: "manual",
       });
       return {
         service: "anthropic", category: "ai",
@@ -118,6 +130,12 @@ export function createGitHubValidator(config: GitHubValidatorConfig): HealthVali
       const res = await doFetch("https://api.github.com/rate_limit", {
         headers: { Authorization: `Bearer ${token}`, "User-Agent": config.userAgent ?? "config-management-health" },
         signal: AbortSignal.timeout(timeoutMs),
+        // Never follow redirects on a health check: a 30x from a
+        // misconfigured/hostile endpoint would otherwise replay the
+        // request (incl. the apikey header, which the fetch spec does NOT
+        // strip cross-origin) to an attacker-controlled host. A redirect is
+        // treated as a non-ok response instead.
+        redirect: "manual",
       });
       return {
         service: "github", category: "integration",
@@ -152,6 +170,12 @@ export function createSlackValidator(config: SlackValidatorConfig): HealthValida
         method: "POST",
         headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/x-www-form-urlencoded" },
         signal: AbortSignal.timeout(timeoutMs),
+        // Never follow redirects on a health check: a 30x from a
+        // misconfigured/hostile endpoint would otherwise replay the
+        // request (incl. the apikey header, which the fetch spec does NOT
+        // strip cross-origin) to an attacker-controlled host. A redirect is
+        // treated as a non-ok response instead.
+        redirect: "manual",
       });
       const data = await res.json() as { ok: boolean; error?: string };
       return {
@@ -180,6 +204,12 @@ export function createStripeValidator(config: StripeValidatorConfig): HealthVali
       const res = await doFetch("https://api.stripe.com/v1/balance", {
         headers: { Authorization: `Bearer ${key}` },
         signal: AbortSignal.timeout(timeoutMs),
+        // Never follow redirects on a health check: a 30x from a
+        // misconfigured/hostile endpoint would otherwise replay the
+        // request (incl. the apikey header, which the fetch spec does NOT
+        // strip cross-origin) to an attacker-controlled host. A redirect is
+        // treated as a non-ok response instead.
+        redirect: "manual",
       });
       return {
         service: "stripe", category: "billing",
@@ -226,6 +256,12 @@ export function createResendValidator(config: ResendValidatorConfig): HealthVali
       const res = await doFetch("https://api.resend.com/domains", {
         headers: { Authorization: `Bearer ${key}` },
         signal: AbortSignal.timeout(timeoutMs),
+        // Never follow redirects on a health check: a 30x from a
+        // misconfigured/hostile endpoint would otherwise replay the
+        // request (incl. the apikey header, which the fetch spec does NOT
+        // strip cross-origin) to an attacker-controlled host. A redirect is
+        // treated as a non-ok response instead.
+        redirect: "manual",
       });
       return {
         service: "resend", category: "integration",
@@ -253,6 +289,12 @@ export function createOpenAIValidator(config: OpenAIValidatorConfig): HealthVali
       const res = await doFetch("https://api.openai.com/v1/models", {
         headers: { Authorization: `Bearer ${key}` },
         signal: AbortSignal.timeout(timeoutMs),
+        // Never follow redirects on a health check: a 30x from a
+        // misconfigured/hostile endpoint would otherwise replay the
+        // request (incl. the apikey header, which the fetch spec does NOT
+        // strip cross-origin) to an attacker-controlled host. A redirect is
+        // treated as a non-ok response instead.
+        redirect: "manual",
       });
       return {
         service: "openai", category: "ai",

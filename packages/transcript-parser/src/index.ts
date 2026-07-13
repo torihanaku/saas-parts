@@ -38,8 +38,24 @@ const TIMING_LINE_RE = /^\d{2}:\d{2}(?::\d{2})?[.,]\d{1,3}\s*-->\s*\d{2}:\d{2}(?
 const SRT_INDEX_RE = /^\d+$/;
 const VTT_NOTE_RE = /^(WEBVTT|NOTE|STYLE|REGION)\b/i;
 const VTT_CUE_TAG_RE = /<[^>]+>/g; // strip <c.color>...</c> etc.
+/**
+ * WebVTT voice span at the start of a cue: `<v Bob>Hello</v>` or
+ * `<v.loud Bob Smith>Hi</v>`. Captures the speaker name so it can be preserved
+ * as a `Name: ` prefix instead of being destroyed by generic tag stripping.
+ * Without this, Zoom / YouTube auto-caption speaker labels are silently lost.
+ */
+const VTT_VOICE_TAG_RE = /^<v(?:\.[^\s>]+)*\s+([^>]+)>/i;
 
 function cleanCueLine(line: string): string {
+  // Preserve WebVTT voice-tag speaker as an inline `Name: ` label before the
+  // generic tag stripper removes it. Only rewrite when the line isn't already
+  // in the "Name: text" inline form.
+  const voice = line.match(VTT_VOICE_TAG_RE);
+  if (voice) {
+    const speaker = (voice[1] ?? "").trim();
+    const rest = line.slice(voice[0].length).replace(VTT_CUE_TAG_RE, "").trim();
+    if (speaker) return rest ? `${speaker}: ${rest}` : "";
+  }
   return line.replace(VTT_CUE_TAG_RE, "").trim();
 }
 

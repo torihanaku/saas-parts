@@ -29,21 +29,29 @@ export interface EmailDecisionParserConfig {
   replyMarkerFilter?: (line: string) => boolean;
 }
 
-/** Source defaults (EN + JA). */
+/**
+ * Source defaults (EN + JA).
+ *
+ * SECURITY: each Latin keyword is anchored with a word boundary (`\b`) so it only
+ * matches as a whole decision token, not as the prefix of an unrelated word. Without
+ * this, `/^\s*yes/i` matched "yesterday…" and `/^\s*ok/i` matched "okey dokey I decline",
+ * causing a non-approval reply to be parsed as an approval in a headless approval flow.
+ * ("ok" additionally accepts the "okay" spelling.)
+ */
 export const DEFAULT_APPROVAL_PATTERNS: readonly RegExp[] = [
-  /^\s*approve/i,
-  /^\s*approved/i,
-  /^\s*ok/i,
-  /^\s*yes/i,
+  /^\s*approve\b/i,
+  /^\s*approved\b/i,
+  /^\s*ok(?:ay)?\b/i,
+  /^\s*yes\b/i,
   /^\s*承認/,
 ];
 
-/** Source defaults (EN + JA). */
+/** Source defaults (EN + JA). Latin keywords are word-boundary anchored (see approval note). */
 export const DEFAULT_REJECTION_PATTERNS: readonly RegExp[] = [
-  /^\s*reject/i,
-  /^\s*rejected/i,
-  /^\s*no/i,
-  /^\s*deny/i,
+  /^\s*reject\b/i,
+  /^\s*rejected\b/i,
+  /^\s*no\b/i,
+  /^\s*deny\b/i,
   /^\s*却下/,
   /^\s*不承認/,
 ];

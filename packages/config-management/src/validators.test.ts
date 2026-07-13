@@ -271,3 +271,30 @@ describe("pluggable registry", () => {
     expect(all.some(r => r.service === "my-service")).toBe(true);
   });
 });
+
+// =========================================================================
+// Regression: health-check fetches must NOT follow redirects (credential
+// leak / SSRF). A 30x from a hostile/misconfigured endpoint would otherwise
+// replay the request — incl. the `apikey` header, which the fetch spec does
+// NOT strip cross-origin — to an attacker-controlled host.
+// =========================================================================
+
+describe("SSRF hardening: no redirect following on health checks", () => {
+  it('issues the outbound fetch with redirect: "manual"', async () => {
+    fetchSpy.mockImplementation(() => Promise.resolve(new Response(null, { status: 200 })));
+    await buildRunner().run("supabase");
+    expect(fetchSpy).toHaveBeenCalled();
+    const init = fetchSpy.mock.calls[0]?.[1] as RequestInit | undefined;
+    expect(init?.redirect).toBe("manual");
+  });
+
+  it("treats a 30x redirect response as an error, not a followed request", async () => {
+    // A manual-redirect fetch surfaces the 30x as a non-ok Response.
+    fetchSpy.mockImplementation(() =>
+      Promise.resolve(new Response(null, { status: 302, headers: { location: "https://evil.example" } }))
+    );
+    const result = await buildRunner().run("supabase");
+    expect(result!.status).toBe("error");
+    expect(result!.message).toContain("302");
+  });
+});

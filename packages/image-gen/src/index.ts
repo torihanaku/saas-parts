@@ -131,15 +131,29 @@ export function createImageGen(config: ImageGenConfig = {}): ImageGen {
     const enhancedPrompt = transformer(params.prompt, params.brandGuidelines);
     const enhanced = { ...params, prompt: enhancedPrompt };
 
-    // Determine provider by model prefix / provider match
-    const models = await listAllModels();
-    const modelInfo = models.find((m) => m.id === params.model);
-    if (!modelInfo) {
+    // Resolve the model from EVERY provider's static catalog — not from
+    // listAllModels(), which only enumerates providers whose *default* key is
+    // configured. A request may carry a per-request BYOK key (params.apiKey)
+    // for a provider that has no default key; that request must still route.
+    const catalogs = await Promise.all(providers.map((p) => p.listModels()));
+    let modelInfo: ImageModel | undefined;
+    let provider: ImageProvider | undefined;
+    for (let i = 0; i < providers.length; i++) {
+      const found = catalogs[i]?.find((m) => m.id === params.model);
+      if (found) {
+        modelInfo = found;
+        provider = providers[i];
+        break;
+      }
+    }
+    if (!modelInfo || !provider) {
       throw new Error(`Unknown image model: ${params.model}. Use listAllModels() to list available models.`);
     }
 
-    const provider = providers.find((p) => p.id === modelInfo.provider);
-    if (!provider || !provider.isAvailable()) {
+    // A provider is usable when its default key makes it available OR the
+    // caller supplied a BYOK key for this request. The provider's generate()
+    // performs the final key validation.
+    if (!provider.isAvailable() && !params.apiKey) {
       throw new Error(`Provider "${modelInfo.provider}" is not available. Check API key configuration.`);
     }
 

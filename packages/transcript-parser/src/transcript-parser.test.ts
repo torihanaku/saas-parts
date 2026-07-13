@@ -78,6 +78,35 @@ is split.
     expect(out.cueCount).toBe(0);
     expect(out.text).toBe("");
   });
+
+  it("preserves <v Speaker> voice-tag labels instead of dropping them", () => {
+    // Regression: Zoom / YouTube auto-captions encode the speaker as a WebVTT
+    // voice tag `<v Bob>...</v>`. The generic `<...>` tag stripper used to
+    // delete the whole tag, silently losing every speaker label and defeating
+    // the diarized-summary use case.
+    const vtt = `WEBVTT
+
+00:00:01.000 --> 00:00:04.000
+<v Bob>Hello world</v>
+
+00:00:05.000 --> 00:00:08.000
+<v.loud Alice Smith>Hi Bob, how are you?</v>
+`;
+    const out = parseTranscript(vtt, "vtt");
+    expect(out.cueCount).toBe(2);
+    expect(out.text).toBe("Bob: Hello world\nAlice Smith: Hi Bob, how are you?");
+  });
+
+  it("drops an empty voice span (no residual bare label)", () => {
+    const vtt = `WEBVTT
+
+00:00:01.000 --> 00:00:04.000
+<v Bob></v>
+`;
+    const out = parseTranscript(vtt, "vtt");
+    expect(out.cueCount).toBe(0);
+    expect(out.text).toBe("");
+  });
 });
 
 describe("parseTranscript (srt)", () => {
