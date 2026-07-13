@@ -1,0 +1,32 @@
+name: CodeQL
+
+# CodeQL のデータフロー/taint 解析は SQL/NoSQL 注入・XSS・SSRF に強い。
+# ただし結果を Security タブに上げる code scanning は private repo では
+# GitHub Advanced Security が必要。現状 private のため既定は手動実行(workflow_dispatch)。
+#
+# 有効化の手順:
+#   1) リポを public にする、または GHAS を有効化
+#   2) 下の on: に push/pull_request/schedule を足す（コメント解除）
+on:
+  workflow_dispatch:
+  # push:
+  #   branches: [main]
+  # pull_request:
+  #   branches: [main]
+  # schedule:
+  #   - cron: "0 18 * * 1"
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: github/codeql-action/init@v3
+        with:
+          languages: javascript-typescript
+          queries: security-extended
+      - uses: github/codeql-action/analyze@v3

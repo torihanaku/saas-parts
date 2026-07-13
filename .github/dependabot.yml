@@ -1,0 +1,18 @@
+version: 2
+updates:
+  # npm/bun 依存の脆弱性・更新を週次で PR 化
+  - package-ecosystem: npm
+    directory: "/"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 10
+    groups:
+      dev-dependencies:
+        dependency-type: development
+        update-types: [minor, patch]
+
+  # GitHub Actions 自体の更新（サプライチェーン）
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
