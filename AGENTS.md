@@ -175,3 +175,15 @@ SaaS開発用の共有部品monorepo（全112パッケージ＝汎用部品96＋
 3. 構成: `package.json`（@torihanaku/<name>, type:module, exports→src/index.ts）/ `tsconfig.json`（../../tsconfig.base.json継承）/ `src/index.ts` / `src/*.test.ts` / `README.md`（用途1行・API例・注入ポイント・想定ランタイム・出典）
 4. 検証: リポルートで `npx tsc --noEmit -p packages/<name>/tsconfig.json` と `npx vitest run packages/<name>` が通ること
 5. 追加したらこのAGENTS.mdの索引に1行追記
+
+## セキュリティ・チェックリスト（部品の追加・改造時／2026-07-13 全数監査で確定バグ43件を修正した知見）
+
+**テストgreen≠正しい。** 認証・課金・テナント分離・削除・入力検証に触る部品は、退化入力を `node -e` で実際に試してから出す。監査で最多だった穴:
+
+1. **単一テナント→マルチテナント移植漏れ（最多）**: 全read/write/削除に tenant/user スコープを通す（クエリのWHERE句を実際に見る）。SSE/通知は全接続ブロードキャストにしない。Storageキーはパストラバーサル検査。`sql-templates` を使うなら各コマンドの `USING`＋**`WITH CHECK`**（無いと他テナント行を書ける）とオーナーバイパス（`ENABLE`のみでポリシー0件はNG）を確認。
+2. **検証バイパス**: SQLは`;`後の文を拒否・SELECT接頭辞だけで満足しない。ユーザー入力を HTML/CSV(先頭`=+-@`)/メールヘッダ(改行)/正規表現 に生で入れない。OAuth stateはワンタイム＋timing-safe。
+3. **fail-open**: バリデータ/削除/レート制限/冪等処理は失敗時 **fail-closed**（拒否/保留/再試行）。「storeエラーで0/空/trueを返す」は疑う。
+4. **境界・数値**: サイズ上限は `TextEncoder` でバイト計測。NaN/∞・0コンバージョン・前方一致・代入vs加算・重複承認者・ジョブ二重実行に注意。
+5. **可逆な秘匿**: 匿名化は無秘密sha256でなくHMAC＋pepper。fetchは `redirect:"manual"`、SSRF検査はDNS解決先のprivate IPも見る。秘密をログ/エラー本文に出さない。
+
+詳細と実例: `~/.claude/rules/vibe-coding-pitfalls.md`
