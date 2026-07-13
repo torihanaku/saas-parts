@@ -92,17 +92,28 @@ describe('verifyOAuthState', () => {
     expect(mockStore.del).not.toHaveBeenCalled()
   })
 
-  it('falls back to type-only check on store miss', async () => {
+  it('falls back to type-only check on store miss WHEN explicitly opted in', async () => {
     mockStore.get.mockResolvedValueOnce(null)
     const stateRaw = JSON.stringify({ type: 'github', nonce: 'some-nonce' })
-    const result = await verifyOAuthState(stateRaw, 'github', mockStore)
+    const result = await verifyOAuthState(stateRaw, 'github', mockStore, {
+      allowStoreMissFallback: true,
+    })
     expect(result).toBe(true)
   })
 
-  it('returns false on store miss with wrong type', async () => {
+  it('SECURITY: rejects on store miss by default (no forgeable type-only fallback)', async () => {
+    mockStore.get.mockResolvedValueOnce(null)
+    // Attacker forges a state with a guessable provider name + random nonce.
+    const forged = JSON.stringify({ type: 'github', nonce: 'attacker-chosen' })
+    expect(await verifyOAuthState(forged, 'github', mockStore)).toBe(false)
+  })
+
+  it('returns false on store miss with wrong type (even with fallback opted in)', async () => {
     mockStore.get.mockResolvedValueOnce(null)
     const stateRaw = JSON.stringify({ type: 'slack', nonce: 'some-nonce' })
-    const result = await verifyOAuthState(stateRaw, 'github', mockStore)
+    const result = await verifyOAuthState(stateRaw, 'github', mockStore, {
+      allowStoreMissFallback: true,
+    })
     expect(result).toBe(false)
   })
 
@@ -151,11 +162,21 @@ describe('consumeOAuthState', () => {
     expect(mockStore.del).toHaveBeenCalledWith('oauth-state:pkce-nonce')
   })
 
-  it('returns no verifier on store-miss fallback', async () => {
+  it('returns no verifier on store-miss fallback (opted in)', async () => {
+    mockStore.get.mockResolvedValueOnce(null)
+    const stateRaw = JSON.stringify({ type: 'google', nonce: 'n' })
+    const result = await consumeOAuthState(stateRaw, 'google', mockStore, {
+      allowStoreMissFallback: true,
+    })
+    expect(result.valid).toBe(true)
+    expect(result.verifier).toBeUndefined()
+  })
+
+  it('SECURITY: store miss is invalid by default and yields no verifier', async () => {
     mockStore.get.mockResolvedValueOnce(null)
     const stateRaw = JSON.stringify({ type: 'google', nonce: 'n' })
     const result = await consumeOAuthState(stateRaw, 'google', mockStore)
-    expect(result.valid).toBe(true)
+    expect(result.valid).toBe(false)
     expect(result.verifier).toBeUndefined()
   })
 })

@@ -14,13 +14,19 @@ export function isValidEmail(email: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) && email.length <= 254;
 }
 
+const BODY_BYTE_ENCODER = new TextEncoder();
+
 /** Validate request body size (returns parsed body or null) */
 export async function parseBodyWithLimit(req: Request, maxBytes: number = 1_048_576): Promise<Record<string, unknown> | null> {
   const contentLength = req.headers.get("Content-Length");
   if (contentLength && parseInt(contentLength) > maxBytes) return null;
   try {
     const text = await req.text();
-    if (text.length > maxBytes) return null;
+    // Enforce the limit in BYTES, not UTF-16 code units. `text.length` counts
+    // code units, so a body of multibyte UTF-8 characters (e.g. emoji, CJK)
+    // could be up to ~4x the intended byte budget yet still pass a naive
+    // `text.length > maxBytes` check — a body-size-limit bypass / DoS vector.
+    if (BODY_BYTE_ENCODER.encode(text).length > maxBytes) return null;
     return JSON.parse(text);
   } catch {
     return null;

@@ -9,10 +9,20 @@
  * Ported from dev-dashboard-v2/server/lib/oauth-state.ts — the hard
  * dependency on the product's Redis cache layer (`cacheGet`/`cacheSet`/
  * `cacheDel`) was replaced by the injected `StateStore` interface.
- * The verification semantics are preserved exactly:
+ *
+ * SECURITY (2026-07 hardening): the original port fell back to a *type-only*
+ * check on store miss ("prevents login breakage on serverless"). That fallback
+ * is a CSRF bypass: the `type` (provider name, e.g. "slack"/"github") is public
+ * and guessable, so an attacker can forge a state with any random nonce and it
+ * is accepted — and PKCE is silently dropped because no verifier is returned.
+ * The store-miss fallback is now **off by default** (secure). Deployments that
+ * genuinely lack a shared store may opt back in via
+ * `{ allowStoreMissFallback: true }`, but the correct fix is to inject a shared
+ * StateStore (Redis/Firestore/Memcached).
+ *
+ * Verification semantics:
  *   - store hit  → type must match, nonce is deleted (one-time use)
- *   - store miss → fallback to type-only check (prevents login breakage
- *     on serverless / multi-instance without a shared store)
+ *   - store miss → INVALID by default (opt-in type-only fallback available)
  */
 
 /** Data stored per state nonce. */
@@ -72,16 +82,30 @@ export async function generateOAuthState(
   return JSON.stringify({ type, nonce });
 }
 
+/** Options for state consumption / verification. */
+export interface ConsumeOAuthStateOptions {
+  /**
+   * When the nonce is not found in the store, fall back to a type-only check.
+   * DEFAULT `false` (secure): a store miss is treated as INVALID, because the
+   * `type` is public/guessable and a type-only pass lets an attacker forge a
+   * state (CSRF bypass) and also silently drops PKCE. Only enable this if you
+   * knowingly run without a shared StateStore and accept the weaker guarantee.
+   */
+  allowStoreMissFallback?: boolean;
+}
+
 /**
  * Consume an OAuth state parameter (one-time use).
  * Returns validity plus the stored PKCE verifier (when the flow used PKCE).
- * Falls back to type-only check on store miss (e.g., multi-instance without a
- * shared store). This is less strict but prevents login breakage on serverless.
+ *
+ * A store miss is INVALID by default. See `ConsumeOAuthStateOptions` /
+ * `allowStoreMissFallback` for the (discouraged) legacy fallback.
  */
 export async function consumeOAuthState(
   stateRaw: string,
   expectedType: string,
   store: StateStore = defaultStore,
+  options: ConsumeOAuthStateOptions = {},
 ): Promise<{ valid: boolean; verifier?: string }> {
   try {
     const parsed = JSON.parse(stateRaw) as { type: string; nonce?: string };
@@ -93,19 +117,24 @@ export async function consumeOAuthState(
       await store.del(`${STATE_PREFIX}${parsed.nonce}`); // One-time use
       return { valid: true, ...(stored.verifier ? { verifier: stored.verifier } : {}) };
     }
-    // Fallback: store miss (no shared store, different instance). Verify type only.
-    return { valid: parsed.type === expectedType };
+    // Store miss. Secure default: reject. The type is public and guessable, so
+    // accepting on a type-only match would defeat CSRF protection and drop PKCE.
+    if (options.allowStoreMissFallback) {
+      return { valid: parsed.type === expectedType };
+    }
+    return { valid: false };
   } catch {
     return { valid: false };
   }
 }
 
 /** Verify an OAuth state parameter. Returns true if valid (one-time use).
- * Falls back to type-only check when the store misses. */
+ * A store miss is INVALID by default; see `allowStoreMissFallback`. */
 export async function verifyOAuthState(
   stateRaw: string,
   expectedType: string,
   store: StateStore = defaultStore,
+  options: ConsumeOAuthStateOptions = {},
 ): Promise<boolean> {
-  return (await consumeOAuthState(stateRaw, expectedType, store)).valid;
+  return (await consumeOAuthState(stateRaw, expectedType, store, options)).valid;
 }

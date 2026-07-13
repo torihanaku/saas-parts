@@ -134,8 +134,34 @@ describe("requireClientAccess — agency_member", () => {
     mockFindMemberByEmail.mockResolvedValue(
       member({ role: "agency_member", tenant_id: AGENCY_TENANT, assigned_clients: [CLIENT_A] }),
     );
+    mockFindTenantById.mockResolvedValue({
+      id: AGENCY_TENANT,
+      name: "Agency",
+      type: "agency",
+      managed_clients: null,
+    });
     const res = await requireClientAccess(makeReq(), CLIENT_A);
     expect(res).toBeNull();
+  });
+
+  // Regression: an agency_member whose OWN tenant is NOT type=agency must be
+  // denied even if assigned_clients lists the target — mirrors the agency_admin
+  // guard. Without the tenant.type check this granted cross-tenant access.
+  it("403 when member role is agency_member but own tenant is not an agency", async () => {
+    const NOT_AGENCY = "dddddddd-dddd-dddd-dddd-dddddddddddd";
+    mockSessionEmail.mockResolvedValue("mislabeled@direct.test");
+    mockFindMemberByEmail.mockResolvedValue(
+      member({ role: "agency_member", tenant_id: NOT_AGENCY, assigned_clients: [CLIENT_B] }),
+    );
+    mockFindTenantById.mockResolvedValue({
+      id: NOT_AGENCY,
+      name: "Direct Co",
+      type: "direct",
+      managed_clients: null,
+    });
+    const res = await requireClientAccess(makeReq(), CLIENT_B);
+    expect(res!.status).toBe(403);
+    expect(mockLogAudit).toHaveBeenCalled();
   });
 
   it("403 when clientId not in assigned_clients", async () => {

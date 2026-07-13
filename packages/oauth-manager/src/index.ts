@@ -25,6 +25,7 @@ export {
   STATE_TTL,
   type StateStore,
   type OAuthStateData,
+  type ConsumeOAuthStateOptions,
 } from "./oauth-state";
 
 export {
