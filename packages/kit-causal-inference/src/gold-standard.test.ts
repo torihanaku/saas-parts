@@ -1,7 +1,7 @@
 /**
  * Gold-standard tests for causal inference estimators.
  *
- * Ported from dev-dashboard-v2 `tests/causal/gold-standard/estimators.test.ts`.
+ * Ported from 実運用SaaS `tests/causal/gold-standard/estimators.test.ts`.
  *
  * Compares TypeScript implementation results against R/Python ground-truth
  * fixture values with 1% relative error tolerance for effect sizes.

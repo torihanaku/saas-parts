@@ -1,6 +1,6 @@
 /**
  * ウィジェットデータフェッチャ (`ga4` / `costs` / `campaigns` / `sns`)。
- * 出典: dev-dashboard-v2 server/lib/widget-data/sources.ts (#721)。
+ * 出典: 実運用SaaS server/lib/widget-data/sources.ts (#721)。
  *
  * 移植方針:
  * - DB アクセス (`supabaseGet`) は `TableQuery` の注入に置換。
@@ -44,7 +44,7 @@ export interface SourceTableConfig {
    * テナント分離のためのカラム名 (PostgREST フィルタ `<col>=eq.<tenantId>` に使う)。
    *
    * ⚠ マルチテナントで運用する場合は必須。省略したテーブルは **テナントで絞られず、
-   * 全テナントのデータを横断で読む** (dev-dashboard-v2 は単一テナント製品だったため
+   * 全テナントのデータを横断で読む** (実運用SaaS は単一テナント製品だったため
    * 原文にはフィルタが無かった。汎用部品として cross-tenant leak を防ぐため注入式にした)。
    *
    * 例: `{ adInsights: "tenant_id", integrations: "tenant_id", contentCalendar: "project_id" }`

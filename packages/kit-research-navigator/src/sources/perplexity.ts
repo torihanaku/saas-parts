@@ -2,7 +2,7 @@
  * Perplexity (chat/completions 互換 API) にニュース集約を依頼し、
  * JSON 配列で返させてシグナル化するソース実装例。
  * 元実装は Nango プロキシ経由だったが、API キー注入の直接呼び出しに一般化。
- * 出典: dev-dashboard-v2 server/lib/navigator/ingestion/perplexity.ts
+ * 出典: 実運用SaaS server/lib/navigator/ingestion/perplexity.ts
  */
 import type { NewSignal } from "../types";
 import type { SignalSource } from "../ports";

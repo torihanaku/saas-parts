@@ -2,7 +2,7 @@
  * @torihanaku/kit-devops-metrics
  *
  * 開発組織メトリクス＆デプロイ運用の汎用コア。
- * dev-dashboard-v2 の dora / deploy-* / git-workspace / autonomous-deploy から抽出。
+ * 実運用SaaS の dora / deploy-* / git-workspace / autonomous-deploy から抽出。
  * GitHub API は GitProvider、永続化は注入 store、Slack 通知は注入コールバックに置換。
  */
 

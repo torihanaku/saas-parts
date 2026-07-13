@@ -1,6 +1,6 @@
 /**
  * GDPR Data Exporter — collect all user data for portability export.
- * Ported from dev-dashboard-v2 `server/lib/gdpr-exporter.ts`.
+ * Ported from 実運用SaaS `server/lib/gdpr-exporter.ts`.
  * EXPORT_TARGETS is now caller-supplied config; persistence is an
  * injected `GdprStore`. CSV escaping preserved exactly.
  */

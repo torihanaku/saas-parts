@@ -1,7 +1,7 @@
 /**
  * MCP wire types (JSON-RPC 2.0 + tool result helpers).
  *
- * 出典: dev-dashboard-v2 server/mcp/types.ts（ToolResult/textResult/jsonResult）
+ * 出典: 実運用SaaS server/mcp/types.ts（ToolResult/textResult/jsonResult）
  *       + rpc.ts の JSON-RPC 形をフレームワーク非依存の型に切り出し。
  */
 

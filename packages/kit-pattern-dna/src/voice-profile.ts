@@ -8,7 +8,7 @@
  * Pipeline: extractStyleFeatures → aggregateFeatures → buildVoicePrompt
  * → synthesizeVoiceProfile → trainVoiceProfile（ingestDna で永続化）。
  *
- * 出典: dev-dashboard-v2 `server/lib/company-dna/brand-voice.ts`
+ * 出典: 実運用SaaS `server/lib/company-dna/brand-voice.ts`
  * （Claude API 直呼び → LlmCaller 注入、Supabase → DnaStore 注入）。
  * 「brand voice」→「組織の声」に汎用化（プロンプト原文はデフォルトとして維持）。
  */

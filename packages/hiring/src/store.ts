@@ -1,7 +1,7 @@
 /**
  * Persistence interface for the hiring service.
  *
- * The original dev-dashboard-v2 routes call Supabase REST directly
+ * The original 実運用SaaS routes call Supabase REST directly
  * (supabaseGet / supabaseInsert / supabasePatch / supabaseDelete against
  * dd_job_postings / dd_applications / dd_application_events / dd_landing_pages /
  * dashboard_team_members). Those calls are collapsed into this typed store so

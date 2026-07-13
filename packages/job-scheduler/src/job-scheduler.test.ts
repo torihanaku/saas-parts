@@ -1,6 +1,6 @@
 /**
  * Tests for @torihanaku/job-scheduler.
- * Ported from dev-dashboard-v2/tests/job-scheduler.test.ts — core scheduler
+ * Ported from 実運用SaaS/tests/job-scheduler.test.ts — core scheduler
  * behaviors only (product-specific built-in job tests dropped). Supabase
  * mocks are replaced by a mocked JobStateStore.
  */

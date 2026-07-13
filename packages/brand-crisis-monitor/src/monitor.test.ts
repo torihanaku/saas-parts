@@ -1,5 +1,5 @@
 /**
- * Tests for runBrandCrisisMonitor (ported from dev-dashboard-v2 brand-crisis-job.test.ts).
+ * Tests for runBrandCrisisMonitor (ported from 実運用SaaS brand-crisis-job.test.ts).
  *
  * Supabase / env / feature-flag / Slack fetch を注入式 store / resolveApiKey /
  * alerter / CrisisSource に置換。feature flag は「ソースを呼ぶ前に呼び出し側が

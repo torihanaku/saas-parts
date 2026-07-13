@@ -1,7 +1,7 @@
 /**
  * Types for Media Mix Modeling (MMM).
  *
- * Ported from dev-dashboard-v2 `shared/types/causal-mmm.ts` (the Supabase
+ * Ported from 実運用SaaS `shared/types/causal-mmm.ts` (the Supabase
  * row type `MmmResultRow` was dropped — persistence is the caller's concern).
  *
  * MMM estimates each marketing channel's contribution to outcomes (revenue /

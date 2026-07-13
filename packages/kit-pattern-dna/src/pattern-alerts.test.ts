@@ -1,5 +1,5 @@
 /**
- * 出典テスト: dev-dashboard-v2 tests/company-dna-pattern-alerts.test.ts
+ * 出典テスト: 実運用SaaS tests/company-dna-pattern-alerts.test.ts
  * （lib 部分のコアを移植。route 層のゲーティングは HTTP 配線ごと落とした）。
  */
 import { describe, it, expect } from "vitest";

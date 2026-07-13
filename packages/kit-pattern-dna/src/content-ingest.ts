@@ -6,7 +6,7 @@
  * 返して永続化は継続する（パターン DNA は補助情報なので LLM 故障で取り込み
  * 自体を失敗させない）。
  *
- * 出典: dev-dashboard-v2 `server/lib/company-dna/content-ingest.ts`
+ * 出典: 実運用SaaS `server/lib/company-dna/content-ingest.ts`
  * （Claude API 直呼び → LlmCaller 注入、Supabase → DnaStore 注入、
  * tier しきい値 → 設定化）。
  */

@@ -1,7 +1,7 @@
 /**
  * Thin, framework-free HTTP route adapters over {@link ApprovalWorkflow}.
  *
- * Mirrors the original Hono routes (dev-dashboard-v2 server/routes/firewall/*
+ * Mirrors the original Hono routes (実運用SaaS server/routes/firewall/*
  * and server/routes/ringi/*) but with:
  *   - Web-standard Request/Response instead of a framework context, so the
  *     handlers can be mounted on Hono, Express (via adapters), Bun.serve,

@@ -1,7 +1,7 @@
 /**
  * Hacker News トップストーリーをシグナルとして取り込むソース実装例。
  * fetch を注入できるためテスト・プロキシ経由運用が可能。
- * 出典: dev-dashboard-v2 server/lib/navigator/ingestion/hackernews.ts
+ * 出典: 実運用SaaS server/lib/navigator/ingestion/hackernews.ts
  */
 import type { NewSignal } from "../types";
 import type { SignalSource } from "../ports";

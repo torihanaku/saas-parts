@@ -1,6 +1,6 @@
 /**
  * Image asset scanner (AssetScanner 実装例)。
- * 出典: dev-dashboard-v2 server/lib/marketing-debt/image-scanner.ts (#1295)。
+ * 出典: 実運用SaaS server/lib/marketing-debt/image-scanner.ts (#1295)。
  *
  * 画像 URL を HEAD でプローブし、missing(404) / placeholder(極小) / empty(0byte) /
  * timeout / network error を検出。asset_type='content' で記録する。

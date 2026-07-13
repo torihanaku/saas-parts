@@ -3,7 +3,7 @@
  * Coordinates multiple AI agents sequentially, feeding each agent's output
  * as context into the next, then synthesizes all results.
  *
- * 出典: dev-dashboard-v2 server/lib/agent-orchestrator.ts
+ * 出典: 実運用SaaS server/lib/agent-orchestrator.ts
  * 変更点: Anthropic API 直 fetch → `complete` コールバック注入（LlmCaller.generateText
  *         がそのまま使える）。役割プリセット AGENT_ROLES は汎用なので温存しつつ上書き可。
  */

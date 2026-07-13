@@ -1,5 +1,5 @@
 /**
- * Ported from dev-dashboard-v2 `tests/marketing-roi/attribution-models.test.ts`
+ * Ported from 実運用SaaS `tests/marketing-roi/attribution-models.test.ts`
  * plus additional golden tests (fixed journeys → exact expected credits).
  */
 import { describe, expect, it } from "vitest";

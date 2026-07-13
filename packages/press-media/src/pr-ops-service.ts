@@ -3,7 +3,7 @@
  *
  * 配信タイミング提案と戦略サマリを LLM で生成する。generateJson は注入式。
  *
- * 出典: dev-dashboard-v2 server/lib/pr-ops-service.ts
+ * 出典: 実運用SaaS server/lib/pr-ops-service.ts
  */
 
 import type { GenerateJson } from "./llm";

@@ -6,7 +6,7 @@
  *   re-fetches the state with a debounce (real-time path).
  * - If SSE is unsupported / fails, polling keeps everything working.
  *
- * Ported from dev-dashboard-v2 `src/hooks/useLiveState.ts` (104 LOC).
+ * Ported from 実運用SaaS `src/hooks/useLiveState.ts` (104 LOC).
  * Differences from the original:
  *   - app-wide `api` client → injectable fetch / EventSource-shaped API
  *   - endpoints / debounce / SSE event name → options (defaults preserve

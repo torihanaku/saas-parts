@@ -1,7 +1,7 @@
 /**
  * SAML 2.0 Service Provider wrapper.
  *
- * Ported from dev-dashboard-v2 `server/lib/saml-sp.ts` (#110 / Epic G8).
+ * Ported from 実運用SaaS `server/lib/saml-sp.ts` (#110 / Epic G8).
  * Thin adapter around `@node-saml/node-saml` that turns an injected
  * `IdpConfig` into a `SAML` instance and exposes a small, typed surface
  * that the route layer can consume without knowing about XML DSig, Node

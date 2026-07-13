@@ -70,9 +70,9 @@ tokens.verifyToken(t); // タイミングセーフ比較
 node（Node 18+ / Bun 両対応。`node:crypto`・`Buffer`・グローバル `Request`/`Response` を使用）
 
 ## 出典（元ファイルパス）
-- `/Users/nakanomanabu/torihanaku/dev-dashboard-v2/server/lib/auth.ts`
-- `/Users/nakanomanabu/torihanaku/dev-dashboard-v2/server/lib/token.ts`
-- テスト: `/Users/nakanomanabu/torihanaku/dev-dashboard-v2/tests/server-auth.test.ts`, `tests/token.test.ts`
+- `実運用SaaS/server/lib/auth.ts`
+- `実運用SaaS/server/lib/token.ts`
+- テスト: `実運用SaaS/tests/server-auth.test.ts`, `tests/token.test.ts`
 - 参照のみ: `server/lib/tenant.ts`（マルチテナント解決は製品固有のため移植せず。セッション/トークン機構は tenant に依存していないことを確認済み）
 
 ## 移植時に落としたもの（製品固有 wiring）

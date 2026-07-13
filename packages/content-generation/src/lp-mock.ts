@@ -1,7 +1,7 @@
 /**
  * LP モック生成（施策ブリーフ → Tailwind スタイルの単一ページ HTML）。
  *
- * dev-dashboard-v2 の prototype/lp-mock ルートから、サニタイズ・プロンプト・
+ * 実運用SaaS の prototype/lp-mock ルートから、サニタイズ・プロンプト・
  * 生成ロジックを抽出（Supabase 永続化と Hono ルーティングは除外）。
  */
 import type { GenerateText } from "./types.js";

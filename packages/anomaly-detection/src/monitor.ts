@@ -6,7 +6,7 @@
  * injected dispatcher. Detected anomalies are also surfaced via
  * `logger.error` (元実装は Sentry 連携付き logError — 注入で差し替え可能)。
  *
- * 変更点（移植元: dev-dashboard-v2 server/jobs/realtime-monitor.ts）:
+ * 変更点（移植元: 実運用SaaS server/jobs/realtime-monitor.ts）:
  * - Supabase（teams / dd_anomaly_events）→ `listTenantIds` / `persistAnomaly` 注入
  * - `dispatchAnomalyAction` → `dispatchAction` 注入（省略時は no-op = 通知なし）
  * - 固定 DETECTORS 配列 → `detectors: Detector[]` 注入（レジストリ）

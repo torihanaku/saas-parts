@@ -1,7 +1,7 @@
 /**
  * Embedding cost pipeline (per-tenant monthly budget guardrail).
  *
- * Ported from dev-dashboard-v2
+ * Ported from 実運用SaaS
  * `server/lib/institutional-memory/embedding-pipeline.ts`.
  *
  * Wraps `embedText()` from the registry to add:

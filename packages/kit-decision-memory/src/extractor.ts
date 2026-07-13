@@ -1,7 +1,7 @@
 /**
  * extractor.ts — 自由文（チャット / 会議書き起こし等）からの意思決定抽出。
  *
- * 出典: dev-dashboard-v2 server/lib/institutional-memory/decision-extractor.ts。
+ * 出典: 実運用SaaS server/lib/institutional-memory/decision-extractor.ts。
  * 本家は Claude 直結（generateJson）+ Supabase + pgvector dedup だったが、
  * キットでは LLM を JsonGenerator コールバック、埋め込みを Embedder、
  * 類似重複検知を EmbeddingSearcher（いずれも注入）に置き換えた。

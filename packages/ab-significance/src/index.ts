@@ -1,6 +1,6 @@
 /**
  * Bayesian significance test for A/B testing winner decision.
- * Ported from dev-dashboard-v2 `server/lib/ab-testing/significance.ts`.
+ * Ported from 実運用SaaS `server/lib/ab-testing/significance.ts`.
  *
  * Approach: each variant carries a Beta(alpha, beta) posterior over its
  * conversion rate. We approximate the 95% credible interval (CI) per

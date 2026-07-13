@@ -3,7 +3,7 @@
  * Google Ads / Meta Ads into a common `NormalizedMetric` shape, then aggregate
  * and compute ROI / trends across sources.
  *
- * Ported verbatim (pure functions) from dev-dashboard-v2
+ * Ported verbatim (pure functions) from 実運用SaaS
  * server/lib/analytics-aggregator.ts. `aggregateByPeriod` originally read from
  * Supabase; here the snapshot rows are injected via a loader so the package is
  * self-contained.

@@ -5,7 +5,7 @@ import { arLeastSquareDegree1, populationStdev } from "./ar-least-square";
  * ARIMA(1,1,1) approximation based forecast (for 90+ days of data).
  * Uses AR(1) on differenced data to capture trends and momentum.
  *
- * Ported from dev-dashboard-v2 `server/lib/forecast/arima-engine.ts`;
+ * Ported from 実運用SaaS `server/lib/forecast/arima-engine.ts`;
  * the `timeseries-analysis` dependency was replaced by the inlined
  * degree-1 equivalents in `./ar-least-square` (numerically identical).
  */

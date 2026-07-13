@@ -6,7 +6,7 @@
  * - Throws ApiError on non-OK responses (callers use try/catch)
  * - Provides typed methods: get, post, patch, put, del, upload, stream, sendBeacon, raw
  *
- * Ported from dev-dashboard-v2 `src/lib/api-client.ts`.
+ * Ported from 実運用SaaS `src/lib/api-client.ts`.
  * Product coupling removed:
  *   - Supabase JWT acquisition  -> injected `getToken()` / `getStreamToken()`
  *   - `globalThis.__showToast`  -> injected `onError` / `onUsageLimit` callbacks

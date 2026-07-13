@@ -1,5 +1,5 @@
 /**
- * Baseline builder (ported from dev-dashboard-v2 twin/baseline-builder).
+ * Baseline builder (ported from 実運用SaaS twin/baseline-builder).
  *
  * Builds a baseline from tenant-owned historical content + ad insight data.
  * Fails closed (throws `insufficient_baseline_data`) rather than persisting a

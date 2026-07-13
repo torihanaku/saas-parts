@@ -1,7 +1,7 @@
 /**
  * Reddit OAuth client_credentials + search.json wrapper.
  *
- * `CrisisSource` 注入 IF の一例。原典 dev-dashboard-v2
+ * `CrisisSource` 注入 IF の一例。原典 実運用SaaS
  * `server/lib/brand-crisis/reddit-client.ts` を移植し、`env` 直参照と
  * グローバル fetch 依存を排除して factory 化した。
  *

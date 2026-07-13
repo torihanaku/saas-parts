@@ -61,5 +61,5 @@ any（`setInterval` / `setTimeout` / `Date` / `console` のみ使用。Node / Bu
 
 ## 出典
 
-- 元実装: `dev-dashboard-v2/server/lib/job-scheduler.ts`（958行のうちコア約240行を移植。約40件のプロダクト固有ジョブ登録と Supabase 直結コードは削除）
-- 元テスト: `dev-dashboard-v2/tests/job-scheduler.test.ts`
+- 元実装: `実運用SaaS/server/lib/job-scheduler.ts`（958行のうちコア約240行を移植。約40件のプロダクト固有ジョブ登録と Supabase 直結コードは削除）
+- 元テスト: `実運用SaaS/tests/job-scheduler.test.ts`

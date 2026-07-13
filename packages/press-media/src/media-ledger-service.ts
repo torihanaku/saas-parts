@@ -4,7 +4,7 @@
  * 関係スコアリング、AI ピッチメール生成、メール仕分けルール提案を提供する。
  * LLM 呼び出し（generateText）は注入式。関係スコアはピュア関数（LLM不要）。
  *
- * 出典: dev-dashboard-v2 server/lib/media-ledger-service.ts
+ * 出典: 実運用SaaS server/lib/media-ledger-service.ts
  */
 import type { GenerateText } from "./llm";
 

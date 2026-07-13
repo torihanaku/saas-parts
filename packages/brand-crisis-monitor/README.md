@@ -1,6 +1,6 @@
 # @torihanaku/brand-crisis-monitor
 
-SNS 炎上監視・深刻度（感情）判定・スパイクアラートのキット。監視ソースから言及を取得し、LLM で感情分類、直近 24 時間のスパイクを検知して閾値超過でアラートを発報する。dev-dashboard-v2 `server/lib/brand-crisis-job.ts` + `brand-crisis/reddit-client.ts` の移植。
+SNS 炎上監視・深刻度（感情）判定・スパイクアラートのキット。監視ソースから言及を取得し、LLM で感情分類、直近 24 時間のスパイクを検知して閾値超過でアラートを発報する。実運用SaaS `server/lib/brand-crisis-job.ts` + `brand-crisis/reddit-client.ts` の移植。
 
 ## 特徴
 

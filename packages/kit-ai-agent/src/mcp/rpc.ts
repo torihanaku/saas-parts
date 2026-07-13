@@ -1,7 +1,7 @@
 /**
  * MCP JSON-RPC dispatcher (initialize / tools / resources / ping).
  *
- * 出典: dev-dashboard-v2 server/mcp/rpc.ts
+ * 出典: 実運用SaaS server/mcp/rpc.ts
  * 変更点: 固定 SERVER_INFO/TOOLS/RESOURCES → serverInfo + レジストリ注入 /
  *         `Response` 直返し → JSON-RPC オブジェクト返し（フレームワーク非依存。
  *         Hono/Bun.serve/Express どれでも `Response.json(await handleRpc(body))`

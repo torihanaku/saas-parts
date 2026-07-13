@@ -1,6 +1,6 @@
 /**
  * Tests for the power-analysis test designer (origin:
- * dev-dashboard-v2 `server/services/incrementalityDesignAgent.ts`; the
+ * 実運用SaaS `server/services/incrementalityDesignAgent.ts`; the
  * original test exercised it through the Hono route — asserted values here
  * are the same computation invoked directly).
  */

@@ -1,5 +1,5 @@
 /**
- * Ported from dev-dashboard-v2 `tests/marketplace.test.ts` and
+ * Ported from 実運用SaaS `tests/marketplace.test.ts` and
  * `tests/marketplace/reviews.test.ts` (lib-level scenarios; HTTP route tests
  * stay in the app) — adapted from supabase mocks to InMemoryMarketplaceStore.
  */

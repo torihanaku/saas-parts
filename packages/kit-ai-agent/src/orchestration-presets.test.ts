@@ -1,6 +1,6 @@
 /**
  * 協調チームプリセット層のテスト。
- * 出典: dev-dashboard-v2 server/routes/orchestration.ts のプリセット/解決ロジック。
+ * 出典: 実運用SaaS server/routes/orchestration.ts のプリセット/解決ロジック。
  */
 import { describe, expect, it, vi } from "vitest";
 import { AGENT_ROLES, runOrchestration, type AgentRole } from "./orchestrator";

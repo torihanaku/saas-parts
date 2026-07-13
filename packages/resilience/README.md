@@ -59,4 +59,4 @@ Node.js / Bun / ブラウザ（`setTimeout` / `Date.now` / `Map` のみ使用。
 
 ## 出典
 
-`dev-dashboard-v2/server/lib/resilience.ts`（テストは `tests/resilience.test.ts` から移植し、fake timers のケースを追加）。
+`実運用SaaS/server/lib/resilience.ts`（テストは `tests/resilience.test.ts` から移植し、fake timers のケースを追加）。

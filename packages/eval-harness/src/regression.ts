@@ -1,7 +1,7 @@
 /**
  * Regression comparison between two eval runs.
  *
- * Concept adopted from dev-dashboard-v2 `tools/eval-lab` (the Python
+ * Concept adopted from 実運用SaaS `tools/eval-lab` (the Python
  * experiment lab compared experiments stored in SQLite across model
  * versions); implemented here as pure functions over
  * {@link ClassificationMetrics} so any storage can feed it.

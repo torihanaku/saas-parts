@@ -51,6 +51,6 @@ any（Node 18+ / Bun / Deno / edge — `fetch` 標準搭載環境）
 
 ## 出典
 
-- `dev-dashboard-v2/server/lib/claude-api-client.ts`
-- `dev-dashboard-v2/server/lib/helpers.ts`（fetchWithTimeout のみ内包）
-- テスト: `dev-dashboard-v2/tests/claude-api-client.test.ts`
+- `実運用SaaS/server/lib/claude-api-client.ts`
+- `実運用SaaS/server/lib/helpers.ts`（fetchWithTimeout のみ内包）
+- テスト: `実運用SaaS/tests/claude-api-client.test.ts`

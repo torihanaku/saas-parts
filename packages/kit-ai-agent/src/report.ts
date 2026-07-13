@@ -3,7 +3,7 @@
  * a human-readable report via the injected LLM — team向け(400字ナラティブ) と
  * executive向け(200字3bullet) の2オーディエンス。
  *
- * 出典: dev-dashboard-v2 server/lib/agent/report-service.ts
+ * 出典: 実運用SaaS server/lib/agent/report-service.ts
  * 変更点: Supabase 3テーブル join → CycleDataLoader 注入 /
  *         generateText(apiKey,…) + BYOK 解決 → LlmCaller 注入 /
  *         プロンプトは差し替え可能（デフォルトは元実装の文言から製品名を除去）。

@@ -4,7 +4,7 @@
 
 マルチテナント SaaS の Postgres（Supabase 想定）マイグレーション雛形集です。コンパイル対象のコードではなく、**新規プロジェクトの `supabase/migrations/` にコピーし、テーブル名・`{{PLACEHOLDER}}` を自プロダクト向けに置換して使うテンプレート**を `templates/` に収録しています（`main`/`exports` なし・`src/` なしのため tsc / vitest の対象外）。
 
-出典: `dev-dashboard-v2/supabase/migrations/`。元リポの製品固有プレフィックス（`dd_` / `dashboard_` / `sup_`）と製品固有 seed 値は汎用名・プレースホルダに置換済み。秘密情報・実プロジェクト ID は含みません。
+出典: `実運用SaaS/supabase/migrations/`。元リポの製品固有プレフィックス（`dd_` / `dashboard_` / `sup_`）と製品固有 seed 値は汎用名・プレースホルダに置換済み。秘密情報・実プロジェクト ID は含みません。
 
 ## 収録テンプレート一覧
 
@@ -95,4 +95,4 @@ PostgreSQL 14+（`gen_random_uuid()` 標準搭載）。RLS・`auth.users`・serv
 
 ## 出典
 
-`dev-dashboard-v2/supabase/migrations/`（8 ファイル + 汎用ヘルパー 1 ファイル）。ヘルパーは 165 マイグレーションに散在する `set_updated_at()` トリガー／`deleted_at` ソフトデリート／tenant・user 分離 RLS の定型を集約したもの。
+`実運用SaaS/supabase/migrations/`（8 ファイル + 汎用ヘルパー 1 ファイル）。ヘルパーは 165 マイグレーションに散在する `set_updated_at()` トリガー／`deleted_at` ソフトデリート／tenant・user 分離 RLS の定型を集約したもの。

@@ -1,5 +1,5 @@
 /**
- * Ported from dev-dashboard-v2 `tests/marketplace/extractor.test.ts` —
+ * Ported from 実運用SaaS `tests/marketplace/extractor.test.ts` —
  * adapted from claude-api-client / supabase-admin mocks to the injected
  * JsonGenerator callback and InMemoryMarketplaceStore.
  */

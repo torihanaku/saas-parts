@@ -2,7 +2,7 @@
  * Service health check validators.
  * Each function tests connectivity to an external service.
  *
- * 変更点（移植元: dev-dashboard-v2 server/lib/config-validator.ts）:
+ * 変更点（移植元: 実運用SaaS server/lib/config-validator.ts）:
  * - env 直接参照 → 各バリデータのファクトリ引数で認証情報を注入
  * - 固定8サービス → プラガブルなバリデータレジストリ（組み込み実装はオプション）
  * - fetch はデフォルト globalThis.fetch、テスト・特殊環境向けに注入可能

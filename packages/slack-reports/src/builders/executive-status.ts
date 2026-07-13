@@ -2,7 +2,7 @@ import type { BlockKitPayload } from "../types";
 
 /**
  * 経営ステータス Block Kit ビルダー。
- * 出典: dev-dashboard-v2 server/services/executiveStatusSlack.ts (#1034) の buildExecutiveStatusPayload。
+ * 出典: 実運用SaaS server/services/executiveStatusSlack.ts (#1034) の buildExecutiveStatusPayload。
  *
  * weeklyReport と同型だが本文上限が短く (経営層向けの簡潔版)、見出し絵文字が異なる。
  */

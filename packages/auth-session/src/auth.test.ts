@@ -1,5 +1,5 @@
 /**
- * Tests for src/auth.ts — ported from dev-dashboard-v2/tests/server-auth.test.ts.
+ * Tests for src/auth.ts — ported from 実運用SaaS/tests/server-auth.test.ts.
  *
  * Adaptations from the original:
  * - process.env.SESSION_SECRET → injected via createAuthService({ secret })

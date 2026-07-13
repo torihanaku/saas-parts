@@ -1,7 +1,7 @@
 /**
  * @torihanaku/widget-store — ダッシュボード / ウィジェットレイアウト / お気に入りの永続化層
  *
- * 出典: dev-dashboard-v2 server/lib/daily-dashboard-store.ts (#721)
+ * 出典: 実運用SaaS server/lib/daily-dashboard-store.ts (#721)
  *
  * 移植方針:
  * - Supabase PostgREST 直叩き (supabaseGet / fetch) を注入式の

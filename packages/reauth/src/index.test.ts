@@ -1,5 +1,5 @@
 /**
- * Ported from dev-dashboard-v2/tests/reauth-flow.test.ts, plus new coverage for
+ * Ported from 実運用SaaS/tests/reauth-flow.test.ts, plus new coverage for
  * the injected-callback verification flow (timing-attack delay) and the
  * verify-session handler port.
  */

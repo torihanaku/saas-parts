@@ -1,5 +1,5 @@
 /**
- * Ported from dev-dashboard-v2 tests/server/services/email-parser.test.ts
+ * Ported from 実運用SaaS tests/server/services/email-parser.test.ts
  * (JA + EN fixtures) + config-injection cases added for the package.
  */
 import { describe, it, expect } from "vitest";

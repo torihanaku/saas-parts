@@ -63,7 +63,7 @@ Node 18+ / Bun。`createGcloudProvisioner` を使う場合は認証済みの `gc
 
 ## 出典
 
-- dev-dashboard-v2 `server/lib/white-label/cname-verifier.ts`（#1340 WhiteLabel-3a）
-- dev-dashboard-v2 `server/lib/white-label/ssl-provisioner.ts`（#1341 WhiteLabel-3b）
+- 実運用SaaS `server/lib/white-label/cname-verifier.ts`（#1340 WhiteLabel-3a）
+- 実運用SaaS `server/lib/white-label/ssl-provisioner.ts`（#1341 WhiteLabel-3b）
 - `server/lib/white-label.ts` はブランディング設定 CRUD とパートナー関係管理のみだったため、ドメインライフサイクルには含めていません
 - テストは `tests/white-label/{cname-verifier,ssl-provisioner}.test.ts` を移植

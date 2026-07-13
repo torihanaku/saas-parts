@@ -2,7 +2,7 @@
  * Shapley-value attribution (uniform split over unique channels per
  * converting path — the closed-form Shapley solution for a symmetric
  * "any touch contributes" characteristic function).
- * Ported verbatim from dev-dashboard-v2 `server/lib/marketing-roi/shapley.ts`.
+ * Ported verbatim from 実運用SaaS `server/lib/marketing-roi/shapley.ts`.
  */
 import {
   type ConversionPath,

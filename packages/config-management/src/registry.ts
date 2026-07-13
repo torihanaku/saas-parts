@@ -2,7 +2,7 @@
  * Centralized configuration registry.
  * Single source of truth for all environment variables with validation.
  *
- * 変更点（移植元: dev-dashboard-v2 server/lib/config-registry.ts）:
+ * 変更点（移植元: 実運用SaaS server/lib/config-registry.ts）:
  * - 製品固有の CONFIG_REGISTRY 定数 → 呼び出し側が ConfigVar[] を渡す方式
  * - env アクセス → 注入された getValue(key) 関数（process.env 非依存）
  * - category は固定 union → 任意文字列（呼び出し側が定義）

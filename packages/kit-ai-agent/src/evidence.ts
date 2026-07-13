@@ -2,7 +2,7 @@
  * Evidence Gathering Agent: collect supporting cases for an approval subject
  * (稟議・例外申請など) from N sources in parallel.
  *
- * 出典: dev-dashboard-v2 server/services/evidenceAgent.ts
+ * 出典: 実運用SaaS server/services/evidenceAgent.ts
  * 変更点: 3つの固定ソース (dd_decision_log / dd_competitive_intel /
  *         dd_compliance_checks) → EvidenceSource[] 注入（並列 fetch は温存）/
  *         dd_submissions lookup → loadSubject 注入 / dd_decision_log insert →

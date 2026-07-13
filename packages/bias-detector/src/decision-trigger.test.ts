@@ -1,5 +1,5 @@
 /**
- * Tests for decision-trigger.ts (ported from dev-dashboard-v2
+ * Tests for decision-trigger.ts (ported from 実運用SaaS
  * tests/bias/decision-trigger.test.ts). Store / flag / notifier are injected.
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";

@@ -2,7 +2,7 @@
  * React hook for in-app notifications: history fetch + SSE subscribe +
  * localStorage preferences + unreadCount / markAsRead / markAllAsRead.
  *
- * Ported from dev-dashboard-v2 `src/hooks/useNotifications.ts` (106 LOC).
+ * Ported from 実運用SaaS `src/hooks/useNotifications.ts` (106 LOC).
  * Differences from the original:
  *   - app-wide `api` client → injectable {@link NotificationsClientApi}
  *   - endpoints / storage key / default preferences / list cap /

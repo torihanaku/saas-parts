@@ -1,5 +1,5 @@
 /**
- * Private AES-256-GCM helpers — dev-dashboard-v2 server/lib/token.ts の
+ * Private AES-256-GCM helpers — 実運用SaaS server/lib/token.ts の
  * encrypt/decrypt をインライン移植（鍵は呼び出し側の secret から HMAC 派生）。
  * このモジュールはパッケージ内部専用で index.ts からは export しない。
  */

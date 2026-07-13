@@ -4,7 +4,7 @@
  * Supports gpt-image-1-mini and gpt-image-1 via the
  * POST /v1/images/generations endpoint.
  *
- * 出典: dev-dashboard-v2 server/lib/image-providers/openai.ts
+ * 出典: 実運用SaaS server/lib/image-providers/openai.ts
  * 移植差分: env.OPENAI_API_KEY → コンストラクタ注入。
  */
 import type { ImageProvider, ImageModel, ImageGenParams, ImageGenResult } from "../types";

@@ -15,7 +15,7 @@
  * the historical operating point. We surface this as a `formHint` field so the
  * simulator can warn callers about extrapolation accuracy.
  *
- * Ported from dev-dashboard-v2 server/lib/twin/elasticity-extractor.ts +
+ * Ported from 実運用SaaS server/lib/twin/elasticity-extractor.ts +
  * the pure parts of server/lib/twin/causal-link.ts.
  * 変更点: Supabase取得を撤去し、MMM結果行・因果リンクは引数で受け取る純粋関数に。
  * 型（SaturationForm / MmmChannelResult / CausalToTwinLink）は最小限をローカル定義。

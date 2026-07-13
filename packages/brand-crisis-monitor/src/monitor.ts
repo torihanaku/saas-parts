@@ -4,7 +4,7 @@
  * 監視ソース（CrisisSource）から言及を取得 → 感情分類（LLM）→ 保存 →
  * 24h スパイク検知 → 閾値超過でアラート。
  *
- * 出典: dev-dashboard-v2 server/lib/brand-crisis-job.ts
+ * 出典: 実運用SaaS server/lib/brand-crisis-job.ts
  */
 import {
   type BrandCrisisAlert,

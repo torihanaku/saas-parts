@@ -2,7 +2,7 @@
  * Compliance suggestion service — LLM-backed alternative-copy proposals for
  * a flagged violation.
  *
- * Ported from dev-dashboard-v2 `server/lib/compliance/suggestion-service.ts`.
+ * Ported from 実運用SaaS `server/lib/compliance/suggestion-service.ts`.
  * Decoupled: the check/rule DB lookups are gone — the caller passes the
  * content text, the violation and (optionally) the rule metadata directly,
  * and the Claude call became an injected {@link SuggestLlmFn} callback.

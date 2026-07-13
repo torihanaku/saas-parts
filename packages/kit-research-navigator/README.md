@@ -229,8 +229,8 @@ npx vitest run packages/kit-research-navigator   # 11 files / 68 tests
 
 ## 出典
 
-- `dev-dashboard-v2/server/lib/navigator/` — stack-advisor / nav-stacks-db / brief-service / hypothesis-drafter / verdict-engine / card-generator / signal-detail / action-executor / github-subissue-matcher / ingestion/{index,exa-proxy,hackernews,perplexity}
-- `dev-dashboard-v2/server/routes/navigator/` — cards / hypothesis / hypothesis-f2 / learnings / subissues / advisor（ロジックのみ、HTTP 配線は除く）
-- `dev-dashboard-v2/server/jobs/` — nav-signals-ingest / nav-weekly-reevaluate
-- `dev-dashboard-v2/shared/` — types/navigator.ts / types/navigator-signals.ts / schemas/navigator.ts
-- `dev-dashboard-v2/supabase/migrations/` — 202604180004 / 202604260002 / 20260423_001（SQL スキーマの出典）
+- `実運用SaaS/server/lib/navigator/` — stack-advisor / nav-stacks-db / brief-service / hypothesis-drafter / verdict-engine / card-generator / signal-detail / action-executor / github-subissue-matcher / ingestion/{index,exa-proxy,hackernews,perplexity}
+- `実運用SaaS/server/routes/navigator/` — cards / hypothesis / hypothesis-f2 / learnings / subissues / advisor（ロジックのみ、HTTP 配線は除く）
+- `実運用SaaS/server/jobs/` — nav-signals-ingest / nav-weekly-reevaluate
+- `実運用SaaS/shared/` — types/navigator.ts / types/navigator-signals.ts / schemas/navigator.ts
+- `実運用SaaS/supabase/migrations/` — 202604180004 / 202604260002 / 20260423_001（SQL スキーマの出典）

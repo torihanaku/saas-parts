@@ -2,7 +2,7 @@ import type { DebtRecord, ScanContext, ScanSummaryBase } from "./types";
 
 /**
  * AssetScanner インターフェイスと巡回オーケストレータ。
- * 出典: dev-dashboard-v2 server/lib/marketing-debt/scanner-orchestrator.ts (#1295)。
+ * 出典: 実運用SaaS server/lib/marketing-debt/scanner-orchestrator.ts (#1295)。
  *
  * 原文は 7 スキャナをハードコード import していたが、レジストリ化して
  * 任意のスキャナを登録・並列実行できるようにした。各スキャナは検出した

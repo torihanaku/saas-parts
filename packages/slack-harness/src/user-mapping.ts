@@ -8,7 +8,7 @@
  * トークン / lookup / Slack API のどれかが欠けていても例外は投げず null を返す。
  * 結果は per-tenant in-process Map に 1h キャッシュする（TTL 変更可）。
  *
- * 変更点（移植元: dev-dashboard-v2 server/lib/slack-user-mapping.ts）:
+ * 変更点（移植元: 実運用SaaS server/lib/slack-user-mapping.ts）:
  * - module スコープの env / キャッシュ → `createSlackUserResolver` ファクトリに閉じ込め
  * - Supabase REST 直接 lookup → `lookupUserByEmail` 注入（元実装相当の
  *   `createRestEmailLookup` を組み込みで提供）

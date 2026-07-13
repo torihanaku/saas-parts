@@ -1,7 +1,7 @@
 /**
  * Compliance checker — regex / keyword / LLM rule evaluation with risk score.
  *
- * Ported from dev-dashboard-v2 `server/lib/compliance/checker-service.ts`.
+ * Ported from 実運用SaaS `server/lib/compliance/checker-service.ts`.
  * Decoupled:
  *   - tenant industry lookup → caller passes `industry` directly
  *   - DB rule table → rules come from a {@link RuleRegistry} / explicit array

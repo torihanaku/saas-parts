@@ -1,7 +1,7 @@
 /**
  * OpenAI text-embedding-3-small provider.
  *
- * Ported from dev-dashboard-v2 `server/lib/embedding-providers/openai.ts`.
+ * Ported from 実運用SaaS `server/lib/embedding-providers/openai.ts`.
  * Product coupling removed: the API key is a required factory argument
  * (originally fell back to `env.OPENAI_API_KEY`).
  */

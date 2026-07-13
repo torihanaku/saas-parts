@@ -1,5 +1,5 @@
 /**
- * Ported from dev-dashboard-v2 tests/persistence-layer.test.ts.
+ * Ported from 実運用SaaS tests/persistence-layer.test.ts.
  * Adapted: vi.mock('../server/lib/supabase') became an injected mock DalClient.
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'

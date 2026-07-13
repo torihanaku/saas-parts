@@ -1,6 +1,6 @@
 /**
  * Tests for tenant-resolver.
- * 移植元: dev-dashboard-v2 tests/tenant.test.ts (fetch モック → TenantStore モックに置換)。
+ * 移植元: 実運用SaaS tests/tenant.test.ts (fetch モック → TenantStore モックに置換)。
  * #952 backfill (member 行はあるが tenant_id NULL → owner/domain で復元) のテストを追加。
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";

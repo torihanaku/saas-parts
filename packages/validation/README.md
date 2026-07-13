@@ -43,4 +43,4 @@ Node.js 18+ / Bun / Edge（fetch標準 Request/Response が使える環境）。
 
 ## 出典
 
-`dev-dashboard-v2/server/lib/validation.ts`
+`実運用SaaS/server/lib/validation.ts`

@@ -2,7 +2,7 @@ import type { GenerateText } from "./types";
 
 /**
  * 「毎朝の AI ブリーフィング」本文生成。
- * 出典: dev-dashboard-v2 server/routes/briefings.ts の generateBriefingContent。
+ * 出典: 実運用SaaS server/routes/briefings.ts の generateBriefingContent。
  *
  * 移植方針:
  * - 個別テーブル集計 (reports/drafts/backlog/deals) は「活動メトリクス収集」を

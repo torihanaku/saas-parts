@@ -1,5 +1,5 @@
 /**
- * Tests for src/token.ts — ported from dev-dashboard-v2/tests/token.test.ts.
+ * Tests for src/token.ts — ported from 実運用SaaS/tests/token.test.ts.
  *
  * Adaptation: the original mocked `server/lib/env` (SESSION_SECRET etc.).
  * Here the secret is injected via createTokenService config, and the Supabase

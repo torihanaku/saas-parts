@@ -1,7 +1,7 @@
 /**
  * @torihanaku/image-gen — AI 画像生成 (プロバイダレジストリ + モデル一覧キャッシュ + 生成ルーター)
  *
- * 出典: dev-dashboard-v2
+ * 出典: 実運用SaaS
  *   - server/lib/image-generator.ts (コア型・ルーター・Supabase Storage upload)
  *   - server/lib/image-providers/openai.ts / fal.ts
  *

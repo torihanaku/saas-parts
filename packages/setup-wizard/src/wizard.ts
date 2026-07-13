@@ -1,6 +1,6 @@
 /**
  * Setup wizard orchestrator — status, validate (service registry), checklist.
- * Ported from dev-dashboard-v2 `server/routes/setup-wizard.ts`.
+ * Ported from 実運用SaaS `server/routes/setup-wizard.ts`.
  *
  * HTTP/auth (admin-only requireRole) stays in the host. This exposes the port
  * logic; `validate()` returns { status, result } so the caller maps to 200/422.

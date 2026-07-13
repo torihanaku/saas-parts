@@ -1,6 +1,6 @@
 /**
  * Dead-link scanner (AssetScanner 実装例)。
- * 出典: dev-dashboard-v2 server/lib/marketing-debt/dead-link-scanner.ts (#1332)。
+ * 出典: 実運用SaaS server/lib/marketing-debt/dead-link-scanner.ts (#1332)。
  *
  * URL を HEAD→GET フォールバックでプローブし、status>=400 / timeout / network error を
  * デッドリンクとして検出。fetch は ctx.fetchImpl から注入 (テスト・プロキシ差替え可)。

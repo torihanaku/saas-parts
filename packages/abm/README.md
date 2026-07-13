@@ -1,6 +1,6 @@
 # @torihanaku/abm
 
-Account-Based Marketing（ABM）エンジン。CRM 連絡先を会社単位で ABM アカウントに集約し、**tier 判定**・**エンゲージメントスコア**算出・**パーソナライズ戦略生成（LLM）**を行う。dev-dashboard-v2 `server/lib/abm-service.ts` の移植。
+Account-Based Marketing（ABM）エンジン。CRM 連絡先を会社単位で ABM アカウントに集約し、**tier 判定**・**エンゲージメントスコア**算出・**パーソナライズ戦略生成（LLM）**を行う。実運用SaaS `server/lib/abm-service.ts` の移植。
 
 ## 特徴
 

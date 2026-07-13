@@ -2,7 +2,7 @@
 
 Web Push のブラウザ側ライフサイクルを扱う React フック。通知許可プロンプト → ServiceWorker 登録の参照 → `PushManager.subscribe`（VAPID公開鍵）→ サーバーへの購読永続化、および解除（`unsubscribe` + サーバー側ミラー削除）までを `{ supported, status, error, enable, disable }` の安定した状態機械として提供する。
 
-移植元: dev-dashboard-v2 `src/hooks/usePushSubscription.ts`（155 LOC・#345 PWA Push Notifications Foundation）。
+移植元: 実運用SaaS `src/hooks/usePushSubscription.ts`（155 LOC・#345 PWA Push Notifications Foundation）。
 
 ## サーバー側との対
 

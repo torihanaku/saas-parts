@@ -1,5 +1,5 @@
 /**
- * Behaviors ported from dev-dashboard-v2 tests/env.test.ts.
+ * Behaviors ported from 実運用SaaS tests/env.test.ts.
  * The source parsed at module load and needed vi.resetModules + process.exit
  * stubs; the harness takes an injectable source/exit, so tests pass fake env
  * objects directly. The example schema mirrors the README.

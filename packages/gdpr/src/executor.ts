@@ -4,7 +4,7 @@
  * expired, then cascade-deletes user data from all configured tables and
  * logs each step.
  *
- * Ported from dev-dashboard-v2 `server/lib/gdpr-executor.ts`.
+ * Ported from 実運用SaaS `server/lib/gdpr-executor.ts`.
  * The table manifest (CASCADE_TARGETS) is now caller-supplied config;
  * persistence is an injected `GdprStore`.
  */

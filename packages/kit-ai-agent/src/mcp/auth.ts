@@ -1,7 +1,7 @@
 /**
  * MCP bearer auth with an explicit loopback bypass.
  *
- * 出典: dev-dashboard-v2 server/mcp/auth.ts
+ * 出典: 実運用SaaS server/mcp/auth.ts
  * 変更点: env.MCP_API_KEY / env.NODE_ENV 直読み → 設定注入。
  *         「キー未設定なら dev/test の loopback のみ許可」という元のセマンティクスは
  *         `allowLoopbackWithoutKey`（呼び出し側が NODE_ENV 判定して渡す）で再現。

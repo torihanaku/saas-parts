@@ -2,7 +2,7 @@
 
 アプリ内通知のフルスタック部品。サーバー側（フレームワーク非依存の Request→Response ハンドラ：一覧 / 未読数 / 作成 / 既読化 / ソフト削除 / SSE ストリーム）とクライアント側（React フック：履歴取得 + SSE 購読 + localStorage 設定 + 未読カウント / 既読化）を1パッケージで提供する。
 
-移植元: dev-dashboard-v2 `server/routes/notifications.ts`（246 LOC）+ `src/hooks/useNotifications.ts`（106 LOC）。
+移植元: 実運用SaaS `server/routes/notifications.ts`（246 LOC）+ `src/hooks/useNotifications.ts`（106 LOC）。
 
 ## サーバー側（React 非依存）
 

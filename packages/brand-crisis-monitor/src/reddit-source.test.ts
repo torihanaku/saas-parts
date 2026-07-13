@@ -1,5 +1,5 @@
 /**
- * Tests for createRedditSource (ported from dev-dashboard-v2 brand-crisis-reddit.test.ts).
+ * Tests for createRedditSource (ported from 実運用SaaS brand-crisis-reddit.test.ts).
  * env 参照とグローバル fetch を注入式 config / fetchFn に置換。
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";

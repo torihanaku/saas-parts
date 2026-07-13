@@ -2,7 +2,7 @@
  * @torihanaku/asset-debt-scanner — 共有型
  *
  * 「資産の劣化を巡回スキャンして修繕提案する」フレームワークの中核型。
- * 出典: dev-dashboard-v2 の Marketing Debt Tracker (#355)。ドメイン用語 (marketing debt /
+ * 出典: 実運用SaaS の Marketing Debt Tracker (#355)。ドメイン用語 (marketing debt /
  * freshness / 6 asset 種別) はマーケ由来だが config で差し替え可能。
  */
 
@@ -47,7 +47,7 @@ export interface DebtScoringResult {
 
 /**
  * スキャナが検出した 1 件の負債レコード。
- * dev-dashboard-v2 の `dd_marketing_debt_items` upsert ペイロードに対応する中立形。
+ * 実運用SaaS の `dd_marketing_debt_items` upsert ペイロードに対応する中立形。
  */
 export interface DebtRecord {
   tenantId: string;
@@ -64,7 +64,7 @@ export interface DebtRecord {
 /**
  * 負債レコードの永続化 (注入式)。
  *
- * dev-dashboard-v2 では `dd_marketing_debt_items` への
+ * 実運用SaaS では `dd_marketing_debt_items` への
  * upsert(onConflict: tenant_id,asset_type,asset_ref) だった。
  * 記録できた件数を返す (失敗分は数えない)。
  */

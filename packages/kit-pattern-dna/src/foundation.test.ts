@@ -1,5 +1,5 @@
 /**
- * 出典テスト: dev-dashboard-v2 tests/company-dna.test.ts（コア部分を移植）。
+ * 出典テスト: 実運用SaaS tests/company-dna.test.ts（コア部分を移植）。
  * Supabase モック → InMemoryDnaStore に置き換え。
  */
 import { describe, it, expect } from "vitest";

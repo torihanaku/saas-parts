@@ -8,7 +8,7 @@
  *
  * HTTP 配線は含まない。結果は discriminated union で返す。
  *
- * 出典: dev-dashboard-v2 server/routes/navigator/{cards,hypothesis,learnings}.ts,
+ * 出典: 実運用SaaS server/routes/navigator/{cards,hypothesis,learnings}.ts,
  *       server/lib/navigator/action-executor.ts
  */
 import type {

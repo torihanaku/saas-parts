@@ -1,5 +1,5 @@
 /**
- * Ported from dev-dashboard-v2 tests/image-generator.test.ts.
+ * Ported from 実運用SaaS tests/image-generator.test.ts.
  * env/cache/supabase の vi.mock を config 注入に置換し、
  * generate() の fetch モックテストと ImageSink テストを追加。
  */

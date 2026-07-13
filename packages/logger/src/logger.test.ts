@@ -1,6 +1,6 @@
 /**
  * Tests for @torihanaku/logger — PII sanitization + error sink.
- * Ported from dev-dashboard-v2 tests/logger.test.ts
+ * Ported from 実運用SaaS tests/logger.test.ts
  * (Sentry mock replaced by the injected error sink).
  */
 import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest'

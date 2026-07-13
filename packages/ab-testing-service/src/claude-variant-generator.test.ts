@@ -1,5 +1,5 @@
 /**
- * Tests for claude-variant-generator.ts (ported from dev-dashboard-v2
+ * Tests for claude-variant-generator.ts (ported from 実運用SaaS
  * tests/ab-testing/claude-variant-generator.test.ts). LLM + cost ledger are
  * injected via mocks.
  */

@@ -1,8 +1,8 @@
 # @torihanaku/saas-inventory
 
-組織（プロジェクト／テナント）の **SaaS 利用棚卸し**。ツール一覧の CRUD、月額コスト集計、integration からの自動検出、重複検知を行います。dev-dashboard-v2 の `saas-inventory.ts` から抽出しました。
+組織（プロジェクト／テナント）の **SaaS 利用棚卸し**。ツール一覧の CRUD、月額コスト集計、integration からの自動検出、重複検知を行います。実運用SaaS の `saas-inventory.ts` から抽出しました。
 
-- **永続化 → store 注入** (`InventoryStore`)。dev-dashboard-v2 では Supabase (`dd_saas_inventory`) でした。
+- **永続化 → store 注入** (`InventoryStore`)。実運用SaaS では Supabase (`dd_saas_inventory`) でした。
 - **自動検出のソース → 注入** (`IntegrationSource`)。元は Nango の `getIntegrationStatus`。
 - ロジック（CRUD・カテゴリ写像・spend 集計）は原文どおり移植しています。
 

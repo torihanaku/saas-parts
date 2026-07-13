@@ -99,5 +99,5 @@ CREATE TABLE cockpit_transcripts (
 
 ## 出典
 
-- `dev-dashboard-v2/server/routes/transcripts/{index,crud,audio,actions}.ts`（#226 / #523 / #531 / #1160）
+- `実運用SaaS/server/routes/transcripts/{index,crud,audio,actions}.ts`（#226 / #523 / #531 / #1160）
 ```

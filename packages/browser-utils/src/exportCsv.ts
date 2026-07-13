@@ -1,7 +1,7 @@
 /**
  * Client-side CSV download with UTF-8 BOM + escaping + Blob.
  *
- * Ported from dev-dashboard-v2 `src/lib/exportCsv.ts`.
+ * Ported from 実運用SaaS `src/lib/exportCsv.ts`.
  * Changes from source:
  *   - `rows[0]` guarded via a local variable to satisfy
  *     `noUncheckedIndexedAccess` (behaviour identical).

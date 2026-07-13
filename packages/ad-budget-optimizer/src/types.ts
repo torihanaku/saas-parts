@@ -1,7 +1,7 @@
 /**
  * Shared types for ad budget optimization / realtime reallocation.
  *
- * Ported from dev-dashboard-v2 `shared/types/budget-allocation.ts`, trimmed to
+ * Ported from 実運用SaaS `shared/types/budget-allocation.ts`, trimmed to
  * what this package needs and made self-contained (no @torihanaku/* imports).
  */
 

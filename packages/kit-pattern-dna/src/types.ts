@@ -1,7 +1,7 @@
 /**
  * types.ts — 組織パターン DNA キットの共有型 + 注入インターフェース。
  *
- * 出典: dev-dashboard-v2 `shared/types/company-dna.ts`（型）、
+ * 出典: 実運用SaaS `shared/types/company-dna.ts`（型）、
  * `server/lib/claude-api-client.ts` / `server/lib/embedding-client.ts`
  * （呼び出しシグネチャのインターフェース化。実装は持たない）。
  *

@@ -4,7 +4,7 @@
 
 Bun + Cloud Run 構成の SaaS 向けインフラ雛形集です。コンパイル対象のコードではなく、**新規プロジェクトにコピーして `{{PLACEHOLDER}}` を置換して使うテンプレートファイル**を `templates/` 以下に元リポジトリと同じ相対構造で収録しています（tsc / vitest の対象外）。
 
-出典: `dev-dashboard-v2`（Dockerfile / scripts / .github/workflows/ci.yml / .husky/pre-push / .devcontainer / .pre-commit-config.yaml / .prettierrc.json）。秘密情報は含みません（元ファイルも Secret Manager / GitHub Secrets 参照のみで、値の直書きなしを確認済み）。
+出典: `実運用SaaS`（Dockerfile / scripts / .github/workflows/ci.yml / .husky/pre-push / .devcontainer / .pre-commit-config.yaml / .prettierrc.json）。秘密情報は含みません（元ファイルも Secret Manager / GitHub Secrets 参照のみで、値の直書きなしを確認済み）。
 
 ## 収録ファイル一覧
 

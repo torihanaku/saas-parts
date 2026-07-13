@@ -4,7 +4,7 @@
  * persists state via an injected JobStateStore, and provides an API for
  * monitoring and manual triggering.
  *
- * Ported from dev-dashboard-v2/server/lib/job-scheduler.ts (core only —
+ * Ported from 実運用SaaS/server/lib/job-scheduler.ts (core only —
  * product job registrations and Supabase coupling removed).
  */
 import type {

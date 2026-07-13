@@ -1,6 +1,6 @@
 # @torihanaku/press-media
 
-プレスリリース生成・記者CRM（メディアリレーション）・PRオペレーションを 1 パッケージに束ねた広報向けキット。dev-dashboard-v2 の `press-release-engine` / `media-ledger-service` / `pr-ops-service` を移植したもの。
+プレスリリース生成・記者CRM（メディアリレーション）・PRオペレーションを 1 パッケージに束ねた広報向けキット。実運用SaaS の `press-release-engine` / `media-ledger-service` / `pr-ops-service` を移植したもの。
 
 ## 特徴
 

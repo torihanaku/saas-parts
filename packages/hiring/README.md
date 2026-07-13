@@ -119,7 +119,7 @@ CREATE TABLE dd_application_events (
 
 ## 出典
 
-- `dev-dashboard-v2/server/routes/recruitment/{index,postings,applications,public,gdpr-delete-page,shared}.ts`
-- `dev-dashboard-v2/shared/types/recruitment.ts`
-- `dev-dashboard-v2/supabase/migrations/202604240002_002_recruitment_builder_foundation.sql`
+- `実運用SaaS/server/routes/recruitment/{index,postings,applications,public,gdpr-delete-page,shared}.ts`
+- `実運用SaaS/shared/types/recruitment.ts`
+- `実運用SaaS/supabase/migrations/202604240002_002_recruitment_builder_foundation.sql`
 ```

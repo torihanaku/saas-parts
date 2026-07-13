@@ -1,5 +1,5 @@
 /**
- * 元テスト出典: dev-dashboard-v2 tests/agent-orchestrator.test.ts
+ * 元テスト出典: 実運用SaaS tests/agent-orchestrator.test.ts
  * （Anthropic fetch モック → AgentCompleter 注入に置換）
  */
 import { describe, expect, it, vi } from "vitest";

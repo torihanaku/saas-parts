@@ -1,5 +1,5 @@
 /**
- * Ported from dev-dashboard-v2 `tests/marketing-forecast.test.ts` and
+ * Ported from 実運用SaaS `tests/marketing-forecast.test.ts` and
  * `tests/prophet-engine.test.ts` (with `vi` imported explicitly), plus
  * golden tests: fixed input series → exact expected outputs within tolerance.
  */

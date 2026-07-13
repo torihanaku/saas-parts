@@ -1,6 +1,6 @@
 # @torihanaku/memory-connectors
 
-`@torihanaku/kit-decision-memory` から落とした**具体的な取り込みコネクタ**（Notion / Slack の意思決定抽出）＋ Slack ハンドオフ配信＋埋め込みコスト・パイプラインです。dev-dashboard-v2 `server/lib/institutional-memory/*` から移植しました。
+`@torihanaku/kit-decision-memory` から落とした**具体的な取り込みコネクタ**（Notion / Slack の意思決定抽出）＋ Slack ハンドオフ配信＋埋め込みコスト・パイプラインです。実運用SaaS `server/lib/institutional-memory/*` から移植しました。
 
 kit-decision-memory 本体は `SourceExtractor` 契約だけを残しています。本パッケージの出力形は**その契約に一致**するため、import なしでペアリングできます（README 参照）。
 

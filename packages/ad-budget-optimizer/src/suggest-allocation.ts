@@ -1,5 +1,5 @@
 /**
- * Greedy budget reallocation suggester (ported from dev-dashboard-v2
+ * Greedy budget reallocation suggester (ported from 実運用SaaS
  * server/lib/marketing/budget-optimizer.ts).
  *
  * MVP heuristic: rank campaigns by historical ROAS, give the top performers

@@ -7,7 +7,7 @@
  * 4. primary slug が候補外なら null (幻覚ガード)
  * 5. docs/warning の URL を UrlChecker で到達性フィルタ
  *
- * 出典: dev-dashboard-v2 server/lib/navigator/stack-advisor.ts
+ * 出典: 実運用SaaS server/lib/navigator/stack-advisor.ts
  */
 import type { Embedder, LlmClient, StackStore, UrlChecker } from "./ports";
 import type {

@@ -1,7 +1,7 @@
 /**
  * マルチプラットフォーム・コンテンツ発行。
  *
- * 出典: dev-dashboard-v2 server/lib/nango-operations.ts（publish系）。
+ * 出典: 実運用SaaS server/lib/nango-operations.ts（publish系）。
  * プラットフォーム別のエンドポイント/ボディ構築（buildPublishPayload）は元実装のまま。
  * 汎用化ポイント:
  *   - proxyRequest 直呼び → IntegrationProvider.publish 注入

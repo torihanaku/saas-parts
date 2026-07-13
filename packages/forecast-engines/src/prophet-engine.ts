@@ -9,7 +9,7 @@ import type { ForecastEngine, ForecastParams, ForecastResult } from "./forecast-
  * from the historical series, and carries a decaying autoregressive residual
  * into the horizon.
  *
- * Ported verbatim from dev-dashboard-v2 `server/lib/forecast/prophet-engine.ts`.
+ * Ported verbatim from 実運用SaaS `server/lib/forecast/prophet-engine.ts`.
  */
 export class ProphetEngine implements ForecastEngine {
   name = "seasonal_regression";

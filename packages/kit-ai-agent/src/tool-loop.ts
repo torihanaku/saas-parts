@@ -3,7 +3,7 @@
  * or the iteration cap is hit; tool calls in each turn run in parallel and
  * their results are appended as the next user message.
  *
- * 出典: dev-dashboard-v2 server/lib/claude-api-client.ts runToolLoop()
+ * 出典: 実運用SaaS server/lib/claude-api-client.ts runToolLoop()
  * 変更点: callClaude 直呼び → LlmToolCaller 注入 / CHAT_TOOLS+executeTool →
  *         ToolRegistry 注入 / 日本語フォールバック文言はオプション化。
  */

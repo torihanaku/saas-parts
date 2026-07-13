@@ -5,7 +5,7 @@
  * クラスタ検出 → 仮説カード生成 → アクション実行 → 学び (learning) 記録、
  * という一連のパイプラインで扱うデータを定義する。
  *
- * 出典: dev-dashboard-v2 shared/types/navigator.ts + navigator-signals.ts
+ * 出典: 実運用SaaS shared/types/navigator.ts + navigator-signals.ts
  */
 
 // ---------------------------------------------------------------------------

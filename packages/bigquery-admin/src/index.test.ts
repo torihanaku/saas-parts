@@ -1,5 +1,5 @@
 /**
- * Tests — ported from dev-dashboard-v2 tests/bigquery-client.test.ts.
+ * Tests — ported from 実運用SaaS tests/bigquery-client.test.ts.
  * Supabase モック → インメモリ store、BigQuery SDK モック → clientFactory 注入。
  * 暗号化はモックではなく実 AES-256-GCM のラウンドトリップで検証する。
  */

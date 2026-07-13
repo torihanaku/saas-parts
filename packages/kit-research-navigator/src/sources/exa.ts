@@ -1,7 +1,7 @@
 /**
  * Exa 検索 API をシグナルソースにする実装例。
  * 元実装は Nango プロキシ経由だったが、API キー注入の直接呼び出しに一般化。
- * 出典: dev-dashboard-v2 server/lib/navigator/ingestion/exa-proxy.ts
+ * 出典: 実運用SaaS server/lib/navigator/ingestion/exa-proxy.ts
  */
 import type { NewSignal } from "../types";
 import type { SignalSource } from "../ports";

@@ -1,7 +1,7 @@
 /**
  * 3-tier Risk Classifier for agent/user actions.
  *
- * Ported verbatim from dev-dashboard-v2 server/services/riskTier.ts, with the
+ * Ported verbatim from 実運用SaaS server/services/riskTier.ts, with the
  * product-specific action-type names extracted into an injectable config
  * (defaults preserve the original behaviour exactly).
  */

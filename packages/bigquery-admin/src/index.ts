@@ -7,7 +7,7 @@
  * Security: Decrypted credentials are NEVER returned from any exported function.
  * Routes must redact `service_account_key_encrypted` before sending to clients.
  *
- * 変更点（移植元: dev-dashboard-v2 server/lib/bigquery-client.ts）:
+ * 変更点（移植元: 実運用SaaS server/lib/bigquery-client.ts）:
  * - `@google-cloud/bigquery` 直接依存 → 構造的インターフェース `BigQueryLike` +
  *   `clientFactory` 注入（SDK 依存ゼロ）
  * - Supabase REST ヘルパー → `BigQuerySettingsStore` 注入

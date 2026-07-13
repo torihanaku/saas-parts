@@ -49,4 +49,4 @@ node / bun（`gzipSync`・`Buffer` を使うため。fetch標準の `Request`/`R
 
 ## 出典
 
-dev-dashboard-v2 `server/lib/helpers.ts`（テストは `tests/helpers.test.ts` から移植）。
+実運用SaaS `server/lib/helpers.ts`（テストは `tests/helpers.test.ts` から移植）。

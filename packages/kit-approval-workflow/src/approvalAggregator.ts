@@ -2,7 +2,7 @@
  * Multi-approver response aggregator.
  * Pure function to determine final status based on multiple responses and mode.
  *
- * Ported verbatim from dev-dashboard-v2 server/services/approvalAggregator.ts.
+ * Ported verbatim from 実運用SaaS server/services/approvalAggregator.ts.
  */
 
 export type ApprovalDecision = "approve" | "reject";

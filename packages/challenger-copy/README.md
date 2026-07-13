@@ -1,7 +1,7 @@
 # @torihanaku/challenger-copy
 
 Safe / Edgy 2 案コピー生成 → 提示 → 選択フィードバック学習ループ（Active Learning）。
-dev-dashboard-v2 の「Challenger」機構から、インフラ依存を剥がして抽出。
+実運用SaaS の「Challenger」機構から、インフラ依存を剥がして抽出。
 
 > **マーケ / ブランド製品向け**のパーツです。「本命コピーに対してあえて境界を攻める対抗案（challenger）を出し、CMO の選択・却下から lint を賢く育てる」用途を想定しています。
 

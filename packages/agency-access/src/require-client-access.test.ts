@@ -1,6 +1,6 @@
 /**
  * requireClientAccess middleware tests.
- * 移植元: dev-dashboard-v2 tests/agency-middleware.test.ts (#774 A-2)
+ * 移植元: 実運用SaaS tests/agency-middleware.test.ts (#774 A-2)
  * — vi.mock によるモジュールモックを依存注入 (store / callbacks) に置換。
  *
  * 3 層 role × 境界ケースを網羅:

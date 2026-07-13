@@ -2,7 +2,7 @@
  * @torihanaku/api-keys — 公開APIキーのライフサイクル管理。
  * Keys are stored as SHA-256 hashes; the raw key is only returned once at creation.
  *
- * 出典: dev-dashboard-v2/server/lib/api-key-auth.ts（忠実移植）。
+ * 出典: 実運用SaaS/server/lib/api-key-auth.ts（忠実移植）。
  * 変更点: Supabase REST 直叩き → 注入 `ApiKeyStore` インターフェース
  * （インメモリ実装同梱）、キープレフィックス `fla_` → 設定可能、
  * scopes は JSON 文字列化せず string[] のまま store に渡す（シリアライズは

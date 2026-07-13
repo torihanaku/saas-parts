@@ -1,7 +1,7 @@
 /**
  * Stripe Checkout / Customer Portal session helpers.
  *
- * Ported from dev-dashboard-v2 `server/routes/billing.ts`
+ * Ported from 実運用SaaS `server/routes/billing.ts`
  * (handleBillingCheckout / handleBillingPortal), with route/auth/env coupling
  * removed. Stripe SDK instance, URLs and trial days are all injected via config.
  */

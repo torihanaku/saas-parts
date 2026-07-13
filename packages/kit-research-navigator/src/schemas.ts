@@ -1,6 +1,6 @@
 /**
  * zod スキーマ。LLM 出力のバリデーションに使用する。
- * 出典: dev-dashboard-v2 shared/schemas/navigator.ts
+ * 出典: 実運用SaaS shared/schemas/navigator.ts
  */
 import { z } from "zod";
 

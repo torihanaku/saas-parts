@@ -1,7 +1,7 @@
 /**
  * Injected persistence boundary for the realtime budget reallocator.
  *
- * The original dev-dashboard-v2 code talked directly to Supabase (PostgREST
+ * The original 実運用SaaS code talked directly to Supabase (PostgREST
  * filter strings). Here that is abstracted into a small `ReallocationStore`
  * interface plus an in-memory implementation, so the package has no DB / no
  * `process.env` dependency.

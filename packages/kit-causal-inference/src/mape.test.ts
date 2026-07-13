@@ -1,5 +1,5 @@
 /**
- * Adapted from dev-dashboard-v2 `tests/whatif-mape-tracker.test.ts` and the
+ * Adapted from 実運用SaaS `tests/whatif-mape-tracker.test.ts` and the
  * drift logic in `server/jobs/mape-drift-check.ts` — Supabase plumbing
  * replaced by direct arrays; golden numbers unchanged (recent 1100 vs
  * baseline 1000 → MAPE 0.0909; 30% average threshold for drift).

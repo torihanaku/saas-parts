@@ -3,7 +3,7 @@
  * While `active`, Tab/Shift+Tab cycle inside the container; on deactivate,
  * focus returns to the element that was focused when the trap engaged.
  *
- * Ported from dev-dashboard-v2 `src/hooks/useFocusTrap.ts` (unchanged
+ * Ported from 実運用SaaS `src/hooks/useFocusTrap.ts` (unchanged
  * behavior; element type is now generic, default HTMLDivElement).
  */
 import { useEffect, useRef } from 'react';

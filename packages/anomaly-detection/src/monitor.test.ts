@@ -1,5 +1,5 @@
 /**
- * Tests — ported from dev-dashboard-v2 tests/jobs/realtime-monitor.test.ts.
+ * Tests — ported from 実運用SaaS tests/jobs/realtime-monitor.test.ts.
  * Supabase (teams / dd_anomaly_events) → listTenantIds / persistAnomaly 注入。
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";

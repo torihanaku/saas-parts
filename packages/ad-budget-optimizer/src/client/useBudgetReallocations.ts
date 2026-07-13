@@ -1,5 +1,5 @@
 /**
- * React hooks for a Budget Allocation UI (ported from dev-dashboard-v2
+ * React hooks for a Budget Allocation UI (ported from 実運用SaaS
  * src/hooks/useBudgetReallocations.ts).
  *
  * The original imported a concrete `api` client and page-local DTO types. Here

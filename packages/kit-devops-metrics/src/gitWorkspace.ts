@@ -1,6 +1,6 @@
 /**
  * Git ワークスペース — Claude Code hook 等から git status を受け取り、最新状態を
- * 保持する。dev-dashboard-v2 server/routes/git-workspace.ts から抽出。
+ * 保持する。実運用SaaS server/routes/git-workspace.ts から抽出。
  * ルートハンドラ（Request/Response）は外し、パース＋インメモリ store のみを提供。
  */
 import type { GitFileStatus, GitWorkspaceState } from "./types.js";

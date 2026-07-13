@@ -45,4 +45,4 @@ Node.js 18+ / Bun / Edge（サーバーサイド。service role key を扱うた
 
 ## 出典
 
-`dev-dashboard-v2/server/lib/white-label/asset-upload.ts`（MIME許可リストと拡張子マッピングは同 `server/routes/white-label.ts` から抽出）
+`実運用SaaS/server/lib/white-label/asset-upload.ts`（MIME許可リストと拡張子マッピングは同 `server/routes/white-label.ts` から抽出）

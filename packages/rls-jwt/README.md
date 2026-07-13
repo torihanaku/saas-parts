@@ -59,4 +59,4 @@ decodeTenantJwt(jwt); // { role, tenant_id, iat, exp, ... } | null
 
 ## 出自
 
-`dev-dashboard-v2/server/lib/rls-jwt.ts`（218 LOC, issue #1016 / Epic #699 G9 Sprint 0 F-2）。モジュールレベル関数＋env 直読みを、`createRlsJwt(sources)` ファクトリ＋注入に変換した以外はロジック同一。テストは `tests/rls-jwt.test.ts` を移植（env 変異 → fixture 変異）。
+`実運用SaaS/server/lib/rls-jwt.ts`（218 LOC, issue #1016 / Epic #699 G9 Sprint 0 F-2）。モジュールレベル関数＋env 直読みを、`createRlsJwt(sources)` ファクトリ＋注入に変換した以外はロジック同一。テストは `tests/rls-jwt.test.ts` を移植（env 変異 → fixture 変異）。

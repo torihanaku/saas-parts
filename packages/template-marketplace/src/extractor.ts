@@ -1,7 +1,7 @@
 /**
  * Marketplace pattern extractor.
  *
- * Ported from dev-dashboard-v2 `server/lib/marketplace/extractor.ts`.
+ * Ported from 実運用SaaS `server/lib/marketplace/extractor.ts`.
  * The Claude call (generateJson + API key resolution via tenant secrets / env)
  * is replaced with an injected {@link JsonGenerator} callback; persistence via
  * the supabase-admin client is replaced with the shared {@link MarketplaceStore}.

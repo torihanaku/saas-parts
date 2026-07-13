@@ -45,4 +45,4 @@ await snapshot.rollbackFromSnapshot(tenantId, snapshotKey);
 
 ## 出自
 
-`dev-dashboard-v2/server/jobs/snapshot.ts`（43 LOC）。Supabase admin クライアント直参照 → `SnapshotStateSource` / `DecisionLogStore` 注入に変換。シミュレートだった GCS/S3 アップロードは省略可能な `SnapshotStore` として実装可能にした。
+`実運用SaaS/server/jobs/snapshot.ts`（43 LOC）。Supabase admin クライアント直参照 → `SnapshotStateSource` / `DecisionLogStore` 注入に変換。シミュレートだった GCS/S3 アップロードは省略可能な `SnapshotStore` として実装可能にした。

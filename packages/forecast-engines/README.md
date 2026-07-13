@@ -65,5 +65,5 @@ const result = await engine.forecast({
 
 ## 出典
 
-- dev-dashboard-v2 `server/lib/forecast/`（arima-engine / prophet-engine / moving-average-engine / engine-selector / forecast-engine）
+- 実運用SaaS `server/lib/forecast/`（arima-engine / prophet-engine / moving-average-engine / engine-selector / forecast-engine）
 - 移植時の変更: ① `timeseries-analysis` 依存を等価実装でインライン化 ② `ForecastResult` を `shared/types/marketing.ts` からインライン化（`method` を `string` に拡大 — 元の union に `seasonal_regression` が含まれていなかったため）。数値ロジックは原文どおり

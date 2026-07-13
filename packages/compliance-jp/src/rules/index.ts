@@ -1,7 +1,7 @@
 /**
  * JP law rule library — barrel export + static rule application.
  *
- * Ported from dev-dashboard-v2 `server/lib/compliance/rules/index.ts`
+ * Ported from 実運用SaaS `server/lib/compliance/rules/index.ts`
  * (Issue #934: 50+ rule seed for 薬機法 / 景表法 / 特商法).
  *
  * Total: 50 rules

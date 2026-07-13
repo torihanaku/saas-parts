@@ -1,6 +1,6 @@
 /**
  * Scenario Twin — shared types + injected dependency interfaces.
- * Ported from dev-dashboard-v2 `server/lib/twin/*` (Epic B5).
+ * Ported from 実運用SaaS `server/lib/twin/*` (Epic B5).
  *
  * The digital twin projects marketing-mix scenarios forward. Monte-carlo and
  * elasticity extraction are injected as callbacks (`TwinMath`), and all

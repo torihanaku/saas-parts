@@ -2,7 +2,7 @@
  * Response helpers and utility functions for fetch-style HTTP servers
  * (Bun.serve / Cloudflare Workers / any Request-Response runtime with node compat).
  *
- * Ported from dev-dashboard-v2 server/lib/helpers.ts.
+ * Ported from 実運用SaaS server/lib/helpers.ts.
  */
 import { gzipSync } from "zlib";
 import { createHash } from "crypto";

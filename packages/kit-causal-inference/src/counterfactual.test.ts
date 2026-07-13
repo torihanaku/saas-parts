@@ -1,5 +1,5 @@
 /**
- * Adapted from dev-dashboard-v2 `tests/counterfactual-analyzer.test.ts`:
+ * Adapted from 実運用SaaS `tests/counterfactual-analyzer.test.ts`:
  * the Supabase mocks were replaced by direct pre/post arrays (the kit takes
  * plain arrays). Golden values: 14 pre-days at 100 and 7 post-days at 150
  * → counterfactual 100, actual 150, relative lift 0.5.

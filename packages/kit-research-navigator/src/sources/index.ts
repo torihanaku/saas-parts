@@ -1,6 +1,6 @@
 /**
  * シグナルソースの集約。個々のソースが失敗しても他のソースの結果は返す。
- * 出典: dev-dashboard-v2 server/lib/navigator/ingestion/index.ts
+ * 出典: 実運用SaaS server/lib/navigator/ingestion/index.ts
  */
 import type { NewSignal } from "../types";
 import type { SignalSource, SignalSourceContext } from "../ports";

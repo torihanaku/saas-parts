@@ -1,6 +1,6 @@
 /**
  * Common forecasting interface + result shape.
- * Ported from dev-dashboard-v2 `server/lib/forecast/forecast-engine.ts`;
+ * Ported from 実運用SaaS `server/lib/forecast/forecast-engine.ts`;
  * `ForecastResult` was inlined from `shared/types/marketing.ts`
  * (with `method` widened to `string` — the seasonal-regression engine
  * reports "seasonal_regression", which the original union didn't cover).

@@ -1,6 +1,6 @@
 /**
  * Onboarding progress checklist.
- * Ported from dev-dashboard-v2 `server/routes/setup-wizard.ts` (GET /api/setup/checklist).
+ * Ported from 実運用SaaS `server/routes/setup-wizard.ts` (GET /api/setup/checklist).
  */
 
 export interface ChecklistItem {

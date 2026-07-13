@@ -1,6 +1,6 @@
 /**
  * Tests for the pure shock-detection core of the Natural Experiment Detector
- * (origin: dev-dashboard-v2 `server/services/naturalExperimentDetector.ts`;
+ * (origin: 実運用SaaS `server/services/naturalExperimentDetector.ts`;
  * the original tests were Supabase-route oriented, so these exercise the
  * extracted 3-sigma algorithm directly with the same numerics).
  */

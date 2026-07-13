@@ -7,7 +7,7 @@
  *
  * 意図的に同期・single-flight。await するか fire-and-forget するかは呼び出し側が決める。
  *
- * 出典: dev-dashboard-v2 server/lib/autonomous-deploy/orchestrator.ts
+ * 出典: 実運用SaaS server/lib/autonomous-deploy/orchestrator.ts
  *
  * 移植方針:
  * - submission 取得 / deploy_log 永続化（Supabase 直呼び）→ `DeployStore` 注入。

@@ -1,7 +1,7 @@
 /**
  * デプロイコントロール — ステージング→本番の昇格を管理するコアロジック。
  *
- * dev-dashboard-v2 server/routes/deploy-control.ts から抽出。
+ * 実運用SaaS server/routes/deploy-control.ts から抽出。
  * 認証（super admin）・機能フラグ・HTTP ルーティングは外し、GitProvider 経由の
  * 状態取得 / 昇格トリガー / Issue CRUD と、5 分クールダウンのレート制限だけを提供。
  */

@@ -1,6 +1,6 @@
 /**
  * 負債修正提案ジェネレータ。
- * 出典: dev-dashboard-v2 server/lib/marketing-debt/suggester.ts (#1297 Debt-3)。
+ * 出典: 実運用SaaS server/lib/marketing-debt/suggester.ts (#1297 Debt-3)。
  *
  * 移植方針: LLM 呼び出し (`generateJson`) を注入式に置換。API キー未解決なら FALLBACK を返す。
  */
@@ -40,7 +40,7 @@ export const FALLBACK_SUGGESTIONS: DebtSuggestion[] = [
 
 /**
  * JSON 生成 LLM 呼び出し (注入式)。
- * dev-dashboard-v2 の `generateJson(apiKey, system, user, fallback, options)` を充足する。
+ * 実運用SaaS の `generateJson(apiKey, system, user, fallback, options)` を充足する。
  */
 export type GenerateJson = <T>(
   apiKey: string,

@@ -56,5 +56,5 @@ Node.js 18+ / Bun / Cloud Run 等のサーバーサイド（DOM 不要、`Reques
 
 ## 出典
 
-- `dev-dashboard-v2/server/lib/tenant.ts` (~276 LOC, #641 分割 / #952 hardening)
-- テスト移植元: `dev-dashboard-v2/tests/tenant.test.ts`
+- `実運用SaaS/server/lib/tenant.ts` (~276 LOC, #641 分割 / #952 hardening)
+- テスト移植元: `実運用SaaS/tests/tenant.test.ts`

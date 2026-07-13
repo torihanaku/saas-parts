@@ -1,5 +1,5 @@
 /**
- * Tests for press-release-engine (ported from dev-dashboard-v2).
+ * Tests for press-release-engine (ported from 実運用SaaS).
  * LLM は注入式 mock に置換。
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";

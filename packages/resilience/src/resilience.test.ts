@@ -1,7 +1,7 @@
 /**
  * Tests for @torihanaku/resilience
  * RetryWithBackoff, CircuitBreaker, LRUCache implementations.
- * Ported from dev-dashboard-v2 tests/resilience.test.ts.
+ * Ported from 実運用SaaS tests/resilience.test.ts.
  */
 import { describe, it, expect, vi, afterEach } from 'vitest'
 

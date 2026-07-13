@@ -97,4 +97,4 @@ const imageGen = createImageGen({ providers: [myProvider] });
 
 ## 出典
 
-`dev-dashboard-v2` の `server/lib/image-generator.ts`（138 行）＋ `server/lib/image-providers/openai.ts`（96 行）＋ `server/lib/image-providers/fal.ts`（117 行）。移植差分: env 参照（`OPENAI_API_KEY` / `FAL_KEY`）→ config 注入、`uploadToSupabase()` → `ImageSink` コールバック、モジュールロード時のグローバルレジストリ → `createImageGen()` ファクトリ。ルーティング・サイズ検証・エラー文言・キャッシュ TTL は原典を維持。
+`実運用SaaS` の `server/lib/image-generator.ts`（138 行）＋ `server/lib/image-providers/openai.ts`（96 行）＋ `server/lib/image-providers/fal.ts`（117 行）。移植差分: env 参照（`OPENAI_API_KEY` / `FAL_KEY`）→ config 注入、`uploadToSupabase()` → `ImageSink` コールバック、モジュールロード時のグローバルレジストリ → `createImageGen()` ファクトリ。ルーティング・サイズ検証・エラー文言・キャッシュ TTL は原典を維持。

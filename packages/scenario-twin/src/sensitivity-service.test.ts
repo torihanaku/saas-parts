@@ -1,5 +1,5 @@
 /**
- * Tests for sensitivity-service.ts (ported from dev-dashboard-v2
+ * Tests for sensitivity-service.ts (ported from 実運用SaaS
  * tests/twin-sensitivity.test.ts). `simulate` + store are injected.
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";

@@ -1,5 +1,5 @@
 /**
- * Tests — ported from dev-dashboard-v2 tests/slack-user-mapping.test.ts.
+ * Tests — ported from 実運用SaaS tests/slack-user-mapping.test.ts.
  * env モック → ファクトリ引数、Supabase REST → createRestEmailLookup + fetch 注入。
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";

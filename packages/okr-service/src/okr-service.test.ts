@@ -1,5 +1,5 @@
 /**
- * Ported from dev-dashboard-v2 `tests/okr-service.test.ts` — adapted from
+ * Ported from 実運用SaaS `tests/okr-service.test.ts` — adapted from
  * supabase mocks to the injected InMemoryOkrStore / InMemoryOkrMetricsStore.
  */
 import { describe, it, expect, beforeEach } from "vitest";

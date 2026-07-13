@@ -1,5 +1,5 @@
 /**
- * Ad bid mutation executor (ported from dev-dashboard-v2 #1459).
+ * Ad bid mutation executor (ported from 実運用SaaS #1459).
  *
  * Mirrors the budget executor but targets bid values. Two paths:
  *   - Google Ads: POST /customers/{id}/campaigns:mutate (target_cpa_micros)

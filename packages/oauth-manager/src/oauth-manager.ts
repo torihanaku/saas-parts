@@ -8,7 +8,7 @@
  *   - Token refresh
  *   - Connection persistence via an injected ConnectionStore
  *
- * Ported from dev-dashboard-v2/server/lib/oauth-manager.ts with product
+ * Ported from 実運用SaaS/server/lib/oauth-manager.ts with product
  * coupling removed:
  *   - Supabase helpers → injected `ConnectionStore` (in-memory default)
  *   - Redis-backed oauth-state → injected `StateStore` (in-memory default)

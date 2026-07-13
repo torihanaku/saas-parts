@@ -1,7 +1,7 @@
 /**
  * 長文 → 各フォーマットへの原子化（atomize）ロジック。
  *
- * dev-dashboard-v2 の content routes（atomize / remix）から、
+ * 実運用SaaS の content routes（atomize / remix）から、
  * インフラ（Supabase / Hono / rate-limiter / audit）に依存しない
  * フォーマット定義と純粋な変換パイプラインだけを抽出。
  */

@@ -1,7 +1,7 @@
 /**
  * Nango（https://nango.dev）ベースの IntegrationProvider 実装。
  *
- * 出典: dev-dashboard-v2 server/lib/nango-client.ts（実働コード）。
+ * 出典: 実運用SaaS server/lib/nango-client.ts（実働コード）。
  * 汎用化ポイント:
  *   - テナント別キーの取得は SecretStore 注入（元: dd_nango_settings + AES-256-GCM 復号）
  *   - 既定キー/URL はコンストラクタ注入（元: NANGO_SECRET_KEY / NANGO_SERVER_URL env）

@@ -105,5 +105,5 @@ CREATE TABLE cockpit_document_comments (
 
 ## 出典
 
-- `dev-dashboard-v2/server/routes/documents/{index,shared,crud,generate}.ts`（#230）
+- `実運用SaaS/server/routes/documents/{index,shared,crud,generate}.ts`（#230）
 ```

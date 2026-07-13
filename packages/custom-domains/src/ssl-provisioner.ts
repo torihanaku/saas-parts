@@ -9,7 +9,7 @@
  * Two phases are handled in a single cron run so a domain that was already
  * in ssl_provisioning from a previous tick gets re-checked each time.
  *
- * Ported from dev-dashboard-v2 `server/lib/white-label/ssl-provisioner.ts`
+ * Ported from 実運用SaaS `server/lib/white-label/ssl-provisioner.ts`
  * (#1341 WhiteLabel-3b). Decoupled: cloud calls go through an injected
  * {@link DomainMappingProvisioner} (gcloud default in
  * `gcloud-provisioner.ts`), storage is an injected {@link DomainStore},

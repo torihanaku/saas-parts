@@ -1,7 +1,7 @@
 /**
  * LLM tool registry (Claude API `tools` format: snake_case `input_schema`).
  *
- * 出典: dev-dashboard-v2 server/lib/chat-tools-def.ts（定義配列）＋
+ * 出典: 実運用SaaS server/lib/chat-tools-def.ts（定義配列）＋
  *       server/lib/chat-tools.ts（switch 文の executeTool）。
  * 変更点: 27個の製品ツール（CRM/コンテンツ/レポート等）は落とし、
  *         「定義＋ハンドラーを1箇所で登録して definitions()/execute() で使う」

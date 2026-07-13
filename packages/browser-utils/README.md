@@ -40,5 +40,5 @@ truncate("hello world", 5);                          // "hello..."
 
 ## 出典
 
-- `dev-dashboard-v2/src/lib/exportCsv.ts`
-- `dev-dashboard-v2/src/utils/format.ts`
+- `実運用SaaS/src/lib/exportCsv.ts`
+- `実運用SaaS/src/utils/format.ts`

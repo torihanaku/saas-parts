@@ -1,5 +1,5 @@
 /**
- * Tests for comparison-service.ts (ported from dev-dashboard-v2
+ * Tests for comparison-service.ts (ported from 実運用SaaS
  * tests/twin-compare.test.ts). `simulate` is injected.
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";

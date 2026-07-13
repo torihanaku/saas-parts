@@ -62,4 +62,4 @@ any（fetchグローバルがあればよい。Node 18+ / Bun / Cloudflare Worke
 
 ## 出典
 
-dev-dashboard-v2 `server/lib/supabase.ts`（テストは `tests/supabase.test.ts` の汎用ヘルパー部分から移植）。
+実運用SaaS `server/lib/supabase.ts`（テストは `tests/supabase.test.ts` の汎用ヘルパー部分から移植）。

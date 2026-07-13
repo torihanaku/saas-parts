@@ -2,7 +2,7 @@
  * Monitoring cycle: run injected anomaly detectors, persist events, auto-halt
  * offending actions, and notify.
  *
- * 出典: dev-dashboard-v2 server/lib/agent/monitor-service.ts
+ * 出典: 実運用SaaS server/lib/agent/monitor-service.ts
  * 変更点: CPA/メール/SEO の製品ディテクター → AnomalyDetector[] 注入 /
  *         dd_anomaly_events → AnomalyStore 注入 / Slack 通知 → notify 注入 /
  *         Supabase 直 update → PlanStore.updateAction で halt。

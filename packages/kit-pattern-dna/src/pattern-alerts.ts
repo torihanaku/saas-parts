@@ -13,7 +13,7 @@
  * なしで、`value` に text / summary / title を持つ任意の DNA 行に対して動く。
  * より高精度な embedding 経路は similarity-predict.ts が担う（両者は併存可能）。
  *
- * 出典: dev-dashboard-v2 `server/lib/company-dna/pattern-alerts.ts`
+ * 出典: 実運用SaaS `server/lib/company-dna/pattern-alerts.ts`
  * （Supabase 直結 → DnaStore 注入）。
  */
 

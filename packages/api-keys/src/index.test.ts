@@ -1,5 +1,5 @@
 /**
- * Ported from dev-dashboard-v2/tests/api-key-auth.test.ts, adapted from
+ * Ported from 実運用SaaS/tests/api-key-auth.test.ts, adapted from
  * Supabase mocks to the injected ApiKeyStore (in-memory implementation).
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";

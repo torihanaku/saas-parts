@@ -1,5 +1,5 @@
 /**
- * Ported from dev-dashboard-v2 `tests/lead-scoring.test.ts` — adapted from
+ * Ported from 実運用SaaS `tests/lead-scoring.test.ts` — adapted from
  * supabase mocks to InMemoryLeadScoringStore, plus deterministic per-dimension
  * fixtures for the pure scoring helpers.
  */

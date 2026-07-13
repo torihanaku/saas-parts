@@ -1,5 +1,5 @@
 /**
- * Ported from dev-dashboard-v2 `src/hooks/useFetch.ts` (unchanged).
+ * Ported from 実運用SaaS `src/hooks/useFetch.ts` (unchanged).
  */
 import { useState, useEffect, useCallback } from 'react'
 

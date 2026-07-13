@@ -1,5 +1,5 @@
 /**
- * Ad-insights forecast data source (ported from dev-dashboard-v2
+ * Ad-insights forecast data source (ported from 実運用SaaS
  * server/lib/marketing/data-sources/supabase-ad-insights.ts).
  *
  * The original queried Supabase directly. Here the raw row loader is injected

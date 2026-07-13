@@ -1,5 +1,5 @@
 /**
- * Google Ads budget adapter (ported from dev-dashboard-v2 #1345).
+ * Google Ads budget adapter (ported from 実運用SaaS #1345).
  *
  * Updates a Google Ads campaign budget via an injected proxy. JPY amounts are
  * converted to micros (1 JPY = 1_000_000 micros). Mirrors the meta/tiktok

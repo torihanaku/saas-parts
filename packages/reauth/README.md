@@ -59,4 +59,4 @@ Node 18+ / Bun（`Response.json` と `node:crypto` を使用）。
 
 ## 出典
 
-`dev-dashboard-v2/server/lib/reauth-token.ts` ＋ `server/routes/auth/reauth.ts`（テスト: `tests/reauth-flow.test.ts` を移植・拡張）
+`実運用SaaS/server/lib/reauth-token.ts` ＋ `server/routes/auth/reauth.ts`（テスト: `tests/reauth-flow.test.ts` を移植・拡張）

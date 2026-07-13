@@ -7,7 +7,7 @@ const prophetEngine = new ProphetEngine();
 
 /**
  * データ量による自動選択ロジック。30 日未満は null、30-90 日は MA、90 日以上は ARIMA/Prophet。
- * Ported verbatim from dev-dashboard-v2 `server/lib/forecast/engine-selector.ts`.
+ * Ported verbatim from 実運用SaaS `server/lib/forecast/engine-selector.ts`.
  */
 export const defaultEngineSelector: ForecastEngineSelector = {
   pickEngine(availableDays: number): ForecastEngine | null {

@@ -1,5 +1,5 @@
 /**
- * CPA guardrail (ported from dev-dashboard-v2 server/services/cpaGuardrail.ts
+ * CPA guardrail (ported from 実運用SaaS server/services/cpaGuardrail.ts
  * + server/jobs/cpaGuardrailCheck.ts).
  *
  * Watches campaign CPA (spend / conversions) against a threshold and, when a

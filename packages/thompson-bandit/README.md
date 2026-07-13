@@ -45,5 +45,5 @@ const s = sampleBeta(2, 5);
 
 ## 出典
 
-- `dev-dashboard-v2/server/lib/ab-testing-bandit.ts`（#362）の忠実移植
+- `実運用SaaS/server/lib/ab-testing-bandit.ts`（#362）の忠実移植
 - 変更点: `shared/types/ab-testing` の `AllocationResult` をローカル定義にインライン化。`BetaVariant` 型を命名エクスポート化

@@ -4,7 +4,7 @@
  * 調査アシスタント: 外部シグナル取り込み → 重要度判定 (verdict) →
  * クラスタ検出 → 仮説カード生成 → アクション実行 → 学び記録。
  *
- * 出典: dev-dashboard-v2 navigator (server/lib/navigator, server/routes/navigator,
+ * 出典: 実運用SaaS navigator (server/lib/navigator, server/routes/navigator,
  * server/jobs/nav-*)。LLM / 埋め込み / ソース / 課題トラッカー / 永続化は全て注入制。
  */
 

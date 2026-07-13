@@ -1,6 +1,6 @@
 /**
  * Per-service credential validators.
- * Ported from dev-dashboard-v2 `server/lib/setup-validators.ts`.
+ * Ported from 実運用SaaS `server/lib/setup-validators.ts`.
  *
  * Network validators accept an injectable fetch (default globalThis.fetch) so
  * connectivity checks are testable without real HTTP. Format-only validators
@@ -76,7 +76,7 @@ export async function validateGitHub(
 
   try {
     const res = await fetchImpl("https://api.github.com/user", {
-      headers: { Authorization: `Bearer ${token}`, "User-Agent": "dev-dashboard" },
+      headers: { Authorization: `Bearer ${token}`, "User-Agent": "実運用SaaS" },
       signal: AbortSignal.timeout(TIMEOUT_MS),
     });
     if (res.ok) return { valid: true, service: "github", message: "接続確認済み" };

@@ -2,7 +2,7 @@
  * Industry Benchmark Aggregator — cross-tenant percentile aggregation with
  * k-anonymity guard and opt-in consent registry.
  *
- * Ported from dev-dashboard-v2 `server/lib/industry-benchmark-aggregator.ts`.
+ * Ported from 実運用SaaS `server/lib/industry-benchmark-aggregator.ts`.
  * Supabase calls (dd_industry_benchmarks_safe / dd_tenant_benchmark_consent)
  * are replaced with an injected {@link BenchmarkStore}.
  *

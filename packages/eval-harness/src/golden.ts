@@ -2,7 +2,7 @@
  * Golden-case runner: input → expected verdict, judged by an injected
  * callback (LLM judge, rule engine, classifier…).
  *
- * Generalized from dev-dashboard-v2's firewall eval flow (#1040), where the
+ * Generalized from 実運用SaaS's firewall eval flow (#1040), where the
  * ground-truth pairs were assembled from recent submissions. Here the golden
  * set is explicit and versionable, which is the pattern the Python
  * `tools/eval-lab` harness used for its query sets.

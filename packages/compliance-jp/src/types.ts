@@ -1,7 +1,7 @@
 /**
  * Core types for JP-law compliance text checking.
  *
- * Ported from dev-dashboard-v2 `src/types/compliance.ts` and
+ * Ported from 実運用SaaS `src/types/compliance.ts` and
  * `server/lib/compliance/rules/types.ts` (self-contained copy).
  */
 

@@ -19,7 +19,7 @@
  *   - intermediate: 0.85
  *   - beginner: 0.6
  *
- * Ported from dev-dashboard-v2 server/lib/bm25.ts (zero-dep faithful port).
+ * Ported from 実運用SaaS server/lib/bm25.ts (zero-dep faithful port).
  */
 
 export const BM25_K1 = 1.5; // 単語頻度の飽和度（標準値）

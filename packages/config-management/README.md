@@ -2,7 +2,7 @@
 
 環境変数レジストリ（宣言的な設定変数カタログ + 必須/依存関係検証 + マスク付きステータス + .env テンプレート生成）と、外部サービスのヘルスチェックバリデータ（プラガブルレジストリ + 組み込み8種）。
 
-移植元: dev-dashboard-v2 `server/lib/config-registry.ts` + `server/lib/config-validator.ts`
+移植元: 実運用SaaS `server/lib/config-registry.ts` + `server/lib/config-validator.ts`
 
 ## @torihanaku/env-config との関係（重複ではない）
 

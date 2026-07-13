@@ -3,7 +3,7 @@
  * - generateManualCard: 手動入力 → LLM で UseCaseCard JSON を生成 (検証 + 1 リトライ)
  * - buildStackAdvisorCard: Stack Advisor の推薦 → カード (LLM 不要の決定的組み立て)
  *
- * 出典: dev-dashboard-v2 server/lib/navigator/card-generator.ts,
+ * 出典: 実運用SaaS server/lib/navigator/card-generator.ts,
  *       server/routes/navigator/cards.ts (buildStackAdvisorCard)
  */
 import type { LlmClient } from "./ports";

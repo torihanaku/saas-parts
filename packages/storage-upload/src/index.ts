@@ -8,7 +8,7 @@
  * Uses the raw Storage REST API via fetch (no supabase-js dependency),
  * mirroring the source implementation.
  *
- * Ported from dev-dashboard-v2 `server/lib/white-label/asset-upload.ts`.
+ * Ported from 実運用SaaS `server/lib/white-label/asset-upload.ts`.
  * Changes from source: Supabase URL / service key / bucket are injected via
  * `StorageUploadConfig` (no env reads); the image MIME allowlist that lived
  * in the white-label route is exported here as a reusable helper.

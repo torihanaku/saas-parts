@@ -14,7 +14,7 @@
  * Performance budget: 1000 trials × ~10 outputs × ~5 input keys = 50k mults
  * per call. < 50ms in practice on modern runtimes.
  *
- * Ported from dev-dashboard-v2 server/lib/twin/monte-carlo.ts.
+ * Ported from 実運用SaaS server/lib/twin/monte-carlo.ts.
  * 変更点: `rng` を直接注入可能に（`seed` によるmulberry32生成は従来通りのデフォルト）。
  */
 

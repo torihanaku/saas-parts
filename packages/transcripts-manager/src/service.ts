@@ -3,7 +3,7 @@
  * transitions, audio metadata management, structured extraction, action-item
  * extraction, meeting-notes generation, and search.
  *
- * Ported from dev-dashboard-v2 `server/routes/transcripts/{index,crud,audio,actions}.ts`.
+ * Ported from 実運用SaaS `server/routes/transcripts/{index,crud,audio,actions}.ts`.
  *
  * ── Boundary note ──
  * The actual speech-to-text (Whisper) API belongs to @torihanaku/transcribe-client.

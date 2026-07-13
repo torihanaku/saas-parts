@@ -1,5 +1,5 @@
 /**
- * Ported from dev-dashboard-v2 tests/agency-audit-archive.test.ts.
+ * Ported from 実運用SaaS tests/agency-audit-archive.test.ts.
  * GCS / Supabase mocks are replaced by injected structural fakes.
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";

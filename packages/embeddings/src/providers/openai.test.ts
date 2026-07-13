@@ -1,5 +1,5 @@
 /**
- * Ported from dev-dashboard-v2 tests/embedding-providers/openai.test.ts.
+ * Ported from 実運用SaaS tests/embedding-providers/openai.test.ts.
  * The env mock is gone — the API key is now a factory argument, so the
  * missing-key path is directly testable.
  */

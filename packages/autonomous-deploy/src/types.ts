@@ -5,7 +5,7 @@
  * `deploy_log` に `DeployStep` を追記する。後段のステップが失敗したら完了済みの
  * ステップをアダプタの `rollback()` で巻き戻す。
  *
- * 出典: dev-dashboard-v2 server/lib/autonomous-deploy/types.ts
+ * 出典: 実運用SaaS server/lib/autonomous-deploy/types.ts
  */
 
 export type DeployTarget = "seo" | "cms" | "sns" | "ad";

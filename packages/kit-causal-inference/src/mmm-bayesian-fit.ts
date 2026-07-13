@@ -10,7 +10,7 @@ import {
 /**
  * Lightweight Bayesian fit for the MMM regression coefficients.
  *
- * Ported from dev-dashboard-v2 `server/lib/causal/mmm/bayesian-fit.ts`
+ * Ported from 実運用SaaS `server/lib/causal/mmm/bayesian-fit.ts`
  * (numerics unchanged).
  *
  * For each channel we estimate (lambda, shape, scale, beta). Doing a full

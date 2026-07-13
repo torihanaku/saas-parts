@@ -1,6 +1,6 @@
 /**
  * CRM bounce scanner (AssetScanner 実装例)。
- * 出典: dev-dashboard-v2 server/lib/marketing-debt/crm-bounce-scanner.ts (#1335)。
+ * 出典: 実運用SaaS server/lib/marketing-debt/crm-bounce-scanner.ts (#1335)。
  *
  * 配信ログを list_id 別に集計し bounce 率 > 5% のリストを検出。入力 rows は注入。
  */

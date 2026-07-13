@@ -1,5 +1,5 @@
 /**
- * Ported from dev-dashboard-v2/tests/email.test.ts, adapted to config injection
+ * Ported from 実運用SaaS/tests/email.test.ts, adapted to config injection
  * (createEmailClient) instead of env mocking. Template tests extended for
  * trial-end / onboarding builders.
  */

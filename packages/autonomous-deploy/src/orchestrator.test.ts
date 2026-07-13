@@ -1,5 +1,5 @@
 /**
- * Tests for runAutonomousDeploy (ported from dev-dashboard-v2 orchestrator.test.ts).
+ * Tests for runAutonomousDeploy (ported from 実運用SaaS orchestrator.test.ts).
  * Supabase / audit / feature-flags を InMemoryDeployStore + 注入 audit / enabled に置換。
  * ハードコードされていたアダプタは注入レジストリのスタブに置換。
  */

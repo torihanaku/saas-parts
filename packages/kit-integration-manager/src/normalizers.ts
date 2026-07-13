@@ -1,7 +1,7 @@
 /**
  * 統合別データ正規化（ノーマライザ）レジストリ。
  *
- * 出典: dev-dashboard-v2 server/lib/nango-sync.ts の
+ * 出典: 実運用SaaS server/lib/nango-sync.ts の
  * INTEGRATION_TO_SOURCE_TYPE + SYNC_CONFIGS + transform関数群。
  * 汎用化ポイント:
  *   - 固定の Record マップ → register/resolve できるレジストリクラス

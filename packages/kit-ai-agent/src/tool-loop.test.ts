@@ -1,6 +1,6 @@
 /**
  * ToolRegistry + runToolLoop のテスト。
- * 元テスト出典: dev-dashboard-v2 の runToolLoop（claude-api-client.ts）と
+ * 元テスト出典: 実運用SaaS の runToolLoop（claude-api-client.ts）と
  * chat-tools.ts の挙動仕様（unknown tool / handler error は文字列でモデルに返す）。
  */
 import { describe, expect, it, vi } from "vitest";

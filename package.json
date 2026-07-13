@@ -3,6 +3,29 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
+  "description": "SaaS開発でよく必要になる配管を、自己完結・依存注入式・テスト付きで提供するTypeScript部品集（112パッケージ）",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/torihanaku/saas-parts.git"
+  },
+  "homepage": "https://github.com/torihanaku/saas-parts#readme",
+  "bugs": {
+    "url": "https://github.com/torihanaku/saas-parts/issues"
+  },
+  "keywords": [
+    "saas",
+    "typescript",
+    "monorepo",
+    "multi-tenant",
+    "rls",
+    "auth",
+    "stripe",
+    "audit-log",
+    "gdpr",
+    "building-blocks"
+  ],
+  "author": "torihanaku",
   "workspaces": [
     "packages/*"
   ],

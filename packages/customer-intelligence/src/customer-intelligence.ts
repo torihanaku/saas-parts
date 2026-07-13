@@ -1,7 +1,7 @@
 /**
  * Customer Intelligence — unified customer profile, purchase intent, and churn prediction.
  *
- * Ported from dev-dashboard-v2 `server/lib/customer-intelligence.ts`.
+ * Ported from 実運用SaaS `server/lib/customer-intelligence.ts`.
  * - Supabase calls (dd_customer_profiles / dd_crm_contacts / dd_crm_deals)
  *   → injected {@link CustomerIntelligenceStore}.
  * - `lead-scoring.getScoreBreakdown` import → minimal {@link LeadScoreProvider}

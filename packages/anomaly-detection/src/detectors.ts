@@ -6,7 +6,7 @@
  * never throw — when source tables or data are missing they return `null` so
  * the orchestrator can skip gracefully.
  *
- * 変更点（移植元: dev-dashboard-v2 server/lib/anomaly-detection.ts）:
+ * 変更点（移植元: 実運用SaaS server/lib/anomaly-detection.ts）:
  * - Supabase クエリ直書き → `fetchRows(tenantId, range)` 注入
  *   （null 返却 = ソーステーブル欠如としてスキップ。元実装の missing-table 分岐相当）
  * - 検出器名を汎用リネーム: cpa_spike → metric_spike / email_delivery_drop →

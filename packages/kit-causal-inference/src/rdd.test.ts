@@ -1,5 +1,5 @@
 /**
- * Ported from dev-dashboard-v2 `tests/causal-rdd.test.ts` (the Hono route
+ * Ported from 実運用SaaS `tests/causal-rdd.test.ts` (the Hono route
  * smoke tests were dropped — HTTP wiring stayed in the product repo).
  */
 import { describe, it, expect } from "vitest";

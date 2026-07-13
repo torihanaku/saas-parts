@@ -34,7 +34,7 @@ export interface WidgetDataResponse {
  * テーブルクエリ関数 (注入式)。
  *
  * `table` と PostgREST 互換の `query` 文字列を受け取り、行配列を返す。
- * dev-dashboard-v2 の `supabaseGet(table, query)` がそのままこのシグネチャを充足する。
+ * 実運用SaaS の `supabaseGet(table, query)` がそのままこのシグネチャを充足する。
  */
 export type TableQuery = (
   table: string,
@@ -49,7 +49,7 @@ export type WidgetDataFetcher = (
 
 /**
  * テキスト生成 LLM 呼び出し (注入式)。
- * dev-dashboard-v2 の `generateText(apiKey, system, user, options)` を充足する。
+ * 実運用SaaS の `generateText(apiKey, system, user, options)` を充足する。
  */
 export type GenerateText = (
   apiKey: string,

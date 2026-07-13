@@ -1,7 +1,7 @@
 /**
  * why-search.ts — 「なぜこうしたのか？」検索。
  *
- * 出典: dev-dashboard-v2 server/lib/institutional-memory/why-search-service.ts
+ * 出典: 実運用SaaS server/lib/institutional-memory/why-search-service.ts
  * + server/routes/decisions/why.ts。
  * 本家は pgvector RPC（match_decisions_by_embedding）+ Claude 要約だったが、
  * キットでは EmbeddingSearcher（任意注入）→ 内蔵 BM25 フォールバックの

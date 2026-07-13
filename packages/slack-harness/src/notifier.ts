@@ -1,7 +1,7 @@
 /**
  * Slack Block Kit 承認通知（メッセージ構築 + 送信）。
  *
- * 変更点（移植元: dev-dashboard-v2 server/lib/firewall/slack-notifier.ts）:
+ * 変更点（移植元: 実運用SaaS server/lib/firewall/slack-notifier.ts）:
  * - 承認ワークフロー固有の文言（"新企画案" / "Firewall Lint" / action_id の
  *   firewall_ プレフィックス等）→ `copy` パラメータで注入（デフォルトは汎用文言）
  * - Supabase / Claude 依存のオーケストレーション（triage 生成・永続化）→ 対象外。

@@ -1,5 +1,5 @@
 /**
- * BigQuery-style forecast data source (ported from dev-dashboard-v2
+ * BigQuery-style forecast data source (ported from 実運用SaaS
  * server/lib/marketing/data-sources/bigquery-adapter.ts).
  *
  * The original imported `@google-cloud/bigquery`. Here the actual query

@@ -1,7 +1,7 @@
 /**
  * OKR Service — Objectives & Key Results management with auto-progress tracking.
  *
- * Ported from dev-dashboard-v2 `server/lib/okr-service.ts`.
+ * Ported from 実運用SaaS `server/lib/okr-service.ts`.
  * Supabase calls (dd_okr_objectives / dd_okr_key_results) are replaced with an
  * injected {@link OkrStore}. Auto-source resolution (ga4:sessions, crm:mqls, …)
  * is replaced with an injected provider map; the original table-backed

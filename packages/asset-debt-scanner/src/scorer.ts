@@ -1,6 +1,6 @@
 /**
  * Asset Debt Scorer.
- * 出典: dev-dashboard-v2 server/lib/marketing-debt-scorer.ts (#355 G10 Sprint 1)。
+ * 出典: 実運用SaaS server/lib/marketing-debt-scorer.ts (#355 G10 Sprint 1)。
  *
  * 6 種類の asset を「放置すると ROI が下がる項目」として per-tenant でスコアリングする。
  * freshness decay と asset 固有メタデータを組み合わせて severity / recommendation を導出。

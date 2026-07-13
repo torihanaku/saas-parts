@@ -1,6 +1,6 @@
 /**
  * Setup step definitions (config-driven) + status computation.
- * Ported from dev-dashboard-v2 `server/routes/setup-wizard.ts`.
+ * Ported from 実運用SaaS `server/routes/setup-wizard.ts`.
  */
 
 export interface SetupStepTemplate {

@@ -1,7 +1,7 @@
 /**
  * Fuzzy Regression Discontinuity Design.
  *
- * Ported from dev-dashboard-v2 `server/lib/causal/rdd/fuzzy.ts`.
+ * Ported from 実運用SaaS `server/lib/causal/rdd/fuzzy.ts`.
  *
  * In Sharp RDD treatment is deterministic at the cutoff: P(D=1 | x≥c) = 1.
  * In real-world marketing experiments treatment is often "encouraged" rather

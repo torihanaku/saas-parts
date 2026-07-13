@@ -174,7 +174,7 @@ const checkAuth = createMcpAuthChecker({ apiKey: myConfig.mcpApiKey });
 
 ## 出典
 
-dev-dashboard-v2 リポジトリ（読み取り専用ソース）:
+実運用SaaS リポジトリ（読み取り専用ソース）:
 
 | このキット | 元ファイル |
 |---|---|

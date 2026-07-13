@@ -1,7 +1,7 @@
 /**
  * onboarding.ts — 新任者向けオンボーディング説明（プレイブック）生成。
  *
- * 出典: dev-dashboard-v2 server/lib/institutional-memory/onboarding-service.ts
+ * 出典: 実運用SaaS server/lib/institutional-memory/onboarding-service.ts
  * + server/routes/decisions/onboarding.ts。
  * 本家の buildCompositeContext（過去コンテンツ/キャンペーン合流）は
  * `contextProvider` コールバックとして注入化。マーケ固有のチャネル辞書は

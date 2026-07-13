@@ -1,11 +1,11 @@
 /**
  * Ported core tests.
  * Origin:
- * - dev-dashboard-v2/tests/feature-flag-overrides.test.ts
+ * - 実運用SaaS/tests/feature-flag-overrides.test.ts
  *     (resolution precedence, override caches, cache invalidation, details, labels)
- * - dev-dashboard-v2/tests/feature-flags-byok.test.ts
+ * - 実運用SaaS/tests/feature-flags-byok.test.ts
  *     (tenant elevation + elevation cache, regression guard)
- * - dev-dashboard-v2/tests/white-label-flag.test.ts
+ * - 実運用SaaS/tests/white-label-flag.test.ts
  *     (env "true" toggle, requiredVars, label, isEnabled)
  * Product flags are renamed to generic examples ('new-dashboard', 'beta-export', ...).
  * Product-specific suites (route-availability, namespaces) are intentionally dropped.

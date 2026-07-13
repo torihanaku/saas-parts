@@ -6,7 +6,7 @@
  *   - getDnaByType(store, args)   — ページング付きリスト + 総数
  *   - getDnaStats(store, tenant)  — 総数 + タイプ別内訳 + 平均 confidence
  *
- * 出典: dev-dashboard-v2 `server/lib/company-dna.ts`（Supabase 直結 → DnaStore 注入）。
+ * 出典: 実運用SaaS `server/lib/company-dna.ts`（Supabase 直結 → DnaStore 注入）。
  */
 
 import type { DnaListResponse, DnaStats, IngestDnaRequest, PatternDnaType } from "./types.js";

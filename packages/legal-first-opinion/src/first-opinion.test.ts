@@ -1,5 +1,5 @@
 /**
- * Tests for @torihanaku/legal-first-opinion (ported from dev-dashboard-v2).
+ * Tests for @torihanaku/legal-first-opinion (ported from 実運用SaaS).
  * claude-api-client / env を注入式 deps に置換。
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";

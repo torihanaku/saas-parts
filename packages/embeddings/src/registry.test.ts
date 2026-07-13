@@ -1,5 +1,5 @@
 /**
- * Ported from dev-dashboard-v2 tests/embedding-client.test.ts.
+ * Ported from 実運用SaaS tests/embedding-client.test.ts.
  * The env-based primary selection test is adapted to setPrimaryProvider,
  * and guard tests are added for the injected consent hook.
  */

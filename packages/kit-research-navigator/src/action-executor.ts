@@ -3,7 +3,7 @@
  * - SNS 投稿ドラフト生成 (LLM 注入)
  * - issue 起票は IssueProvider 経由 (card-service.executeCardAction 参照)
  *
- * 出典: dev-dashboard-v2 server/lib/navigator/action-executor.ts
+ * 出典: 実運用SaaS server/lib/navigator/action-executor.ts
  * (executeGithubIssue は IssueProvider.createIssue に一般化)
  */
 import type { LlmClient } from "./ports";

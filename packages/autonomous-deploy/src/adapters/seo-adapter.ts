@@ -7,7 +7,7 @@
  * target が `options.url` を持つか、承認済み submission テキストから URL 抽出できる
  * 場合に、（原典では Nango proxy 経由で）Google Indexing API を叩く。
  *
- * 出典: dev-dashboard-v2 server/lib/autonomous-deploy/adapters/seo-adapter.ts
+ * 出典: 実運用SaaS server/lib/autonomous-deploy/adapters/seo-adapter.ts
  *
  * 移植方針:
  * - `proxyRequest`（Nango client）→ `proxyRequest` 注入。

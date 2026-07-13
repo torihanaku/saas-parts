@@ -1,5 +1,5 @@
 /**
- * Slack message decision extraction (ported from dev-dashboard-v2
+ * Slack message decision extraction (ported from 実運用SaaS
  * institutional-memory/slack-extractor).
  *
  * Extracts a single decision from a Slack message and persists it as a

@@ -1,6 +1,6 @@
 /**
  * @torihanaku/image-gen — 共通型定義
- * 出典: dev-dashboard-v2 server/lib/image-generator.ts
+ * 出典: 実運用SaaS server/lib/image-generator.ts
  */
 
 export interface ImageProvider {

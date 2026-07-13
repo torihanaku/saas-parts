@@ -3,7 +3,7 @@
  * operator hours per step, and persists a per-step cost record with a
  * baseline comparison ("agent 1 run = ¥X vs 人手 = ¥Y").
  *
- * 出典: dev-dashboard-v2 server/lib/agent/cost-tracker.ts
+ * 出典: 実運用SaaS server/lib/agent/cost-tracker.ts
  * 変更点: setClaudeUsageHook (グローバル単一フック) → recordLlmUsage() 明示呼び /
  *         dd_deploy_costs upsert → CostStore 注入 / Nango 単価表 → pricing 設定。
  *         単価はデフォルト値ごと差し替え可能（通貨も任意）。

@@ -2,7 +2,7 @@
  * @torihanaku/challenger-copy
  *
  * Safe / Edgy 2 案コピー生成 → 提示 → 選択フィードバック学習ループ。
- * dev-dashboard-v2 の Active Learning「Challenger」機構から抽出。
+ * 実運用SaaS の Active Learning「Challenger」機構から抽出。
  *
  * マーケ / ブランド製品向け。lint 連携は import せず注入述語（`LintCheck`）で受ける
  * （@torihanaku/brand-lint / @torihanaku/kit-approval-workflow が充足）。

@@ -1,5 +1,5 @@
 /**
- * Tests for timeline (ported from dev-dashboard-v2 autonomous-deploy-timeline.test.ts).
+ * Tests for timeline (ported from 実運用SaaS autonomous-deploy-timeline.test.ts).
  * 純粋関数（normalize / summarize）のみを対象とし、HTTP ルート部は移植対象外。
  */
 import { describe, expect, it } from "vitest";

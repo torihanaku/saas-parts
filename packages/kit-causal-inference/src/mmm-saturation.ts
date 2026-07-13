@@ -3,7 +3,7 @@ import type { SaturationForm } from './mmm-types.js';
 /**
  * Saturation curves for media-mix modelling.
  *
- * Ported from dev-dashboard-v2 `server/lib/causal/mmm/saturation.ts`.
+ * Ported from 実運用SaaS `server/lib/causal/mmm/saturation.ts`.
  *
  * Both forms are bounded (output → 1 as input → ∞), so the linear coefficient
  * `beta` in the MMM regression carries the actual scale of the channel's

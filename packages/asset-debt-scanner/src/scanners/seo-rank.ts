@@ -1,6 +1,6 @@
 /**
  * SEO rank-drop scanner (AssetScanner 実装例)。
- * 出典: dev-dashboard-v2 server/lib/marketing-debt/seo-rank-scanner.ts (#1333)。
+ * 出典: 実運用SaaS server/lib/marketing-debt/seo-rank-scanner.ts (#1333)。
  *
  * キーワード順位スナップショットを比較し、30 日で 5 位以上下落した項目を検出。
  * 原文の Supabase 読み取りは入力 rows の注入に置換 (外部データは呼び出し側で用意)。

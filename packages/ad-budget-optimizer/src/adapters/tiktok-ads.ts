@@ -1,5 +1,5 @@
 /**
- * TikTok Ads budget adapter (ported from dev-dashboard-v2 #1346).
+ * TikTok Ads budget adapter (ported from 実運用SaaS #1346).
  *
  * Updates a campaign-level daily budget via an injected proxy using TikTok
  * Business API v1.3's campaign update endpoint.

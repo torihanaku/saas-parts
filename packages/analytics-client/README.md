@@ -2,7 +2,7 @@
 
 軽量なクライアント計測フック。ページビュー（`page_view`）・機能利用（`feature_use`）・セッション終了（`session_end`）の3種のイベントを送信する。セッション終了はページ離脱時（`beforeunload`）に `navigator.sendBeacon` でフラッシュするため、アンロード中でも取りこぼしにくい。計測は絶対にアプリを壊さない（送信失敗はすべて握りつぶす）。
 
-移植元: dev-dashboard-v2 `src/hooks/useAnalytics.ts`（113 LOC）。
+移植元: 実運用SaaS `src/hooks/useAnalytics.ts`（113 LOC）。
 
 ## 使い方
 

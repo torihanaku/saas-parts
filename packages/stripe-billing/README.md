@@ -67,4 +67,4 @@ const portal = await createPortalSession(stripe, { email, returnUrl });
 Node.js 18+ / Bun / Cloud Run 等（fetch API 標準の環境）
 
 ## 出典
-`dev-dashboard-v2/server/routes/billing.ts`（handleBillingWebhook / handleBillingCheckout / handleBillingPortal、約335行のうちルート・認証・supabase 結合を除いた Stripe 機構部分）
+`実運用SaaS/server/routes/billing.ts`（handleBillingWebhook / handleBillingCheckout / handleBillingPortal、約335行のうちルート・認証・supabase 結合を除いた Stripe 機構部分）

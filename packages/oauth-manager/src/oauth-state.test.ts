@@ -2,7 +2,7 @@
  * Tests for src/oauth-state.ts
  * OAuth CSRF nonce generation and verification backed by an injected StateStore.
  *
- * Ported from dev-dashboard-v2/tests/oauth-state.test.ts — the mocked Redis
+ * Ported from 実運用SaaS/tests/oauth-state.test.ts — the mocked Redis
  * cache module ('../cache') is replaced by an injected mock StateStore.
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest'

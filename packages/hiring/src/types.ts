@@ -1,6 +1,6 @@
 /**
  * Recruitment / hiring domain types.
- * Ported from dev-dashboard-v2 `shared/types/recruitment.ts` (#776 R-1).
+ * Ported from 実運用SaaS `shared/types/recruitment.ts` (#776 R-1).
  */
 
 // ─── Job posting ───────────────────────────────────────────────────────────

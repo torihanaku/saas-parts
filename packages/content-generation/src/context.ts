@@ -2,7 +2,7 @@ import type { CrmContact, IntelligenceItem, KnowledgeItem } from "./types.js";
 
 /**
  * プロンプトへ差し込むコンテキスト素材を整形する純粋関数群。
- * dev-dashboard-v2 の context-builder から、コンテンツ生成で使う部分だけを抽出。
+ * 実運用SaaS の context-builder から、コンテンツ生成で使う部分だけを抽出。
  */
 
 export function formatIntelligenceContext(items: IntelligenceItem[], limit = 5): string {

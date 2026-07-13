@@ -4,7 +4,7 @@
 
 SaaS の**どのプロダクトでも必ず要る「汎用 UI 文言」の日英対訳スターター**です。ログイン・サインアップ・設定・通知・オンボーディング・エラーバウンダリなど、製品ドメインに依存しない文言だけを抜き出した `ja.json` / `en.json` と、react-i18next の初期化テンプレート `i18n.ts` を `templates/` に収録しています（コンパイル対象コードではなく、コピーして使うテンプレート。`src/` を持たないため saas-parts の tsc / vitest の対象外）。
 
-出典: `dev-dashboard-v2/src/locales/ja.json`・`en.json`（全 126〜127 グループ・各 20 万文字超）から、**ドメイン非依存の 14 グループのみ**を抽出。製品ブランド名は `{{APP_NAME}}` プレースホルダに置換済み。秘密情報・実プロジェクト ID は含みません。
+出典: `実運用SaaS/src/locales/ja.json`・`en.json`（全 126〜127 グループ・各 20 万文字超）から、**ドメイン非依存の 14 グループのみ**を抽出。製品ブランド名は `{{APP_NAME}}` プレースホルダに置換済み。秘密情報・実プロジェクト ID は含みません。
 
 ## 収録ファイル
 
@@ -61,4 +61,4 @@ templates/
 
 ## 出典
 
-`dev-dashboard-v2/src/locales/{ja,en}.json` および `src/i18n.ts`。
+`実運用SaaS/src/locales/{ja,en}.json` および `src/i18n.ts`。

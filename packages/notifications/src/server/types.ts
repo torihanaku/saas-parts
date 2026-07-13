@@ -1,6 +1,6 @@
 /**
  * Shared server-side types for the in-app notification system.
- * Ported from dev-dashboard-v2 `server/routes/notifications.ts`.
+ * Ported from 実運用SaaS `server/routes/notifications.ts`.
  */
 
 export interface DashboardNotification {

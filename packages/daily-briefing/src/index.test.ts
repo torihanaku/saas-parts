@@ -18,7 +18,7 @@ import {
 
 const params = { dateRange: "7d", limit: 10 } as const;
 
-// ── sources (ported from dev-dashboard-v2 widget-data-sources.test.ts) ──
+// ── sources (ported from 実運用SaaS widget-data-sources.test.ts) ──
 describe("makeFetchGa4", () => {
   it("flattens metrics_cache from connected GA integration", async () => {
     const q: TableQuery = async () => [

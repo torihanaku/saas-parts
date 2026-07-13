@@ -1,7 +1,7 @@
 /**
  * Framework-agnostic security header / CORS / CSRF-origin logic.
  *
- * Ported from dev-dashboard-v2 `server/middleware/security.ts` (Fetch-API
+ * Ported from 実運用SaaS `server/middleware/security.ts` (Fetch-API
  * coupled middleware). Header values, CSP directives, CORS logic and CSRF
  * decision logic are preserved verbatim; the framework coupling and the
  * hardcoded values (allowed origins, SAML/OAuth callback exemptions, CSP

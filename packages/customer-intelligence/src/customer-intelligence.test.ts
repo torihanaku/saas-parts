@@ -1,5 +1,5 @@
 /**
- * Ported from dev-dashboard-v2 `tests/customer-intelligence.test.ts` — adapted
+ * Ported from 実運用SaaS `tests/customer-intelligence.test.ts` — adapted
  * from supabase / claude-api-client / tenant-secrets mocks to the injected
  * InMemoryCustomerIntelligenceStore, LeadScoreProvider, and JsonGenerator.
  */

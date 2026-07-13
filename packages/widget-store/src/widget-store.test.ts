@@ -1,5 +1,5 @@
 /**
- * Ported from dev-dashboard-v2 tests/daily-dashboard-store.test.ts (#721).
+ * Ported from 実運用SaaS tests/daily-dashboard-store.test.ts (#721).
  * Supabase (supabaseGet / fetch) モックを WidgetStoreDriver モック注入に置換。
  * 末尾にインメモリドライバの統合テストを追加。
  */

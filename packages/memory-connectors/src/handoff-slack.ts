@@ -1,5 +1,5 @@
 /**
- * Slack DM delivery for the memory handoff (ported from dev-dashboard-v2
+ * Slack DM delivery for the memory handoff (ported from 実運用SaaS
  * institutional-memory/handoff-slack, MEM-7 / #1233).
  *
  * All calls go through an injected proxy (`SlackProxy`) — no direct Slack SDK

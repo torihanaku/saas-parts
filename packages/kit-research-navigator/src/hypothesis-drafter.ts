@@ -3,7 +3,7 @@
  * 仮説 / 前提 / 検証計画 / 破棄条件 の 4 項目を LLM に書かせ、
  * zod で検証。不合格ならエラー内容を添えて 1 回だけリトライする。
  *
- * 出典: dev-dashboard-v2 server/lib/navigator/hypothesis-drafter.ts
+ * 出典: 実運用SaaS server/lib/navigator/hypothesis-drafter.ts
  */
 import type { LlmClient } from "./ports";
 import type { HypothesisDraft } from "./types";
@@ -99,7 +99,7 @@ ${context}
 
 /**
  * 警告 (FailurePattern) → 仮説カードドラフトの変換プロンプトを組み立てる。
- * 出典: dev-dashboard-v2 server/routes/navigator/hypothesis-f2.ts
+ * 出典: 実運用SaaS server/routes/navigator/hypothesis-f2.ts
  */
 export function buildWarningToHypothesisPrompt(input: {
   stackRef: string;

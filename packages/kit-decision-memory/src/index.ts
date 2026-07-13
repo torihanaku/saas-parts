@@ -2,7 +2,7 @@
  * @torihanaku/kit-decision-memory
  *
  * ナレッジ / 意思決定メモリキット — 意思決定ログ・why 検索・ナレッジ蓄積・
- * オンボーディング・引き継ぎ。出典: dev-dashboard-v2（詳細は README）。
+ * オンボーディング・引き継ぎ。出典: 実運用SaaS（詳細は README）。
  */
 
 export * from "./types.js";

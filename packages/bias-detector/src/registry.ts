@@ -3,7 +3,7 @@
  *
  * The 6 source biases (sunk_cost / confirmation / recency / bandwagon /
  * anchoring / hippo) ship as defaults, carrying the original per-bias
- * detection rubrics ported verbatim from the dev-dashboard-v2 Claude v1
+ * detection rubrics ported verbatim from the 実運用SaaS Claude v1
  * detector. Consumers may register additional biases or override rubrics.
  */
 

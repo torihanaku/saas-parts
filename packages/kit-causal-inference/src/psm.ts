@@ -4,7 +4,7 @@
  * Logistic regression (gradient descent, early stopping) → propensity scores
  * → greedy 1:1 nearest-neighbour matching with caliper → ATT ± CI.
  *
- * Ported from dev-dashboard-v2 `server/lib/causal/psm-service.ts`.
+ * Ported from 実運用SaaS `server/lib/causal/psm-service.ts`.
  * Changes vs. origin: `tenantId` / `experimentId` optional. Statistics unchanged.
  */
 

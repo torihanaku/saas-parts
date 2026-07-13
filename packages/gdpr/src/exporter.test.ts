@@ -1,5 +1,5 @@
 /**
- * Ported from dev-dashboard-v2 `tests/gdpr-exporter.test.ts`,
+ * Ported from 実運用SaaS `tests/gdpr-exporter.test.ts`,
  * adapted to the injected GdprStore + caller-supplied export targets.
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";

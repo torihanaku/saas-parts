@@ -75,7 +75,7 @@ export function createDefaultNotificationsApi(
 }
 
 /**
- * Ported from dev-dashboard-v2 `src/utils/api.ts` — safely extract an array
+ * Ported from 実運用SaaS `src/utils/api.ts` — safely extract an array
  * from a raw response that may be `T[]`, `{ data: T[] }` or `{ items: T[] }`.
  */
 export function toArray<T>(data: unknown): T[] {

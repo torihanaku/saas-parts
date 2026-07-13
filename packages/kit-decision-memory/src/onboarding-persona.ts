@@ -1,7 +1,7 @@
 /**
  * onboarding-persona.ts — 新任者向けオンボーディング AI ペルソナ（MEM-5）。
  *
- * 出典: dev-dashboard-v2 server/lib/institutional-memory/onboarding-persona.ts。
+ * 出典: 実運用SaaS server/lib/institutional-memory/onboarding-persona.ts。
  * 全 mem_type（decision_log / failure_recipe / success_recipe）を統合して
  * 「この組織はどう動いてきたか」を会話形式で説明する。
  * onboarding.ts の explainTopic（dd_decision_log ベースの単発要約）とは別物。

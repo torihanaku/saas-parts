@@ -1,7 +1,7 @@
 /**
  * Bayesian Online Change Point Detection (Adams & MacKay, 2007).
  *
- * Ported from dev-dashboard-v2 `server/lib/causal/change-point-detection.ts`
+ * Ported from 実運用SaaS `server/lib/causal/change-point-detection.ts`
  * (numerics unchanged).
  *
  * Detects abrupt regime shifts in a univariate time series — what marketers
