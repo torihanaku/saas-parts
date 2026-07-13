@@ -23,6 +23,17 @@
         "zod": "^4.4.3",
       },
     },
+    "examples/reference-saas": {
+      "name": "@torihanaku/example-reference-saas",
+      "version": "0.1.0",
+      "dependencies": {
+        "@torihanaku/audit-log": "workspace:*",
+        "@torihanaku/auth-session": "workspace:*",
+        "@torihanaku/rate-limiter": "workspace:*",
+        "@torihanaku/security-headers": "workspace:*",
+        "@torihanaku/tenant-resolver": "workspace:*",
+      },
+    },
     "packages/ab-significance": {
       "name": "@torihanaku/ab-significance",
       "version": "0.1.0",
@@ -827,6 +838,8 @@
     "@torihanaku/eval-harness": ["@torihanaku/eval-harness@workspace:packages/eval-harness"],
 
     "@torihanaku/eval-lab-py": ["@torihanaku/eval-lab-py@workspace:packages/eval-lab-py"],
+
+    "@torihanaku/example-reference-saas": ["@torihanaku/example-reference-saas@workspace:examples/reference-saas"],
 
     "@torihanaku/feature-flags": ["@torihanaku/feature-flags@workspace:packages/feature-flags"],
 
