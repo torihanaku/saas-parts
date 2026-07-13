@@ -140,8 +140,24 @@ interface AiOpinionShape {
   reasoning?: unknown;
 }
 
+/**
+ * `violated` を安全側（フラグ側）に解釈する。LLM が boolean 契約を破って
+ * 文字列 "true" / "yes" や数値 1 を返しても違反として扱い、コンプラ上の
+ * 見逃し（false-negative）を防ぐ。判別不能な場合のみ false（非該当）。
+ */
+function coerceViolated(v: unknown): boolean {
+  if (typeof v === "boolean") return v;
+  if (typeof v === "number") return v !== 0;
+  if (typeof v === "string") {
+    const s = v.trim().toLowerCase();
+    if (["true", "yes", "1", "違反", "該当"].includes(s)) return true;
+    if (["false", "no", "0", "非該当", "なし", ""].includes(s)) return false;
+  }
+  return false;
+}
+
 function asLegalOpinion(law: JpLawCode, raw: AiOpinionShape | null): LegalOpinion {
-  const violated = typeof raw?.violated === "boolean" ? raw.violated : false;
+  const violated = coerceViolated(raw?.violated);
   const reasoning = typeof raw?.reasoning === "string" ? raw.reasoning : "";
   return {
     law,

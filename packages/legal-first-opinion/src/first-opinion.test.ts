@@ -78,13 +78,31 @@ describe("Legal First-Opinion Agent", () => {
   });
 
   it("handles AI returning unexpected types gracefully", async () => {
+    // 以前は violated:"yes"（文字列）を false（非該当）に握りつぶしており、
+    // コンプラ上の見逃し（false-negative）だった。安全側に倒し true と解釈する。
     generateJsonMock.mockResolvedValueOnce({ violated: "yes", reasoning: 42 });
     const result = await generateFirstOpinion(deps(), {
       contentText: "x",
       laws: ["yakki"],
     });
-    expect(result.opinions[0]!.violated).toBe(false);
+    expect(result.opinions[0]!.violated).toBe(true);
     expect(result.opinions[0]!.reasoning).toBe(STANDARD_DISCLAIMER);
+  });
+
+  it("coerces truthy string / numeric violated flags toward flagging", async () => {
+    generateJsonMock
+      .mockResolvedValueOnce({ violated: "true", reasoning: "違反の可能性" })
+      .mockResolvedValueOnce({ violated: 1, reasoning: "違反の可能性" });
+    const r1 = await generateFirstOpinion(deps(), { contentText: "x", laws: ["yakki"] });
+    expect(r1.opinions[0]!.violated).toBe(true);
+    const r2 = await generateFirstOpinion(deps(), { contentText: "x", laws: ["keihyo"] });
+    expect(r2.opinions[0]!.violated).toBe(true);
+  });
+
+  it("keeps false for explicitly non-violating flags", async () => {
+    generateJsonMock.mockResolvedValueOnce({ violated: "false", reasoning: "非該当" });
+    const r = await generateFirstOpinion(deps(), { contentText: "x", laws: ["yakki"] });
+    expect(r.opinions[0]!.violated).toBe(false);
   });
 
   it("returns full fallback set when no api key resolves", async () => {

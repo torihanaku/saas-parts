@@ -40,6 +40,11 @@ export function createScheduleExpiryScanner(): AssetScanner<ScheduledRow[], Expi
       const now = ctx.now ?? new Date();
       const reports: ExpiryReport[] = [];
       for (const row of rows) {
+        // 原典 (dev-dashboard-v2) は DB 側で `.eq("status", "pending")` して
+        // pending のみ取得していた。移植で rows を注入化した際にこの絞り込みが
+        // 落ちており、既に publish/完了/キャンセル済みで scheduled_for が過去の
+        // スケジュールまで「期限超過」として誤検知していた (wrong-asset 提案)。
+        if (row.status !== "pending") continue;
         const ts = new Date(row.scheduled_for).getTime();
         if (Number.isNaN(ts)) continue;
         if (ts >= now.getTime()) continue;

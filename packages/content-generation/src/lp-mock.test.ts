@@ -28,6 +28,17 @@ describe("sanitizeLpHtml", () => {
     expect(out).not.toContain("<iframe");
     expect(out).not.toContain("onclick");
   });
+
+  it("removes UNCLOSED iframe / object / embed and unquoted handlers", () => {
+    // 以前は閉じタグ必須の正規表現だったため、閉じない <iframe src=...> が素通りしていた。
+    const out = sanitizeLpHtml(
+      '<html><iframe src="evil"><object data="evil"></object><embed src="evil"><div onclick=alert(1)>x</div></html>',
+    );
+    expect(out).not.toContain("<iframe");
+    expect(out).not.toContain("<object");
+    expect(out).not.toContain("<embed");
+    expect(out).not.toContain("onclick");
+  });
 });
 
 describe("buildLpUserPrompt", () => {

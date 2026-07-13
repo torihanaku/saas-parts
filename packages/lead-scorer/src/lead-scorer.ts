@@ -96,13 +96,17 @@ export function calculateBehaviorScore(
       const interaction = contactInteractions[contactId] as Record<string, unknown>;
       if (interaction.opened) {
         const opens = Number(interaction.opens ?? 1);
-        dimensions.email_open = opens * config.weights.email_open;
-        score += dimensions.email_open;
+        const points = opens * config.weights.email_open;
+        // Accumulate across campaigns so the dimension breakdown matches the
+        // running score (a contact can appear in multiple campaigns).
+        dimensions.email_open = (dimensions.email_open ?? 0) + points;
+        score += points;
       }
       if (interaction.clicked) {
         const clicks = Number(interaction.clicks ?? 1);
-        dimensions.email_click = clicks * config.weights.email_click;
-        score += dimensions.email_click;
+        const points = clicks * config.weights.email_click;
+        dimensions.email_click = (dimensions.email_click ?? 0) + points;
+        score += points;
       }
     }
   }

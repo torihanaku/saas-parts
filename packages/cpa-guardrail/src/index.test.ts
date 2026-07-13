@@ -29,9 +29,26 @@ describe("checkCpaGuardrail", () => {
     expect(notify).toHaveBeenCalledTimes(1);
   });
 
-  it("skips campaigns with zero conversions", async () => {
+  // Regression: a campaign spending money with ZERO conversions has an
+  // effectively infinite CPA and is the worst case — it MUST be proposed for
+  // pause. The previous implementation (and this test's old assertion) skipped
+  // it, letting broken campaigns burn budget forever.
+  it("proposes pausing a campaign that spends with zero conversions (infinite CPA)", async () => {
     const store = new InMemoryGuardrailStore({
       insights: { "t:2026-01-01": [{ platform: "google", campaign_id: "c1", spend: 500, conversions: 0 }] },
+    });
+    const notify = vi.fn();
+    const proposals = await checkCpaGuardrail("t", { store, config, notify, date: "2026-01-01" });
+    expect(proposals).toHaveLength(1);
+    expect(proposals[0]!.campaign_id).toBe("c1");
+    expect(proposals[0]!.actual_value).toBe(Number.POSITIVE_INFINITY);
+    expect(proposals[0]!.proposed_action).toBe("pause");
+    expect(notify).toHaveBeenCalledTimes(1);
+  });
+
+  it("skips genuinely inactive campaigns (zero spend, zero conversions)", async () => {
+    const store = new InMemoryGuardrailStore({
+      insights: { "t:2026-01-01": [{ platform: "google", campaign_id: "c1", spend: 0, conversions: 0 }] },
     });
     const proposals = await checkCpaGuardrail("t", { store, config, date: "2026-01-01" });
     expect(proposals).toHaveLength(0);
