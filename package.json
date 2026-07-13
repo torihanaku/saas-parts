@@ -27,7 +27,8 @@
   ],
   "author": "torihanaku",
   "workspaces": [
-    "packages/*"
+    "packages/*",
+    "examples/*"
   ],
   "scripts": {
     "test": "vitest run",

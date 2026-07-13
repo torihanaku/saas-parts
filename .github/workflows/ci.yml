@@ -27,7 +27,7 @@ jobs:
       - name: Typecheck (all packages)
         run: |
           fail=0
-          for d in packages/*/tsconfig.json; do
+          for d in packages/*/tsconfig.json examples/*/tsconfig.json; do
             p=$(dirname "$d")
             if ! bunx tsc --noEmit -p "$d"; then
               echo "::error::typecheck failed: $p"

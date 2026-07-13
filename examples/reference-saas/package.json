@@ -1,0 +1,17 @@
+{
+  "name": "@torihanaku/example-reference-saas",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "saas-parts の部品を配線した最小の動くSaaS例（認証・テナント分離・監査・レート制限・セキュリティヘッダ）",
+  "scripts": {
+    "start": "bun run src/server.ts"
+  },
+  "dependencies": {
+    "@torihanaku/auth-session": "workspace:*",
+    "@torihanaku/security-headers": "workspace:*",
+    "@torihanaku/rate-limiter": "workspace:*",
+    "@torihanaku/tenant-resolver": "workspace:*",
+    "@torihanaku/audit-log": "workspace:*"
+  }
+}

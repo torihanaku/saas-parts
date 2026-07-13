@@ -213,6 +213,14 @@ if (validateWebhookUrl(url) === null) {
 
 各パッケージの詳しい API・注入ポイントは `packages/<name>/README.md` を参照。
 
+## 例（リファレンス実装）
+
+[`examples/reference-saas`](./examples/reference-saas) — 認証・テナント分離・監査ログ・レート制限・セキュリティヘッダを **1つの動くSaaS に配線した最小例**。「部品を実際にどう組むか」を、結合テスト付きで示します。
+
+```bash
+bun run --cwd examples/reference-saas start   # http://localhost:3000
+```
+
 ## 開発
 
 ```bash
