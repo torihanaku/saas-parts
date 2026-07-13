@@ -173,4 +173,22 @@ describe("pure scoring helpers (deterministic fixtures)", () => {
     expect(dimensions.deal_created).toBe(30);
     expect(score).toBe(104);
   });
+
+  it("accumulates email dimensions across multiple campaigns (breakdown matches score)", () => {
+    // Same contact interacts in two campaigns. Regression: the dimension
+    // breakdown previously kept only the last campaign's value while the score
+    // summed both, so breakdown != score.
+    const contact = { id: "c1", metadata: {} };
+    const campaigns = [
+      { metadata: { contact_interactions: { c1: { opened: true, opens: 2, clicked: true, clicks: 1 } } } },
+      { metadata: { contact_interactions: { c1: { opened: true, opens: 3, clicked: true, clicks: 4 } } } },
+    ];
+    const { score, dimensions } = calculateBehaviorScore(contact, [], campaigns, config);
+    // opens: (2+3)*5 = 25 ; clicks: (1+4)*10 = 50
+    expect(dimensions.email_open).toBe(25);
+    expect(dimensions.email_click).toBe(50);
+    // Breakdown sum must equal the reported score.
+    expect(dimensions.email_open! + dimensions.email_click!).toBe(score);
+    expect(score).toBe(75);
+  });
 });

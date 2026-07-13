@@ -13,25 +13,35 @@ export function matchForbiddenWords(
   for (const pattern of forbiddenWords) {
     if (!pattern) continue;
 
-    try {
-      // 特殊文字を含む場合は正規表現、そうでなければリテラル扱い。
-      const isRegex = /[\\^$.*+?()[\]{}|]/.test(pattern);
-      const regex = new RegExp(isRegex ? pattern : escapeRegExp(pattern), "gi");
+    // 特殊文字を含む場合は正規表現、そうでなければリテラル扱い。
+    const isRegex = /[\\^$.*+?()[\]{}|]/.test(pattern);
 
-      let match: RegExpExecArray | null;
-      while ((match = regex.exec(content)) !== null) {
-        violations.push({
-          type: "forbidden_word",
-          severity: "error",
-          message: `禁止語「${match[0]}」が含まれています。`,
-          matchedText: match[0],
-          span: [match.index, match.index + match[0].length],
-        });
-        // ゼロ幅マッチによる無限ループを防止。
-        if (match.index === regex.lastIndex) regex.lastIndex++;
+    let regex: RegExp;
+    try {
+      regex = new RegExp(isRegex ? pattern : escapeRegExp(pattern), "gi");
+    } catch {
+      // 正規表現として無効なパターンは、禁止語を取りこぼさないよう
+      // リテラル文字列として再解釈してマッチする（安全側 = フラグ側に倒す）。
+      // 例: 「C++」「お得(限定)」などブランド用語がメタ文字を含む場合。
+      try {
+        regex = new RegExp(escapeRegExp(pattern), "gi");
+      } catch (e) {
+        console.error(`Invalid forbidden word pattern: ${pattern}`, e);
+        continue;
       }
-    } catch (e) {
-      console.error(`Invalid forbidden word pattern: ${pattern}`, e);
+    }
+
+    let match: RegExpExecArray | null;
+    while ((match = regex.exec(content)) !== null) {
+      violations.push({
+        type: "forbidden_word",
+        severity: "error",
+        message: `禁止語「${match[0]}」が含まれています。`,
+        matchedText: match[0],
+        span: [match.index, match.index + match[0].length],
+      });
+      // ゼロ幅マッチによる無限ループを防止。
+      if (match.index === regex.lastIndex) regex.lastIndex++;
     }
   }
 

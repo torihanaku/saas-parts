@@ -49,8 +49,15 @@ export function sanitizeLpHtml(html: string): string {
     /<script(?![^>]*src=["']https:\/\/cdn\.tailwindcss\.com["'])[^>]*>[\s\S]*?<\/script>/gi,
     "",
   );
+  // iframe / object / embed は閉じタグがあれば中身ごと、無ければ開きタグ単体でも除去。
   sanitized = sanitized.replace(/<iframe[\s\S]*?<\/iframe>/gi, "");
-  sanitized = sanitized.replace(/\son[a-z]+=["'][^"']*["']/gi, "");
+  sanitized = sanitized.replace(/<object[\s\S]*?<\/object>/gi, "");
+  sanitized = sanitized.replace(/<embed[\s\S]*?<\/embed>/gi, "");
+  sanitized = sanitized.replace(/<(?:iframe|object|embed)\b[^>]*\/?>/gi, "");
+  // インライン event handler（引用符あり・無し両対応）を除去。
+  sanitized = sanitized.replace(/\son[a-z]+\s*=\s*"[^"]*"/gi, "");
+  sanitized = sanitized.replace(/\son[a-z]+\s*=\s*'[^']*'/gi, "");
+  sanitized = sanitized.replace(/\son[a-z]+\s*=\s*[^\s"'>]+/gi, "");
   return sanitized;
 }
 

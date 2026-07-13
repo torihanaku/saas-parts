@@ -102,25 +102,38 @@ export async function checkCpaGuardrail(
   const proposals: Proposal[] = [];
 
   for (const insight of insights) {
-    if (insight.conversions > 0) {
-      const cpa = insight.spend / insight.conversions;
-      if (cpa > threshold) {
-        const proposal = await store.insertProposal({
-          platform: insight.platform,
-          campaign_id: insight.campaign_id,
-          metric: "CPA",
-          threshold,
-          actual_value: cpa,
-          status: "pending",
-          proposed_action: "pause",
-        });
-        if (proposal) {
-          proposals.push(proposal);
-          await notify?.(
-            tenantId,
-            `CPA Guardrail Alert: Campaign ${insight.campaign_id} on ${insight.platform} has CPA of ${cpa.toFixed(2)} (Threshold: ${threshold}). Proposal created to pause. Please approve via Dashboard.`,
-          );
-        }
+    const spend = Number(insight.spend);
+    const conversions = Number(insight.conversions);
+    if (!Number.isFinite(spend) || spend <= 0) {
+      // No spend → nothing at risk; genuinely inactive campaign.
+      continue;
+    }
+
+    // CPA = spend / conversions. When conversions is 0 (or non-finite), the
+    // campaign is burning budget with no results — an *infinite* CPA, which is
+    // the worst possible case and MUST be flagged for pause. Guarding the whole
+    // block behind `conversions > 0` (the original) silently let broken
+    // campaigns keep spending forever ("never pause a broken campaign").
+    const hasConversions = Number.isFinite(conversions) && conversions > 0;
+    const cpa = hasConversions ? spend / conversions : Number.POSITIVE_INFINITY;
+
+    if (cpa > threshold) {
+      const proposal = await store.insertProposal({
+        platform: insight.platform,
+        campaign_id: insight.campaign_id,
+        metric: "CPA",
+        threshold,
+        actual_value: cpa,
+        status: "pending",
+        proposed_action: "pause",
+      });
+      if (proposal) {
+        proposals.push(proposal);
+        const cpaLabel = hasConversions ? cpa.toFixed(2) : "∞ (0 conversions)";
+        await notify?.(
+          tenantId,
+          `CPA Guardrail Alert: Campaign ${insight.campaign_id} on ${insight.platform} has CPA of ${cpaLabel} (Threshold: ${threshold}). Proposal created to pause. Please approve via Dashboard.`,
+        );
       }
     }
   }

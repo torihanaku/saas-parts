@@ -199,6 +199,24 @@ describe("schedule-expiry scanner", () => {
     expect(s.expired).toBe(1);
     expect(s.reports[0]!.severity).toBe("med");
   });
+
+  it("ignores non-pending schedules whose time has passed (no wrong-asset flag)", async () => {
+    const { rows, store } = collectingStore();
+    const past = new Date(NOW.getTime() - 3 * 86_400_000).toISOString();
+    const s = await createScheduleExpiryScanner().scan(
+      "t1",
+      [
+        { id: "s1", scheduled_for: past, status: "pending", title: "still pending" },
+        { id: "s2", scheduled_for: past, status: "completed", title: "already published" },
+        { id: "s3", scheduled_for: past, status: "cancelled", title: "cancelled" },
+      ],
+      { store, now: NOW },
+    );
+    // Only the still-pending schedule is overdue debt; completed/cancelled are correct.
+    expect(s.expired).toBe(1);
+    expect(s.reports.map((r) => r.id)).toEqual(["s1"]);
+    expect(rows.map((r) => r.assetRef)).toEqual(["s1"]);
+  });
 });
 
 // ── orchestrator / registry ──

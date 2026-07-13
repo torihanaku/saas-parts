@@ -58,17 +58,31 @@ export function templateToContentType(template: string): string {
 
 // ─── SEO スコアリング ──────────────────────────────────────────────────────
 
+function escapeRegExp(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+/**
+ * targetKeyword のトークン（空白区切り）の出現回数を数える。
+ * 各トークンを正規表現エスケープするため、`C++` や `(株)` のような
+ * 正規表現メタ文字を含むキーワードでもクラッシュしない。
+ */
+function countKeywordHits(content: string, targetKeyword: string): number {
+  const tokens = targetKeyword
+    .toLowerCase()
+    .split(/\s+/)
+    .filter((t) => t.length > 0)
+    .map(escapeRegExp);
+  if (tokens.length === 0) return 0;
+  const matches = content.toLowerCase().match(new RegExp(tokens.join("|"), "g"));
+  return matches ? matches.length : 0;
+}
+
 /** 生成 Markdown の簡易 SEO スコア（0–100）。 */
 export function computeSeoScore(content: string, targetKeyword?: string): number {
   const wordCount = content.length;
   const h2Count = (content.match(/^##\s/gm) ?? []).length;
-  const keywordCount = targetKeyword
-    ? (
-        content
-          .toLowerCase()
-          .match(new RegExp(targetKeyword.toLowerCase().split(/\s+/).join("|"), "g")) ?? []
-      ).length
-    : 0;
+  const keywordCount = targetKeyword ? countKeywordHits(content, targetKeyword) : 0;
 
   const lengthScore = wordCount >= 2000 ? 25 : Math.round(wordCount / 80);
   const headingScore = h2Count >= 3 ? 25 : h2Count * 8;

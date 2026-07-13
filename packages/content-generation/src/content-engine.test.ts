@@ -69,6 +69,15 @@ describe("computeSeoScore", () => {
     const rich = "## Heading\n".repeat(10) + "keyword ".repeat(20) + "x".repeat(3000);
     expect(computeSeoScore(rich, "keyword")).toBeLessThanOrEqual(100);
   });
+  it("does not throw when keyword contains regex metacharacters", () => {
+    // 以前は「C++」で new RegExp('c++') が Nothing-to-repeat で throw し、
+    // generateContent 全体をクラッシュさせていた。
+    expect(() => computeSeoScore("I love C++ and c++", "C++")).not.toThrow();
+    expect(computeSeoScore("I love C++ and c++", "C++")).toBeGreaterThan(
+      computeSeoScore("no match here", "C++"),
+    );
+    expect(() => computeSeoScore("(株)テスト", "(株)")).not.toThrow();
+  });
 });
 
 describe("generateContent", () => {

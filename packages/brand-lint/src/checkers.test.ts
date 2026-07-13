@@ -25,6 +25,15 @@ describe("matchForbiddenWords", () => {
     expect(matchForbiddenWords("text", [""])).toHaveLength(0);
     expect(matchForbiddenWords("text", ["("])).toHaveLength(0);
   });
+
+  it("does NOT miss a literal banned word that is an invalid regex (falls back to literal)", () => {
+    // 「C++」は isRegex 判定で正規表現扱いされるが /C++/ は Nothing-to-repeat で無効。
+    // 以前は catch で握りつぶされ違反を見逃していた（false-negative）。
+    const v = matchForbiddenWords("私は C++ が好きです", ["C++"]);
+    expect(v).toHaveLength(1);
+    expect(v[0]!.matchedText).toBe("C++");
+  });
+
 });
 
 describe("checkTone", () => {
