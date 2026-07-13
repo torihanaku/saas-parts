@@ -131,6 +131,91 @@ describe("broadcastNotification / broadcastStateChange (SSE, verbatim)", () => {
   });
 });
 
+describe("scoped SSE broadcast (multi-tenant isolation)", () => {
+  const notif = (id: string, user_id: string) => ({
+    id,
+    type: "info",
+    title: "T",
+    message: "M",
+    read: false,
+    user_id,
+    created_at: new Date().toISOString(),
+  });
+
+  it("scope string targets only clients registered to that scope", () => {
+    const ws = new WorkforceState();
+    const tenantA = vi.fn();
+    const tenantB = vi.fn();
+    ws.addSseClient("a1", { enqueue: tenantA } as never, "tenant-A");
+    ws.addSseClient("b1", { enqueue: tenantB } as never, "tenant-B");
+
+    ws.broadcastNotification(notif("n", "user-in-A"), "tenant-A");
+
+    // 漏洩なし: tenant-B のクライアントには届かない。
+    expect(tenantA).toHaveBeenCalledTimes(1);
+    expect(tenantB).not.toHaveBeenCalled();
+  });
+
+  it("scope string excludes clients with no registered scope (safe default)", () => {
+    const ws = new WorkforceState();
+    const scoped = vi.fn();
+    const unscoped = vi.fn();
+    ws.addSseClient("scoped", { enqueue: scoped } as never, "tenant-A");
+    ws.addSseClient("unscoped", { enqueue: unscoped } as never); // no scope
+
+    ws.broadcastNotification(notif("n", "u"), "tenant-A");
+
+    expect(scoped).toHaveBeenCalledTimes(1);
+    expect(unscoped).not.toHaveBeenCalled();
+  });
+
+  it("predicate target lets callers scope by client id or scope value", () => {
+    const ws = new WorkforceState();
+    const a = vi.fn();
+    const b = vi.fn();
+    ws.addSseClient("a1", { enqueue: a } as never, "tenant-A");
+    ws.addSseClient("b1", { enqueue: b } as never, "tenant-B");
+
+    ws.broadcastStateChange((_id, scope) => scope === "tenant-B");
+
+    expect(a).not.toHaveBeenCalled();
+    expect(b).toHaveBeenCalledTimes(1);
+  });
+
+  it("no target keeps backward-compatible broadcast-to-all", () => {
+    const ws = new WorkforceState();
+    const a = vi.fn();
+    const b = vi.fn();
+    ws.addSseClient("a1", { enqueue: a } as never, "tenant-A");
+    ws.addSseClient("b1", { enqueue: b } as never, "tenant-B");
+
+    ws.broadcastNotification(notif("n", "u"));
+
+    expect(a).toHaveBeenCalledTimes(1);
+    expect(b).toHaveBeenCalledTimes(1);
+  });
+
+  it("removeSseClient drops both the controller and its scope", () => {
+    const ws = new WorkforceState();
+    ws.addSseClient("a1", { enqueue: vi.fn() } as never, "tenant-A");
+    ws.removeSseClient("a1");
+    expect(ws.sseClients.has("a1")).toBe(false);
+    expect(ws.sseClientScope.has("a1")).toBe(false);
+  });
+
+  it("a failing scoped client is dropped along with its scope entry", () => {
+    const ws = new WorkforceState();
+    ws.addSseClient(
+      "bad",
+      { enqueue: vi.fn().mockImplementation(() => { throw new Error("closed"); }) } as never,
+      "tenant-A",
+    );
+    ws.broadcastNotification(notif("n", "u"), "tenant-A");
+    expect(ws.sseClients.has("bad")).toBe(false);
+    expect(ws.sseClientScope.has("bad")).toBe(false);
+  });
+});
+
 describe("sessions", () => {
   it("tracks AI社員 sessions", () => {
     const ws = new WorkforceState();
