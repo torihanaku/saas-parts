@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { exportToCsv } from "./exportCsv";
+import { exportToCsv, neutralizeCsvValue } from "./exportCsv";
 
 describe("exportToCsv", () => {
   let capturedBlob: Blob | null;
@@ -62,5 +62,41 @@ describe("exportToCsv", () => {
 
     const text = await capturedBlob!.text(); // BOM stripped by UTF-8 decoder
     expect(text).toBe('a,b,c,d,e\n"he said ""hi""","x,y","line1\nline2",,');
+  });
+
+  // ─── CSV formula injection (OWASP CSV Injection) ─────────────────
+  it("neutralizeCsvValue prefixes formula-triggering leading chars with '", () => {
+    expect(neutralizeCsvValue("=1+1")).toBe("'=1+1");
+    expect(neutralizeCsvValue("+cmd")).toBe("'+cmd");
+    expect(neutralizeCsvValue("-2+3")).toBe("'-2+3");
+    expect(neutralizeCsvValue("@SUM(A1)")).toBe("'@SUM(A1)");
+    expect(neutralizeCsvValue('=HYPERLINK("http://evil","x")')).toBe(
+      '\'=HYPERLINK("http://evil","x")'
+    );
+    expect(neutralizeCsvValue("\tTAB")).toBe("'\tTAB");
+    expect(neutralizeCsvValue("\rCR")).toBe("'\rCR");
+    // Non-triggering values pass through unchanged.
+    expect(neutralizeCsvValue("Alice")).toBe("Alice");
+    expect(neutralizeCsvValue("a=b")).toBe("a=b"); // trigger not leading
+    expect(neutralizeCsvValue(30)).toBe("30");
+    expect(neutralizeCsvValue(null)).toBe("");
+    expect(neutralizeCsvValue(undefined)).toBe("");
+  });
+
+  it("neutralizes formula injection in exported cells (=,+,-,@)", async () => {
+    exportToCsv("attack", [
+      { formula: "=1+1", cmd: "@SUM(A1:A9)", neg: "-9", pos: "+9", safe: "hi" },
+    ]);
+    const text = await capturedBlob!.text();
+    // Each triggering cell gets a leading ' so the spreadsheet treats it as text.
+    // The ' does not require quoting, so columns are unaffected.
+    expect(text).toBe("formula,cmd,neg,pos,safe\n'=1+1,'@SUM(A1:A9),'-9,'+9,hi");
+  });
+
+  it("quotes a lone CR so it cannot break a row", async () => {
+    exportToCsv("cr", [{ a: "line1\rline2" }]);
+    const text = await capturedBlob!.text();
+    // Value contains \r -> must be wrapped in quotes (stays one field).
+    expect(text).toBe('a\n"line1\rline2"');
   });
 });

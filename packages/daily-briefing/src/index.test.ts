@@ -92,6 +92,61 @@ describe("makeFetchSns", () => {
   });
 });
 
+// Regression: tenant scoping. Without tenantColumns configured, the fetchers
+// dropped tenantId → every tenant's briefing read ALL tenants' widget data
+// (cross-tenant leak). tenantColumns must inject a PostgREST tenant filter.
+describe("tenant scoping (cross-tenant leak guard)", () => {
+  function captureQuery() {
+    let last = "";
+    const q: TableQuery = async (_table, query) => {
+      last = query;
+      return [];
+    };
+    return { q, get: () => last };
+  }
+
+  it("does NOT scope by default (single-tenant, matches original)", async () => {
+    const cap = captureQuery();
+    await makeFetchCosts(cap.q)(params, "tenant-A");
+    expect(cap.get()).not.toContain("=eq.tenant-A");
+  });
+
+  it("scopes ga4/costs/campaigns/sns when tenantColumns set", async () => {
+    const tables = {
+      integrations: "dashboard_integrations",
+      adInsights: "dd_ad_insights",
+      contentCalendar: "dd_content_calendar",
+      tenantColumns: {
+        integrations: "tenant_id",
+        adInsights: "tenant_id",
+        contentCalendar: "project_id",
+      },
+    };
+    for (const [mk, col] of [
+      [makeFetchGa4, "tenant_id"],
+      [makeFetchCosts, "tenant_id"],
+      [makeFetchCampaigns, "tenant_id"],
+      [makeFetchSns, "project_id"],
+    ] as const) {
+      const cap = captureQuery();
+      await mk(cap.q, tables)(params, "tenant-A");
+      expect(cap.get()).toContain(`${col}=eq.tenant-A`);
+    }
+  });
+
+  it("URL-encodes the tenant id in the filter", async () => {
+    const tables = {
+      integrations: "dashboard_integrations",
+      adInsights: "dd_ad_insights",
+      contentCalendar: "dd_content_calendar",
+      tenantColumns: { adInsights: "tenant_id" },
+    };
+    const cap = captureQuery();
+    await makeFetchCosts(cap.q, tables)(params, "a b/c");
+    expect(cap.get()).toContain("tenant_id=eq.a%20b%2Fc");
+  });
+});
+
 describe("WidgetDataRegistry", () => {
   it("registers defaults and resolves by name", async () => {
     const reg = createDefaultWidgetDataRegistry(async () => []);

@@ -135,10 +135,18 @@ export function useLiveState(intervalMs = 60000, options: UseLiveStateOptions = 
 
   const [state, setState] = useState<LiveState>(EMPTY_STATE);
   const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Monotonic request sequencing so a slow/stale GET can never overwrite the
+  // result of a request issued after it (poll vs. SSE-triggered refetch race).
+  const requestSeq = useRef(0);
+  const appliedSeq = useRef(-1);
 
   const fetchState = useCallback(async () => {
+    const seq = requestSeq.current++;
     try {
       const data = await config.api.get(config.stateEndpoint);
+      // Drop this response if a later-issued request has already been applied.
+      if (seq < appliedSeq.current) return;
+      appliedSeq.current = seq;
       setState({
         tasks: (data.tasks || {}) as Record<string, { status: string; completedAt?: string; updatedAt?: string }>,
         characters: (data.characters || {}) as Record<string, { status: string; progress: number; currentTask: string; updatedAt: string }>,

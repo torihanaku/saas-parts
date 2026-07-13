@@ -132,6 +132,16 @@ export function validateCustomQuestions(
 
 export const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+/**
+ * Upper bounds for applicant-supplied fields on the PUBLIC application intake.
+ * The public endpoint is unauthenticated, so a missing bound lets anyone
+ * persist arbitrarily large PII/answer blobs (storage-abuse / DoS). These caps
+ * are generous for real applications but reject megabyte-scale payloads.
+ */
+export const MAX_APPLICANT_NAME_LEN = 200;
+export const MAX_APPLICANT_EMAIL_LEN = 320; // RFC 5321 max email length
+export const MAX_ANSWER_LEN = 5000;
+
 export function isValidUUID(v: string): boolean {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(v);
 }

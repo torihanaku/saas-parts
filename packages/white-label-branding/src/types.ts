@@ -70,6 +70,75 @@ export interface CreatePartnerClientRequest {
   status?: PartnerRelationshipStatus;
 }
 
+/**
+ * ブランディングフィールドの injection バリデータ。
+ *
+ * これらの値は white-label ページで **エンドユーザーに描画される** (ロゴ/favicon の
+ * `src`/`href`、`primary_color` のインライン style、`footer_html` の HTML)。原文
+ * (dev-dashboard-v2) は「文字列 + 長さ上限」しか検査しておらず、`javascript:` URL /
+ * `data:text/html` / CSS ブレイク / `<script>` がそのまま保存され stored XSS になりうる。
+ * 汎用部品として、危険な値を保存前に弾く。
+ */
+
+/** URL フィールド (logo_url / favicon_url)。http(s) か root-relative path のみ許可。 */
+function checkUrlField(key: string, v: string): string | null {
+  // ルート相対パス (/logo.png) は許可。プロトコル相対 (//host) は不許可。
+  if (v.startsWith("/") && !v.startsWith("//")) return null;
+  let parsed: URL;
+  try {
+    parsed = new URL(v);
+  } catch {
+    return `${key} must be an absolute http(s) URL or a root-relative path`;
+  }
+  if (parsed.protocol !== "https:" && parsed.protocol !== "http:") {
+    return `${key} must use http(s) (got ${parsed.protocol})`;
+  }
+  return null;
+}
+
+/** CSS カラー。hex / rgb(a) / hsl(a) / 単純な CSS ident のみ。区切り・関数注入は不許可。 */
+const COLOR_RE =
+  /^(#(?:[0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})|rgba?\([0-9.,\s%]+\)|hsla?\([0-9.,\s%]+\)|[a-zA-Z]{1,32})$/;
+function checkColorField(v: string): string | null {
+  if (!COLOR_RE.test(v)) {
+    return "primary_color must be a hex / rgb(a) / hsl(a) color or a plain color keyword";
+  }
+  return null;
+}
+
+/** ドメイン。scheme/path/空白/山括弧なしのホスト名のみ。 */
+const DOMAIN_RE = /^[a-zA-Z0-9]([a-zA-Z0-9-]{0,62})(\.[a-zA-Z0-9]([a-zA-Z0-9-]{0,62}))*(:[0-9]{1,5})?$/;
+function checkDomainField(v: string): string | null {
+  if (!DOMAIN_RE.test(v)) {
+    return "custom_domain must be a bare hostname (no scheme, path, or whitespace)";
+  }
+  return null;
+}
+
+/** email-from。改行 (header injection) と山括弧を弾く。 */
+function checkEmailFromField(v: string): string | null {
+  if (/[\r\n]/.test(v)) return "custom_email_from must not contain newlines";
+  return null;
+}
+
+/** footer HTML。最も危険な構文 (script / on*= / javascript:) を弾く。host 側で更にサニタイズ推奨。 */
+function checkFooterHtml(v: string): string | null {
+  const lower = v.toLowerCase();
+  if (/<\s*script/.test(lower) || /<\s*\/\s*script/.test(lower)) {
+    return "footer_html must not contain <script> tags";
+  }
+  if (/<\s*(iframe|object|embed|form|meta|link|base)\b/.test(lower)) {
+    return "footer_html must not contain active/embedding tags";
+  }
+  if (/\son\w+\s*=/.test(lower)) {
+    return "footer_html must not contain inline event handlers (on*=)";
+  }
+  if (/(javascript|vbscript|data)\s*:/.test(lower)) {
+    return "footer_html must not contain javascript:/vbscript:/data: URIs";
+  }
+  return null;
+}
+
 /** white label config の差分 update 入力を検証する。 */
 export function validateWhiteLabelConfigUpdate(
   input: unknown,
@@ -106,6 +175,16 @@ export function validateWhiteLabelConfigUpdate(
       }
       if (typeof v === "string" && v.length > 4000) {
         return { ok: false, error: `${key} must be ≤4000 chars` };
+      }
+      // injection ガード (非空文字列のみ)。null / "" はクリア扱いで通す。
+      if (typeof v === "string" && v.length > 0) {
+        let err: string | null = null;
+        if (key === "logo_url" || key === "favicon_url") err = checkUrlField(key, v);
+        else if (key === "primary_color") err = checkColorField(v);
+        else if (key === "custom_domain") err = checkDomainField(v);
+        else if (key === "custom_email_from") err = checkEmailFromField(v);
+        else if (key === "footer_html") err = checkFooterHtml(v);
+        if (err) return { ok: false, error: err };
       }
       (out as Record<string, unknown>)[key] = v;
     }

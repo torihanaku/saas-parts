@@ -46,6 +46,43 @@ describe("validateWhiteLabelConfigUpdate", () => {
     expect(validateWhiteLabelConfigUpdate({ logo_url: 42 }).ok).toBe(false);
     expect(validateWhiteLabelConfigUpdate({ footer_html: "x".repeat(4001) }).ok).toBe(false);
   });
+
+  // Regression: these fields are rendered on the white-labeled page (logo/favicon
+  // src, primary_color inline style, footer_html HTML). Original only length-checked
+  // → javascript:/data: URLs, CSS-break colors, <script> footers passed → stored XSS.
+  it("rejects javascript:/data: and non-http(s) URLs in logo_url/favicon_url", () => {
+    expect(validateWhiteLabelConfigUpdate({ logo_url: "javascript:alert(1)" }).ok).toBe(false);
+    expect(validateWhiteLabelConfigUpdate({ favicon_url: "data:text/html,<script>alert(1)</script>" }).ok).toBe(false);
+    expect(validateWhiteLabelConfigUpdate({ logo_url: "//evil.com/x.png" }).ok).toBe(false);
+  });
+  it("accepts http(s) and root-relative URLs, and null to clear", () => {
+    expect(validateWhiteLabelConfigUpdate({ logo_url: "https://cdn.acme.com/l.png" }).ok).toBe(true);
+    expect(validateWhiteLabelConfigUpdate({ logo_url: "/assets/l.png" }).ok).toBe(true);
+    expect(validateWhiteLabelConfigUpdate({ logo_url: null }).ok).toBe(true);
+  });
+  it("rejects CSS-breaking primary_color, accepts safe colors", () => {
+    expect(validateWhiteLabelConfigUpdate({ primary_color: "red;}body{display:none}" }).ok).toBe(false);
+    expect(validateWhiteLabelConfigUpdate({ primary_color: "url(javascript:alert(1))" }).ok).toBe(false);
+    expect(validateWhiteLabelConfigUpdate({ primary_color: "#1a2b3c" }).ok).toBe(true);
+    expect(validateWhiteLabelConfigUpdate({ primary_color: "rgb(10,20,30)" }).ok).toBe(true);
+    expect(validateWhiteLabelConfigUpdate({ primary_color: "rebeccapurple" }).ok).toBe(true);
+  });
+  it("rejects scheme/path/angle-brackets in custom_domain, accepts bare host", () => {
+    expect(validateWhiteLabelConfigUpdate({ custom_domain: "evil.com/x?<script>" }).ok).toBe(false);
+    expect(validateWhiteLabelConfigUpdate({ custom_domain: "https://acme.com" }).ok).toBe(false);
+    expect(validateWhiteLabelConfigUpdate({ custom_domain: "app.acme.com" }).ok).toBe(true);
+  });
+  it("rejects dangerous footer_html, accepts benign markup", () => {
+    expect(validateWhiteLabelConfigUpdate({ footer_html: "<script>alert(1)</script>" }).ok).toBe(false);
+    expect(validateWhiteLabelConfigUpdate({ footer_html: "<img src=x onerror=alert(1)>" }).ok).toBe(false);
+    expect(validateWhiteLabelConfigUpdate({ footer_html: "<a href='javascript:alert(1)'>x</a>" }).ok).toBe(false);
+    expect(validateWhiteLabelConfigUpdate({ footer_html: "<iframe src='x'></iframe>" }).ok).toBe(false);
+    expect(validateWhiteLabelConfigUpdate({ footer_html: "<p>© 2026 Acme</p>" }).ok).toBe(true);
+  });
+  it("rejects header-injection newlines in custom_email_from", () => {
+    expect(validateWhiteLabelConfigUpdate({ custom_email_from: "a@b.com\nBcc: x@y.com" }).ok).toBe(false);
+    expect(validateWhiteLabelConfigUpdate({ custom_email_from: "Acme <no-reply@acme.com>" }).ok).toBe(true);
+  });
 });
 
 describe("validateCreatePartnerClient", () => {
