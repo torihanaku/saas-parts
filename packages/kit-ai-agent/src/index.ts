@@ -2,7 +2,7 @@
  * @torihanaku/kit-ai-agent — AIエージェント基盤
  * 計画 → 承認ゲート → 実行 → ロールバック のライフサイクル + MCP サーバー雛形。
  *
- * 出典: dev-dashboard-v2 (server/lib/agent/* / server/services/agentPlanner.ts /
+ * 出典: 実運用SaaS (server/lib/agent/* / server/services/agentPlanner.ts /
  *       server/lib/agent-orchestrator.ts / server/mcp/* / server/lib/chat-tools*)
  */
 

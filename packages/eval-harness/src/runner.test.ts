@@ -1,6 +1,6 @@
 /**
  * Tests for the generalized eval runner, golden-case runner and regression
- * comparison. Threshold/violation semantics ported from dev-dashboard-v2
+ * comparison. Threshold/violation semantics ported from 実運用SaaS
  * `server/lib/eval/firewall-eval-runner.ts` (#1040); Supabase persistence
  * replaced by the injected store.
  */

@@ -1,5 +1,5 @@
 /**
- * Tests for causal-link.ts (ported from dev-dashboard-v2 tests/twin/causal-link.test.ts).
+ * Tests for causal-link.ts (ported from 実運用SaaS tests/twin/causal-link.test.ts).
  * Store is injected as a fake.
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";

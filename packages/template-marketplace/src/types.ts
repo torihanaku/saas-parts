@@ -1,6 +1,6 @@
 /**
  * Template Marketplace shared types.
- * Ported from dev-dashboard-v2 `shared/types/marketplace.ts`.
+ * Ported from 実運用SaaS `shared/types/marketplace.ts`.
  *
  * 匿名化原則: 企業名・具体的な絶対数値は anonymized_pattern / success_signals に
  * 一切残さない。 構成 (subject pattern、 channel mix、 timing、 比率) のみ。

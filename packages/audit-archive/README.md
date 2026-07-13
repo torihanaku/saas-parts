@@ -55,4 +55,4 @@ scheduler.register("archive-audit-events", { cron: "0 3 * * *" }, () =>
 
 ## 出自
 
-`dev-dashboard-v2/server/jobs/archive-audit-events.ts`（88 LOC）。`@google-cloud/storage` 直参照 → `ObjectStorage { put }` 注入、`supabaseGet/supabasePatch` → `AuditEventSource` 注入、`env.GCS_AUDIT_ARCHIVE_BUCKET` ゲート → `storage: null` で skip、に変換。グループ化・JSONL・パス形式・エラー握りつぶしはロジック同一。テストは `tests/agency-audit-archive.test.ts` の3ケースを移植し、グループ化/JSONL形式/失敗時の未マーク保証を追加。
+`実運用SaaS/server/jobs/archive-audit-events.ts`（88 LOC）。`@google-cloud/storage` 直参照 → `ObjectStorage { put }` 注入、`supabaseGet/supabasePatch` → `AuditEventSource` 注入、`env.GCS_AUDIT_ARCHIVE_BUCKET` ゲート → `storage: null` で skip、に変換。グループ化・JSONL・パス形式・エラー握りつぶしはロジック同一。テストは `tests/agency-audit-archive.test.ts` の3ケースを移植し、グループ化/JSONL形式/失敗時の未マーク保証を追加。

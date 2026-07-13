@@ -1,5 +1,5 @@
 /**
- * Claude variant generator for A/B Testing (ported from dev-dashboard-v2 #1304).
+ * Claude variant generator for A/B Testing (ported from 実運用SaaS #1304).
  *
  * Produces up to 50 variant seeds per experiment, parameterised by target
  * metric, variation axes (tone / length / cta-style), and optional brand voice.

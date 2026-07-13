@@ -1,7 +1,7 @@
 /**
  * Approval escalation: per-tenant policy resolution + timeout escalation job.
  *
- * Ported from dev-dashboard-v2:
+ * Ported from 実運用SaaS:
  *   - server/services/escalationPolicy.ts (EscalationPolicy shape)
  *   - server/jobs/approval-escalation.ts  (runEscalationJob state machine)
  *

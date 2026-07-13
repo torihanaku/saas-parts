@@ -3,7 +3,7 @@
  * `client_{clientId}_{integrationId}` の命名でプロバイダ側の接続を
  * テナント内のクライアント単位に分離する。
  *
- * 出典: dev-dashboard-v2 server/lib/nango-client.ts（ロジックそのまま）
+ * 出典: 実運用SaaS server/lib/nango-client.ts（ロジックそのまま）
  */
 
 /** クライアントスコープの接続IDを組み立てる */

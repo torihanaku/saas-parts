@@ -1,7 +1,7 @@
 /**
  * requireClientAccess middleware — 複数クライアント委任のアクセス制御。
  *
- * 移植元: dev-dashboard-v2 server/middleware/require-client-access.ts (#774 A-2)
+ * 移植元: 実運用SaaS server/middleware/require-client-access.ts (#774 A-2)
  *
  * 3 層 role 評価 (A-1 Foundation で導入):
  *   - agency_admin: tenants.managed_clients に clientId 含む → pass

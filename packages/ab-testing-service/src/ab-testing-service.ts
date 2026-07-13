@@ -1,5 +1,5 @@
 /**
- * AI Native A/B Testing — service layer (ported from dev-dashboard-v2 #362).
+ * AI Native A/B Testing — service layer (ported from 実運用SaaS #362).
  *
  * Experiment lifecycle orchestration: create → AI variant generation → measure
  * → winner decision → end. Persistence, bandit allocation, and significance

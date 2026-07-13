@@ -62,4 +62,4 @@ Node 18+ / Bun / Edge（Web Crypto と `Request` があればよい）。
 
 ## 出典
 
-`dev-dashboard-v2/server/lib/api-key-auth.ts`（テスト: `tests/api-key-auth.test.ts` を移植・拡張）
+`実運用SaaS/server/lib/api-key-auth.ts`（テスト: `tests/api-key-auth.test.ts` を移植・拡張）

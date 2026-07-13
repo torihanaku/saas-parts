@@ -2,7 +2,7 @@
  * Eval run orchestrator: computes the KPI set, detects threshold
  * violations, and (optionally) persists the run via an injected store.
  *
- * Ported from dev-dashboard-v2 `server/lib/eval/firewall-eval-runner.ts`
+ * Ported from 実運用SaaS `server/lib/eval/firewall-eval-runner.ts`
  * (#1040). Decoupled: Supabase persistence became {@link EvalRunStore};
  * metric names dropped the firewall-specific "lint_" prefix
  * (lint_f1 → f1 etc.); threshold values are the source defaults.

@@ -3,7 +3,7 @@
  * revocation cascade (which dependent rows to purge per purpose is
  * injected as config or callback).
  *
- * Ported from dev-dashboard-v2 `server/lib/consent-guard.ts`.
+ * Ported from 実運用SaaS `server/lib/consent-guard.ts`.
  * hasConsent/requireConsent/invalidateConsentCache preserve the source
  * behavior (fail-closed on store errors, 60s TTL cache); grant/revoke
  * mirror the source's `/api/consent` route operations.

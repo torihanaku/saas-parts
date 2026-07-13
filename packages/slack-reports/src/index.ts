@@ -1,7 +1,7 @@
 /**
  * @torihanaku/slack-reports — 定期レポートの Slack Block Kit ビルダー集
  *
- * dev-dashboard-v2 の 4 種の定期 Slack レポート
+ * 実運用SaaS の 4 種の定期 Slack レポート
  * (週次レポート / 経営ステータス / シナリオ予測サマリー / Firewall 週次精度)
  * から「Block Kit を組み立てる型」だけを抽出したもの。
  *

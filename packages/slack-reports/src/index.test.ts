@@ -10,7 +10,7 @@ import {
   type EvalRun,
 } from "./index";
 
-// ── firewall eval (ported from dev-dashboard-v2 firewall-eval-weekly-slack.test.ts) ──
+// ── firewall eval (ported from 実運用SaaS firewall-eval-weekly-slack.test.ts) ──
 const baseRun: EvalRun = {
   lint_f1: 0.83,
   lint_precision: 0.85,

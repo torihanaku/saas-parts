@@ -177,7 +177,7 @@ CREATE INDEX idx_pattern_perf_snapshot ON pattern_performance(snapshot_id);
 
 ## 出典
 
-dev-dashboard-v2（読み取りのみ・2026-07-11 時点）:
+実運用SaaS（読み取りのみ・2026-07-11 時点）:
 
 - `server/lib/company-dna.ts` → `src/foundation.ts`
 - `server/lib/company-dna/brand-voice.ts` → `src/voice-profile.ts`

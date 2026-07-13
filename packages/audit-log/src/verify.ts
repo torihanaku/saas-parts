@@ -1,6 +1,6 @@
 /**
  * Hash-chain verifier (tamper-detection replayer).
- * Ported from dev-dashboard-v2 `server/lib/audit-worm-exporter.ts`.
+ * Ported from 実運用SaaS `server/lib/audit-worm-exporter.ts`.
  *
  * Replays every entry of a tenant's audit log in `occurred_at` ascending
  * order, recomputing each entry hash from (prev_hash + canonical payload)

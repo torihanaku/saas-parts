@@ -1,7 +1,7 @@
 /**
  * Thin, table-agnostic Supabase (PostgREST) REST wrapper.
  *
- * Ported from dev-dashboard-v2 server/lib/supabase.ts with the product
+ * Ported from 実運用SaaS server/lib/supabase.ts with the product
  * coupling removed:
  *   - URL / service-role key / correlation-id provider are constructor config
  *     (no env reads, no request-context import)

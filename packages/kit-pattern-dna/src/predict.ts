@@ -10,7 +10,7 @@
  * 重い ML（XGBoost/NN）は意図的に避けている — per-tenant データは小規模
  * （≤5k 行）で、単純回帰の方が過学習に頑健。LLM 失敗は静かにフォールバック。
  *
- * 出典: dev-dashboard-v2 `server/lib/company-dna/predict.ts`
+ * 出典: 実運用SaaS `server/lib/company-dna/predict.ts`
  * （Supabase → DnaStore 注入、env.ANTHROPIC_API_KEY → LlmCaller 注入）。
  */
 

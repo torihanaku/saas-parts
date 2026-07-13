@@ -2,7 +2,7 @@
 
 閾値ベースのメトリクス異常検出器（単価スパイク / 配信失敗率悪化 / ランキング下落 — ローリングベースライン比較）と、全テナント走査のリアルタイム監視オーケストレータ。
 
-移植元: dev-dashboard-v2 `server/lib/anomaly-detection.ts` + `server/jobs/realtime-monitor.ts`
+移植元: 実運用SaaS `server/lib/anomaly-detection.ts` + `server/jobs/realtime-monitor.ts`
 
 ## 検出器（レジストリに並べる `Detector` 群）
 

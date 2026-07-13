@@ -2,9 +2,9 @@
  * @torihanaku/reauth — 機微操作前の再認証（re-auth）トークン基盤。
  *
  * 出典:
- *   - dev-dashboard-v2/server/lib/reauth-token.ts（32byte hex トークン / 15分TTL /
+ *   - 実運用SaaS/server/lib/reauth-token.ts（32byte hex トークン / 15分TTL /
  *     インメモリ store / 定期クリーンアップ / requireReAuth ガード）
- *   - dev-dashboard-v2/server/routes/auth/reauth.ts（パスワード再検証フローの
+ *   - 実運用SaaS/server/routes/auth/reauth.ts（パスワード再検証フローの
  *     タイミング攻撃緩和: 80〜120ms のランダム遅延）
  *
  * 変更点: モジュールレベルの Map + setInterval → createReauthStore() ファクトリ

@@ -1,5 +1,5 @@
 /**
- * Tests ported from dev-dashboard-v2 tests/claude-api-client.test.ts,
+ * Tests ported from 実運用SaaS tests/claude-api-client.test.ts,
  * adapted to the config-injected client factory.
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";

@@ -1,5 +1,5 @@
 /**
- * Unit tests for saml-sp.ts — ported from dev-dashboard-v2
+ * Unit tests for saml-sp.ts — ported from 実運用SaaS
  * `tests/saml-sp.test.ts` (#110 / Epic G8 Backend PR).
  *
  * Scope:

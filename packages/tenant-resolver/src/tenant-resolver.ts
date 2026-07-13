@@ -1,7 +1,7 @@
 /**
  * Tenant management: resolve or create tenants for the current request.
  *
- * 移植元: dev-dashboard-v2 server/lib/tenant.ts (分割元: server/lib/auth.ts, Issue #641)
+ * 移植元: 実運用SaaS server/lib/tenant.ts (分割元: server/lib/auth.ts, Issue #641)
  *
  * #952 hardening (2026-04-20): The previous implementation silently swallowed every
  * storage error, returning `null` from `getOrCreateDefaultTenant()` whenever the

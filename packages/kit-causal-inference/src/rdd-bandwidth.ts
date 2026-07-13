@@ -1,7 +1,7 @@
 /**
  * Imbens-Kalyanaraman (2012) optimal bandwidth selection for sharp RDD.
  *
- * Ported from dev-dashboard-v2 `server/lib/causal/rdd/bandwidth.ts`.
+ * Ported from 実運用SaaS `server/lib/causal/rdd/bandwidth.ts`.
  *
  * Silverman's rule (used in `rdd.ts`) is plug-and-play but has no
  * RDD-specific properties — it under-smooths when the second derivative of

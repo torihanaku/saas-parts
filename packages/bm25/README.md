@@ -51,4 +51,4 @@ const ranked = computeBm25Scores(input);
 
 ## 出典
 
-- `dev-dashboard-v2/server/lib/bm25.ts` の忠実移植（zero-dep faithful port）
+- `実運用SaaS/server/lib/bm25.ts` の忠実移植（zero-dep faithful port）

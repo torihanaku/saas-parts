@@ -60,7 +60,7 @@ any（Node 18+ / Bun / Deno — `fetch` 標準搭載環境）
 
 ## 出典
 
-- `dev-dashboard-v2/server/lib/embedding-client.ts`（レジストリ）
-- `dev-dashboard-v2/server/lib/embedding-providers/types.ts` / `openai.ts`
-- `dev-dashboard-v2/server/lib/institutional-memory/embedding-pipeline.ts`（コストパイプライン）
+- `実運用SaaS/server/lib/embedding-client.ts`（レジストリ）
+- `実運用SaaS/server/lib/embedding-providers/types.ts` / `openai.ts`
+- `実運用SaaS/server/lib/institutional-memory/embedding-pipeline.ts`（コストパイプライン）
 - テスト: `tests/embedding-client.test.ts` / `tests/embedding-providers/openai.test.ts` / `server/__tests__/embedding-pipeline.test.ts`

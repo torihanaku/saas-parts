@@ -1,5 +1,5 @@
 /**
- * Tests for baseline-builder.ts (ported from dev-dashboard-v2
+ * Tests for baseline-builder.ts (ported from 実運用SaaS
  * tests/twin-baseline.test.ts). Store is injected as a fake.
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";

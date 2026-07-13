@@ -1,7 +1,7 @@
 /**
  * Slack request-signature verification.
  *
- * Ported verbatim from dev-dashboard-v2 server/routes/firewall/slack-signature.ts.
+ * Ported verbatim from 実運用SaaS server/routes/firewall/slack-signature.ts.
  */
 import { createHmac, timingSafeEqual } from "node:crypto";
 

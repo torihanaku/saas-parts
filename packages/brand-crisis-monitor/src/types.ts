@@ -1,7 +1,7 @@
 /**
  * SNS 炎上監視の共通型と注入インターフェース。
  *
- * 原典 dev-dashboard-v2 は Reddit にハードコードされていたが、ここでは
+ * 原典 実運用SaaS は Reddit にハードコードされていたが、ここでは
  * `CrisisSource` 注入 IF に一般化し、Reddit をその一例として同梱する。
  */
 

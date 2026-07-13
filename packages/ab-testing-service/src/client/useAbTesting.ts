@@ -1,5 +1,5 @@
 /**
- * Hooks for the AB Testing dashboard (ported from dev-dashboard-v2 #1359).
+ * Hooks for the AB Testing dashboard (ported from 実運用SaaS #1359).
  *
  * The HTTP client is injected (`AbApiClient`) so these hooks stay decoupled
  * from any specific api-client. `react` is a peer dependency.

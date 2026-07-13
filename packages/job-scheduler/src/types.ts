@@ -1,6 +1,6 @@
 /**
  * Types for @torihanaku/job-scheduler.
- * Ported from dev-dashboard-v2/server/lib/job-scheduler.ts (core only).
+ * Ported from 実運用SaaS/server/lib/job-scheduler.ts (core only).
  */
 
 /** A named background job with a fixed execution interval. */

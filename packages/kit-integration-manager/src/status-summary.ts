@@ -1,7 +1,7 @@
 /**
  * 同期ステータスの集計（ヘルスチェック用サマリ）。
  *
- * 出典: dev-dashboard-v2 server/routes/nango-integrations.ts の
+ * 出典: 実運用SaaS server/routes/nango-integrations.ts の
  * GET /api/nango/sync-status（#526）。DB行の形をそのまま純関数化した。
  * 状態機械: status "success" → healthy / "error" → error / それ以外・未設定 → pending。
  */

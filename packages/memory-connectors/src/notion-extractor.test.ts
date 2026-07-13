@@ -1,5 +1,5 @@
 /**
- * Tests for notion-extractor.ts (ported from dev-dashboard-v2
+ * Tests for notion-extractor.ts (ported from 実運用SaaS
  * tests/institutional-memory-notion-candidates.test.ts). LLM + candidate store
  * are injected.
  */

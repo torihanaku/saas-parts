@@ -1,6 +1,6 @@
 /**
  * Unit tests for metadata.ts — `buildSpMetadataXml` cases ported from
- * dev-dashboard-v2 `tests/saml-routes.test.ts` (module logic only; the
+ * 実運用SaaS `tests/saml-routes.test.ts` (module logic only; the
  * HTTP route cases from that file were intentionally not ported).
  */
 import { describe, it, expect } from "vitest";

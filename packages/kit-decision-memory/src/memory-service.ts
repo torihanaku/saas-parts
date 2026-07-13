@@ -1,7 +1,7 @@
 /**
  * memory-service.ts — 組織記憶（ナレッジ蓄積 + 検索）のコアサービス。
  *
- * 出典: dev-dashboard-v2 server/lib/institutional-memory.ts
+ * 出典: 実運用SaaS server/lib/institutional-memory.ts
  * （logMemory / searchMemory / getMemoryByType）。
  * Supabase / embedding パイプライン / Claude 直結を注入インターフェースに
  * 置き換え、mem_type と検索プロンプトをパラメータ化した。

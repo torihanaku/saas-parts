@@ -3,7 +3,7 @@
  *
  * 複数ページで重複していた formatDate / formatDateTime / truncate を統合。
  *
- * Ported from dev-dashboard-v2 `src/utils/format.ts`.
+ * Ported from 実運用SaaS `src/utils/format.ts`.
  * Changes from source: locale is a parameter (optional, default "ja-JP")
  * instead of hardcoded.
  */

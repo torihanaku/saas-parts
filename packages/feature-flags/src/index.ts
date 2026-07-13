@@ -3,7 +3,7 @@
  *
  * Env-var toggle + per-tenant override + audit trail feature flags,
  * fully decoupled via injected interfaces.
- * Origin: dev-dashboard-v2 server/lib/feature-flags.ts
+ * Origin: 実運用SaaS server/lib/feature-flags.ts
  *         (+ mutation behavior of server/routes/feature-flag-overrides.ts).
  */
 

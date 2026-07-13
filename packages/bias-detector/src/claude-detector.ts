@@ -1,5 +1,5 @@
 /**
- * Claude bias detector v1 (ported from dev-dashboard-v2, #1298 / #356).
+ * Claude bias detector v1 (ported from 実運用SaaS, #1298 / #356).
  *
  * Per-bias prompt set — each bias category gets a focused detection rubric
  * (sourced from the registry) instead of a single multi-bias prompt. This

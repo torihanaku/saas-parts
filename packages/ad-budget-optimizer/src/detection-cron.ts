@@ -1,5 +1,5 @@
 /**
- * Budget reallocation detection cron (ported from dev-dashboard-v2 #1302).
+ * Budget reallocation detection cron (ported from 実運用SaaS #1302).
  *
  * For every tenant that has recent ad-insights, it:
  *   1. detects CPA-spike / ROAS-drop triggers,

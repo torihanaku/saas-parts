@@ -1,7 +1,7 @@
 /**
  * @torihanaku/kit-causal-inference — 因果推論エンジン
  *
- * Pure-TypeScript causal-inference algorithms extracted from dev-dashboard-v2.
+ * Pure-TypeScript causal-inference algorithms extracted from 実運用SaaS.
  * All entry points take plain arrays/objects; no I/O, no env vars.
  */
 

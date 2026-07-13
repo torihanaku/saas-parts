@@ -1,12 +1,12 @@
 # @torihanaku/daily-briefing
 
-「毎朝の AI ブリーフィング」を編成するためのフレームワーク。**ウィジェットデータ収集 → LLM 要約 → パーソナライズ構成** の 3 段を、依存を注入して組み立てます。dev-dashboard-v2 の AI Daily Dashboard (#721) と Briefings ルートから抽出しました。
+「毎朝の AI ブリーフィング」を編成するためのフレームワーク。**ウィジェットデータ収集 → LLM 要約 → パーソナライズ構成** の 3 段を、依存を注入して組み立てます。実運用SaaS の AI Daily Dashboard (#721) と Briefings ルートから抽出しました。
 
 ## 3 レイヤー
 
 ### 1. データソース registry (`sources.ts` / `registry.ts`)
 
-`dataSource` 名（`ga4` / `costs` / `campaigns` / `sns`）→ 実データ取得の写像。DB アクセスは `TableQuery` を注入します（dev-dashboard-v2 の `supabaseGet(table, query)` がそのまま充足）。
+`dataSource` 名（`ga4` / `costs` / `campaigns` / `sns`）→ 実データ取得の写像。DB アクセスは `TableQuery` を注入します（実運用SaaS の `supabaseGet(table, query)` がそのまま充足）。
 
 ```ts
 import { createDefaultWidgetDataRegistry } from "@torihanaku/daily-briefing";
@@ -44,7 +44,7 @@ const content = await generateBriefingContent({
 import { composeDailyBriefing, composeShot, ComposeError } from "@torihanaku/daily-briefing";
 
 const spec = await composeDailyBriefing(apiKey, {
-  compose: composeDashboard, // dev-dashboard-v2 の composeDashboard
+  compose: composeDashboard, // 実運用SaaS の composeDashboard
   getUserContext: async () => formatUserContext(await buildUserContext(userId)),
   getSignalSummary: async () => await fetchSignalSummary(),
   getFavorites: async () => await fetchFavorites(tenantId, userId),

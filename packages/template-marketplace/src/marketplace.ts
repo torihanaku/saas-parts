@@ -1,7 +1,7 @@
 /**
  * Template Marketplace service — submission / listing / cloning / reviews.
  *
- * Ported from dev-dashboard-v2 `server/lib/template-marketplace.ts`.
+ * Ported from 実運用SaaS `server/lib/template-marketplace.ts`.
  * Supabase calls (dd_marketplace_templates / dd_marketplace_reviews /
  * dd_marketplace_clones / vw_template_ratings) are replaced with an injected
  * {@link MarketplaceStore}.

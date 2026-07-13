@@ -1,7 +1,7 @@
 /**
  * Shared context helpers for agency-scoped routes.
  *
- * 移植元: dev-dashboard-v2 server/routes/agency-context.ts
+ * 移植元: 実運用SaaS server/routes/agency-context.ts
  * (agency.ts から抽出 — 兄弟モジュールが循環依存なしに getAgencyContext を使うため)
  *
  * 依存の切り離し: supabaseGet → AgencyAccessStore、getTenantId → コールバック注入。

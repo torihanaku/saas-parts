@@ -1,6 +1,6 @@
 /**
  * Agency mode — 型定義
- * 移植元: dev-dashboard-v2 shared/types/agency.ts (#774 A-1 Foundation)
+ * 移植元: 実運用SaaS shared/types/agency.ts (#774 A-1 Foundation)
  *
  * 設計決定 (元プロジェクトの OQ 決定事項):
  *   - 3層 role (agency_admin / agency_member / client_viewer)

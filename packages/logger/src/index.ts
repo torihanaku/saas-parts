@@ -10,7 +10,7 @@
  * - Request context: AsyncLocalStorage-based requestId/userId/startTime
  *   propagation; log lines auto-include requestId when a context is active
  *
- * Ported from dev-dashboard-v2 server/lib/logger.ts + server/lib/context.ts.
+ * Ported from 実運用SaaS server/lib/logger.ts + server/lib/context.ts.
  */
 import { AsyncLocalStorage } from "node:async_hooks";
 

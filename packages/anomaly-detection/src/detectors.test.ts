@@ -1,5 +1,5 @@
 /**
- * Tests — ported from dev-dashboard-v2 tests/server/lib/anomaly-detection.test.ts.
+ * Tests — ported from 実運用SaaS tests/server/lib/anomaly-detection.test.ts.
  * Supabase モックチェーン → fetchRows 注入。`now` を固定して決定的フィクスチャ化。
  */
 import { describe, it, expect } from "vitest";

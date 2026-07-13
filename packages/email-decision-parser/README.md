@@ -61,4 +61,4 @@ const result = parseReply(body, {
 
 ## 出典
 
-`dev-dashboard-v2` の `server/services/emailReplyParser.ts`（66 行）。判定ロジック（1 行目キーワード照合・inline reason・返信マーカー除去）は原典どおりで、ハードコードだった日英キーワード群を設定可能な `EmailDecisionParserConfig` に昇格（既定値は原典パターン）。
+`実運用SaaS` の `server/services/emailReplyParser.ts`（66 行）。判定ロジック（1 行目キーワード照合・inline reason・返信マーカー除去）は原典どおりで、ハードコードだった日英キーワード群を設定可能な `EmailDecisionParserConfig` に昇格（既定値は原典パターン）。

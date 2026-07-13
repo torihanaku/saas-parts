@@ -1,5 +1,5 @@
 /**
- * Tests for claude-detector.ts (ported from dev-dashboard-v2
+ * Tests for claude-detector.ts (ported from 実運用SaaS
  * tests/bias/claude-detector.test.ts). LLM + registry are injected.
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";

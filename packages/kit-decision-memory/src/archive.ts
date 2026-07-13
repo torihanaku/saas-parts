@@ -1,7 +1,7 @@
 /**
  * archive.ts — 失敗博物館 / 成功レシピのアーカイブ閲覧（MEM-6）。
  *
- * 出典: dev-dashboard-v2 server/lib/institutional-memory/archive-helpers.ts
+ * 出典: 実運用SaaS server/lib/institutional-memory/archive-helpers.ts
  * + server/routes/memory-archive.ts。
  * タグはマイグレーション不要のインライン方式（`[channel:meta]` 名前空間タグ +
  * `#hashtag`）を subject / content / source から抽出時に取り出す。

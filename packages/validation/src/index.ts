@@ -1,7 +1,7 @@
 /**
  * Input validation utilities for request handling.
  *
- * Ported from dev-dashboard-v2 `server/lib/validation.ts` (zero deps).
+ * Ported from 実運用SaaS `server/lib/validation.ts` (zero deps).
  */
 
 /** Validate UUID v4 format */

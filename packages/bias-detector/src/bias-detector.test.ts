@@ -1,5 +1,5 @@
 /**
- * Tests for bias-detector.ts (ported from dev-dashboard-v2 tests/bias-detector.test.ts).
+ * Tests for bias-detector.ts (ported from 実運用SaaS tests/bias-detector.test.ts).
  * LLM is injected via a mock BiasLlmClient.
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";

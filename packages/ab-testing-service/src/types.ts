@@ -1,5 +1,5 @@
 /**
- * AI Native A/B Testing — shared types (ported from dev-dashboard-v2 #362).
+ * AI Native A/B Testing — shared types (ported from 実運用SaaS #362).
  *
  * Bandit posterior is encoded as Beta(alpha, beta) per variant so Thompson
  * sampling stays stateless. Outcomes are append-only; aggregations are

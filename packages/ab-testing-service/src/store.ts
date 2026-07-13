@@ -1,7 +1,7 @@
 /**
  * Injected persistence surface for the A/B testing service.
  *
- * The original dev-dashboard-v2 implementation talked to Supabase directly.
+ * The original 実運用SaaS implementation talked to Supabase directly.
  * Here all persistence is abstracted behind `AbTestingStore` so the service is
  * self-contained and backend-agnostic. Adapters (Supabase, Postgres, in-memory)
  * implement this interface.

@@ -1,5 +1,5 @@
 /**
- * ROI predictor (ported from dev-dashboard-v2 marketing/roi-predictor.ts).
+ * ROI predictor (ported from 実運用SaaS marketing/roi-predictor.ts).
  *
  * Given a campaign brief, ask an injected LLM for a ROI multiple + revenue
  * forecast with a 90% confidence interval, then always sanitize the output.

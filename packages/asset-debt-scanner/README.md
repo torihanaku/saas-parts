@@ -1,6 +1,6 @@
 # @torihanaku/asset-debt-scanner
 
-「放置すると価値が下がる資産（＝負債）」を per-tenant で**巡回スキャンして劣化スコアと修繕提案を出す**フレームワーク。dev-dashboard-v2 の Marketing Debt Tracker (#355) から抽出しました。
+「放置すると価値が下がる資産（＝負債）」を per-tenant で**巡回スキャンして劣化スコアと修繕提案を出す**フレームワーク。実運用SaaS の Marketing Debt Tracker (#355) から抽出しました。
 
 > ドメイン用語（marketing debt / freshness / 6 asset 種別）はマーケティング由来です。汎用フレームワークとして asset 種別は文字列に緩め、テーブル名・文言は config / 注入で差し替えられます。
 

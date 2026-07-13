@@ -87,8 +87,8 @@ peerDependencies: `react >= 18`。それ以外の実行時依存なし。
 
 ## 出典
 
-- `dev-dashboard-v2/src/hooks/useIsMobile.ts`
-- `dev-dashboard-v2/src/hooks/useFetch.ts`
-- `dev-dashboard-v2/src/hooks/useFocusTrap.ts`
-- `dev-dashboard-v2/src/hooks/useFeatureFlags.ts`（フラグ一覧・URL固定を分離）
-- `dev-dashboard-v2/src/contexts/AuthContext.ts`（UserProfile をジェネリック化。Supabase 依存の AuthProvider.tsx は未移植）
+- `実運用SaaS/src/hooks/useIsMobile.ts`
+- `実運用SaaS/src/hooks/useFetch.ts`
+- `実運用SaaS/src/hooks/useFocusTrap.ts`
+- `実運用SaaS/src/hooks/useFeatureFlags.ts`（フラグ一覧・URL固定を分離）
+- `実運用SaaS/src/contexts/AuthContext.ts`（UserProfile をジェネリック化。Supabase 依存の AuthProvider.tsx は未移植）

@@ -61,5 +61,5 @@ rows = mergeModelCredits(rows, "conversionsMarkov", markov);
 
 ## 出典
 
-- dev-dashboard-v2 `server/lib/marketing-roi/markov.ts` / `shapley.ts` / `attribution.ts`
+- 実運用SaaS `server/lib/marketing-roi/markov.ts` / `shapley.ts` / `attribution.ts`
 - 移植時の変更: DB行マッピング `toTouchpoint` と `id` / `tenantId` フィールド（製品側の配管）を削除。数値ロジックは原文どおり

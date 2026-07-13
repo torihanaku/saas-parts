@@ -1,5 +1,5 @@
 /**
- * Sensitivity analysis (ported from dev-dashboard-v2 twin/sensitivity-service).
+ * Sensitivity analysis (ported from 実運用SaaS twin/sensitivity-service).
  *
  * Perturbs each input ±X% and measures the outcome delta vs the base scenario.
  * The multi-step variant runs a sweep of perturbation percentages. The

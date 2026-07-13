@@ -1,7 +1,7 @@
 /**
  * Distributed Rate Limiter: Sliding Window + Tiered Limits + IP Blocklist/Allowlist
  *
- * Ported from dev-dashboard-v2 (server/lib/rate-limiter.ts + the sliding-window
+ * Ported from 実運用SaaS (server/lib/rate-limiter.ts + the sliding-window
  * part of cache.ts). Uses an injected Redis-like client when provided for
  * cross-instance consistency; falls back to in-memory when no client is
  * injected or a client call fails.

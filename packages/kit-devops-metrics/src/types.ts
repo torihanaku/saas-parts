@@ -1,7 +1,7 @@
 /**
  * 共通型定義 — DORA メトリクス / デプロイ運用 / Git ワークスペース。
  *
- * dev-dashboard-v2 の server/routes/dora, deploy-*, git-workspace,
+ * 実運用SaaS の server/routes/dora, deploy-*, git-workspace,
  * autonomous-deploy から抽出。GitHub / Supabase / Slack への直接依存は
  * すべて注入インターフェース経由に置き換えている。
  */

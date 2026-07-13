@@ -2,7 +2,7 @@
  * Email Reply Parser for headless approval.
  * Extracts decisions (approve/reject) and reasons from email MIME bodies.
  *
- * Ported from dev-dashboard-v2 server/services/emailReplyParser.ts.
+ * Ported from 実運用SaaS server/services/emailReplyParser.ts.
  * Keyword sets are configurable; defaults are the source JA/EN patterns.
  */
 

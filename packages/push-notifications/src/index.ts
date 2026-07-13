@@ -1,7 +1,7 @@
 /**
  * @torihanaku/push-notifications — Web Push protocol wrapper (Foundation).
  *
- * 出典: dev-dashboard-v2/server/lib/push-notifications.ts（忠実移植）。
+ * 出典: 実運用SaaS/server/lib/push-notifications.ts（忠実移植）。
  * 変更点: process.env 直読み → createPushService(config) による設定注入、
  * __setSenderForTests → setSender（正式な注入ポイントに昇格）。
  *

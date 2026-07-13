@@ -83,6 +83,6 @@ validateSlack({ SLACK_BOT_TOKEN: "xoxb-...", SLACK_SIGNING_SECRET: "..." });
 
 ## 出典
 
-- `dev-dashboard-v2/server/routes/setup-wizard.ts`
-- `dev-dashboard-v2/server/lib/setup-validators.ts`
+- `実運用SaaS/server/routes/setup-wizard.ts`
+- `実運用SaaS/server/lib/setup-validators.ts`
 ```

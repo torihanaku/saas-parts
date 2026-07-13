@@ -1,6 +1,6 @@
 /**
  * @torihanaku/white-label-branding — 型 + バリデータ
- * 出典: dev-dashboard-v2 shared/types/white-label.ts (#346)。
+ * 出典: 実運用SaaS shared/types/white-label.ts (#346)。
  */
 
 export type PartnerPlanTier = "starter" | "growth" | "enterprise";
@@ -75,7 +75,7 @@ export interface CreatePartnerClientRequest {
  *
  * これらの値は white-label ページで **エンドユーザーに描画される** (ロゴ/favicon の
  * `src`/`href`、`primary_color` のインライン style、`footer_html` の HTML)。原文
- * (dev-dashboard-v2) は「文字列 + 長さ上限」しか検査しておらず、`javascript:` URL /
+ * (実運用SaaS) は「文字列 + 長さ上限」しか検査しておらず、`javascript:` URL /
  * `data:text/html` / CSS ブレイク / `<script>` がそのまま保存され stored XSS になりうる。
  * 汎用部品として、危険な値を保存前に弾く。
  */

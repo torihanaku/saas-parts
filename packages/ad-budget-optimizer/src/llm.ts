@@ -1,5 +1,5 @@
 /**
- * Injected LLM boundary. The original dev-dashboard-v2 code imported a concrete
+ * Injected LLM boundary. The original 実運用SaaS code imported a concrete
  * Claude API client (`generateJson` / `generateText`). Here those two calls are
  * abstracted into an `LlmClient` interface so the package carries no API key,
  * no `process.env`, and no network dependency of its own.

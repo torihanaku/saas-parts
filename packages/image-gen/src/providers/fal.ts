@@ -4,7 +4,7 @@
  * Uses direct HTTP calls to the synchronous fal.run endpoint
  * to avoid adding @fal-ai/client as a dependency.
  *
- * 出典: dev-dashboard-v2 server/lib/image-providers/fal.ts
+ * 出典: 実運用SaaS server/lib/image-providers/fal.ts
  * 移植差分: env.FAL_KEY → コンストラクタ注入。
  */
 import type { ImageProvider, ImageModel, ImageGenParams, ImageGenResult } from "../types";

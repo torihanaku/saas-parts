@@ -1,6 +1,6 @@
 /**
  * Skills domain types.
- * Ported from dev-dashboard-v2 `server/routes/skills/`.
+ * Ported from 実運用SaaS `server/routes/skills/`.
  *
  * Storage note: the original uses `cockpit_project_sources` with
  * source_type='skill' to avoid a new migration; skill-specific fields live in

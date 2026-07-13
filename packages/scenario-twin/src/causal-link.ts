@@ -1,5 +1,5 @@
 /**
- * Causal → Twin elasticity bridge (ported from dev-dashboard-v2 twin/causal-link).
+ * Causal → Twin elasticity bridge (ported from 実運用SaaS twin/causal-link).
  *
  * A causal experiment's effect-size is the most trustworthy elasticity estimate
  * available (causally identified, not merely correlational). This module maps

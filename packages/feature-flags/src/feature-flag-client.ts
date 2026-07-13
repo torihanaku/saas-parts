@@ -2,7 +2,7 @@
  * Feature flag client — env-derived flags + global/tenant override layers
  * + optional per-tenant elevation + audit trail.
  *
- * Port of dev-dashboard-v2 server/lib/feature-flags.ts (flag computation,
+ * Port of 実運用SaaS server/lib/feature-flags.ts (flag computation,
  * override caches, resolution precedence, details, canary helper,
  * featureNotConfigured) and the override-mutation behavior of
  * server/routes/feature-flag-overrides.ts (upsert/delete → cache clear →

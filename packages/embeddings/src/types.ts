@@ -1,7 +1,7 @@
 /**
  * Embedding provider abstraction.
  *
- * Ported verbatim from dev-dashboard-v2
+ * Ported verbatim from 実運用SaaS
  * `server/lib/embedding-providers/types.ts` (multi-provider registry).
  *
  * Active retrieval uses ONE primary provider (see `setPrimaryProvider` in

@@ -2,7 +2,7 @@
 
 ポーリング + SSE ハイブリッドのライブ状態フック。固定間隔のポーリングを土台（フォールバック）にしつつ、SSE の `state-change` イベントを受けたらデバウンス付きで即時再取得する。SSE 非対応・接続断でもポーリングが生き続けるため、リアルタイム性と堅牢性を両立する。
 
-移植元: dev-dashboard-v2 `src/hooks/useLiveState.ts`（104 LOC）。
+移植元: 実運用SaaS `src/hooks/useLiveState.ts`（104 LOC）。
 
 ## 使い方
 

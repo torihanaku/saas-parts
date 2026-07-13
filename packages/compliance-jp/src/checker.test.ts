@@ -1,5 +1,5 @@
 /**
- * Ported from dev-dashboard-v2
+ * Ported from 実運用SaaS
  * `tests/server/lib/compliance/checker-service.test.ts`.
  * Supabase / tenant-secret / Claude mocks replaced by explicit rules and the
  * injected LLM callback + store.

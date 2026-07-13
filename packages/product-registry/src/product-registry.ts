@@ -2,7 +2,7 @@
  * Product registry — central declaration of products × plans × Stripe price
  * env-var names × entitlements, with startup DB sync.
  *
- * Ported from dev-dashboard-v2 `server/lib/product-registry.ts` (+ types from
+ * Ported from 実運用SaaS `server/lib/product-registry.ts` (+ types from
  * `shared/types/product.ts`). Coupling removed:
  * - Product definitions (5 Folia products in the source) are caller config;
  *   EXAMPLE_PRODUCTS documents the shape with a 2-product example.

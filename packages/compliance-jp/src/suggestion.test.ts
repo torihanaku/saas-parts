@@ -1,5 +1,5 @@
 /**
- * Ported from dev-dashboard-v2 `tests/compliance-suggestion.test.ts`
+ * Ported from 実運用SaaS `tests/compliance-suggestion.test.ts`
  * (LAW-4 Compliance Suggestion). Supabase check/rule lookups replaced by
  * direct inputs; the Claude call is the injected callback.
  */

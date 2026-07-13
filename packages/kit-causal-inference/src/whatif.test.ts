@@ -1,5 +1,5 @@
 /**
- * Adapted from dev-dashboard-v2 `tests/server/whatif-simulator.test.ts` and
+ * Adapted from 実運用SaaS `tests/server/whatif-simulator.test.ts` and
  * `tests/server/whatif-export.test.ts` — the core simulator and Redis cache
  * were mocked in the origin; here the simulator is an injected stub (the
  * kit's DI point) and caching was dropped. Golden numbers unchanged.

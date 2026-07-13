@@ -6,7 +6,7 @@
  * 返す。元実装は data/characters・data/tasks・useLiveState に密結合していたが、
  * ここでは静的キャラ配列とライブ状態を注入する形に一般化した。
  *
- * 出典: dev-dashboard-v2 src/pages/team/useTeamState.ts（108行）
+ * 出典: 実運用SaaS src/pages/team/useTeamState.ts（108行）
  * peer: react (>=18)
  */
 import { useState } from "react";

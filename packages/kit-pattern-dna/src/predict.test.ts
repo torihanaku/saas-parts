@@ -1,5 +1,5 @@
 /**
- * 出典テスト: dev-dashboard-v2 tests/company-dna-predict.test.ts
+ * 出典テスト: 実運用SaaS tests/company-dna-predict.test.ts
  * （コア部分を移植。Supabase → InMemoryDnaStore、env API キー → LlmCaller 注入）。
  */
 import { describe, it, expect } from "vitest";

@@ -4,7 +4,7 @@ import type { ForecastEngine, ForecastParams, ForecastResult } from "./forecast-
  * Simple Moving Average (SMA) based forecast (for 30-90 days of data).
  * Provides a stable baseline with wider confidence intervals.
  *
- * Ported verbatim from dev-dashboard-v2 `server/lib/forecast/moving-average-engine.ts`.
+ * Ported verbatim from 実運用SaaS `server/lib/forecast/moving-average-engine.ts`.
  */
 export const movingAverageEngine: ForecastEngine = {
   name: 'moving_average',

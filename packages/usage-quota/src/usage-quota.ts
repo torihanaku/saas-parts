@@ -1,7 +1,7 @@
 /**
  * Usage quota — plan-based daily limits on metered actions.
  *
- * Ported from dev-dashboard-v2 `server/lib/usage-limiter.ts` (enforceUsageLimit)
+ * Ported from 実運用SaaS `server/lib/usage-limiter.ts` (enforceUsageLimit)
  * and the quota parts of `server/lib/user-context.ts`
  * (PLAN_LIMITS / getPlanLimits / getDailyUsage / trackUsage / checkUsageLimit).
  *

@@ -1,6 +1,6 @@
 /**
  * Document domain types + builtin templates + context helpers.
- * Ported from dev-dashboard-v2 `server/routes/documents/shared.ts` (#230).
+ * Ported from 実運用SaaS `server/routes/documents/shared.ts` (#230).
  */
 
 export interface DocumentTemplate {

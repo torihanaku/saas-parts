@@ -1,6 +1,6 @@
 /**
  * Industry Benchmark — shared types.
- * Ported from dev-dashboard-v2 `shared/types/benchmark.ts`.
+ * Ported from 実運用SaaS `shared/types/benchmark.ts`.
  */
 
 /** Minimum sample size for a benchmark row to be visible (k-anonymity threshold). */

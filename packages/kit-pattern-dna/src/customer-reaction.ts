@@ -12,7 +12,7 @@
  * engagement はサンプル加重の逐次平均 — 同じ (variant, segment) への
  * record() 呼び出しの繰り返しで平均が更新される。
  *
- * 出典: dev-dashboard-v2 `server/lib/company-dna/customer-reaction.ts`
+ * 出典: 実運用SaaS `server/lib/company-dna/customer-reaction.ts`
  * （Supabase 直結 → DnaStore 注入）。
  */
 

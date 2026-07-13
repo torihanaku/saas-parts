@@ -56,4 +56,4 @@ any（I/Oは全て注入されたDAL経由。Date/Promiseのみ使用）
 
 ## 出典
 
-dev-dashboard-v2 `server/lib/persistence-layer.ts`（テストは `tests/persistence-layer.test.ts` から移植）。
+実運用SaaS `server/lib/persistence-layer.ts`（テストは `tests/persistence-layer.test.ts` から移植）。

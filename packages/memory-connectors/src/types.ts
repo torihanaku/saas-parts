@@ -2,7 +2,7 @@
  * @torihanaku/memory-connectors — shared types + injected interfaces.
  *
  * Concrete Notion / Slack extractors + the embedding cost pipeline, ported from
- * dev-dashboard-v2 `server/lib/institutional-memory/*`. All external I/O (Notion
+ * 実運用SaaS `server/lib/institutional-memory/*`. All external I/O (Notion
  * / Slack HTTP, LLM, embeddings, cost ledger) is injected, so this package has
  * no direct SDK / secret dependency.
  *

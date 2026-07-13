@@ -1,7 +1,7 @@
 /**
  * kit-decision-memory — 型定義と注入ポイント。
  *
- * 出典: dev-dashboard-v2 shared/types/institutional-memory.ts ほか。
+ * 出典: 実運用SaaS shared/types/institutional-memory.ts ほか。
  * 製品固有の decision カテゴリ / mem_type はデフォルト値としてのみ保持し、
  * 各サービスのコンストラクタでパラメータ化できる。
  */

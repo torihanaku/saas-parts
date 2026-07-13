@@ -1,7 +1,7 @@
 /**
  * Sharp Regression Discontinuity Design (RDD).
  *
- * Ported from dev-dashboard-v2 `server/lib/causal/rdd-service.ts`.
+ * Ported from 実運用SaaS `server/lib/causal/rdd-service.ts`.
  * Statistics unchanged; `tenantId` / `experimentId` remain optional metadata.
  */
 

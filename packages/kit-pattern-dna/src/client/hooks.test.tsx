@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 /**
- * 出典テスト: dev-dashboard-v2 tests/hooks/useBrandDna.test.ts /
+ * 出典テスト: 実運用SaaS tests/hooks/useBrandDna.test.ts /
  * tests/hooks/useCompanyDnaStats.test.ts のコアシナリオを注入 API 向けに再構成。
  */
 import { afterEach, describe, expect, it, vi } from "vitest";

@@ -1,5 +1,5 @@
 /**
- * 出典テスト: dev-dashboard-v2 tests/company-dna-content-ingest.test.ts
+ * 出典テスト: 実運用SaaS tests/company-dna-content-ingest.test.ts
  * （コア部分を移植。Claude モック → LlmCaller スタブ、Supabase → InMemoryDnaStore）。
  */
 import { describe, it, expect, vi } from "vitest";

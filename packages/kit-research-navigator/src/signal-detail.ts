@@ -2,7 +2,7 @@
  * シグナル詳細 — 単一シグナル + 紐づく context + 関連シグナルをまとめて返す。
  * フロントの「シグナルカード詳細モーダル」に必要な最小データセット。
  *
- * 出典: dev-dashboard-v2 server/lib/navigator/signal-detail.ts
+ * 出典: 実運用SaaS server/lib/navigator/signal-detail.ts
  */
 import type { ContextStore, SignalStore } from "./ports";
 import type { Signal, SignalContext } from "./types";

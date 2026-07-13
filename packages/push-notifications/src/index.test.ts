@@ -1,5 +1,5 @@
 /**
- * Ported from dev-dashboard-v2/tests/push-notifications.test.ts (lib unit tests).
+ * Ported from 実運用SaaS/tests/push-notifications.test.ts (lib unit tests).
  * env mutation → createPushService(config) injection. Route-handler tests were
  * not ported (the route stayed in the source app).
  */

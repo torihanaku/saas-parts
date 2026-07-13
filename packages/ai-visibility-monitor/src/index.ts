@@ -1,5 +1,5 @@
 /**
- * AI Search Visibility Monitor (ported from dev-dashboard-v2
+ * AI Search Visibility Monitor (ported from 実運用SaaS
  * server/lib/ai-visibility-job.ts).
  *
  * Periodically samples answers from AI search engines (ChatGPT / Perplexity /

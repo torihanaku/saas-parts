@@ -1,7 +1,7 @@
 /**
  * Geometric adstock transformation for media-mix modelling.
  *
- * Ported from dev-dashboard-v2 `server/lib/causal/mmm/adstock.ts`.
+ * Ported from 実運用SaaS `server/lib/causal/mmm/adstock.ts`.
  *
  *   x'_t = x_t + λ · x'_{t-1},   0 ≤ λ < 1
  *

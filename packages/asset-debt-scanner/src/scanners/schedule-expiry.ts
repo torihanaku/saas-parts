@@ -1,6 +1,6 @@
 /**
  * Schedule expiry scanner (AssetScanner 実装例)。
- * 出典: dev-dashboard-v2 server/lib/marketing-debt/schedule-expiry-scanner.ts (#1295)。
+ * 出典: 実運用SaaS server/lib/marketing-debt/schedule-expiry-scanner.ts (#1295)。
  *
  * pending スケジュールのうち予定時刻が過去のものを検出 (取りこぼし公開/承認滞留)。
  * asset_type='campaign' で記録。入力 rows は注入。
@@ -40,7 +40,7 @@ export function createScheduleExpiryScanner(): AssetScanner<ScheduledRow[], Expi
       const now = ctx.now ?? new Date();
       const reports: ExpiryReport[] = [];
       for (const row of rows) {
-        // 原典 (dev-dashboard-v2) は DB 側で `.eq("status", "pending")` して
+        // 原典 (実運用SaaS) は DB 側で `.eq("status", "pending")` して
         // pending のみ取得していた。移植で rows を注入化した際にこの絞り込みが
         // 落ちており、既に publish/完了/キャンセル済みで scheduled_for が過去の
         // スケジュールまで「期限超過」として誤検知していた (wrong-asset 提案)。

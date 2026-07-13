@@ -2,7 +2,7 @@ import type { BlockKitPayload } from "../types";
 
 /**
  * シナリオ予測サマリー Block Kit ビルダー。
- * 出典: dev-dashboard-v2 server/services/slackScenarioSummary.ts の buildScenarioBlocks。
+ * 出典: 実運用SaaS server/services/slackScenarioSummary.ts の buildScenarioBlocks。
  *
  * 元は twin/comparison-service の CompareOutput に依存していたが、
  * 移植にあたり「シナリオ名 + 予測メトリクス (mean)」だけを受け取る汎用形に緩めた。

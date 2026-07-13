@@ -1,5 +1,5 @@
 /**
- * Ported from dev-dashboard-v2 tests/cache.test.ts.
+ * Ported from 実運用SaaS tests/cache.test.ts.
  * Adapted: the module-level singleton (env-driven Redis) became an injected
  * client via createCache(); vi.mock('ioredis') became a plain mock object.
  * Product-specific CACHE_TTL / CACHE_KEYS constants were removed with the port.

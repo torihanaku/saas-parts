@@ -1,7 +1,7 @@
 /**
  * SP metadata XML generation.
  *
- * Ported from dev-dashboard-v2 `server/routes/auth/saml-helpers.ts`
+ * Ported from 実運用SaaS `server/routes/auth/saml-helpers.ts`
  * (`buildSpMetadataXml`). Pure function — the caller serves the returned
  * string from its own metadata endpoint (suggested Content-Type:
  * `application/samlmetadata+xml; charset=utf-8`).

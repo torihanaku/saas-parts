@@ -1,5 +1,5 @@
 /**
- * Hooks for the Scenario Twin dashboard (ported from dev-dashboard-v2 useTwin).
+ * Hooks for the Scenario Twin dashboard (ported from 実運用SaaS useTwin).
  *
  * The HTTP client is injected (`TwinApiClient`). `react` is a peer dependency.
  */

@@ -5,7 +5,7 @@
  * 2. ユーザーコンテキスト + 関連シグナルを添えて LLM に 3 値判定させる
  * 3. LLM 不在・失敗時は "meh" (score 0) にフォールバック
  *
- * 出典: dev-dashboard-v2 server/lib/navigator/verdict-engine.ts
+ * 出典: 実運用SaaS server/lib/navigator/verdict-engine.ts
  */
 import type { LlmClient, Embedder, SignalStore } from "./ports";
 import type { ContextVerdict, Signal } from "./types";

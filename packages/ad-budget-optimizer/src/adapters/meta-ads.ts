@@ -1,5 +1,5 @@
 /**
- * Meta Ads budget adapter (ported from dev-dashboard-v2 #1344).
+ * Meta Ads budget adapter (ported from 実運用SaaS #1344).
  *
  * Updates a Meta Marketing API campaign daily budget via an injected proxy.
  * Always supports dry_run. Returns ok=false instead of throwing.

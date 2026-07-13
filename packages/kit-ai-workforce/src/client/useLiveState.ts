@@ -5,7 +5,7 @@
  * そのまま型化。fetcher（例: adminFetch や api.get）を注入するので、認証・
  * ベース URL などプロダクト固有部分に依存しない。
  *
- * 出典: dev-dashboard-v2 src/hooks/useLiveState.ts のポーリング形を一般化。
+ * 出典: 実運用SaaS src/hooks/useLiveState.ts のポーリング形を一般化。
  * peer: react (>=18)
  */
 import { useState, useEffect, useCallback, useRef } from "react";

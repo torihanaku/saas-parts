@@ -1,5 +1,5 @@
 /**
- * Decision auto-trigger for AI Bias Detection (ported from dev-dashboard-v2,
+ * Decision auto-trigger for AI Bias Detection (ported from 実運用SaaS,
  * #1299 / #356).
  *
  * Wired into the "decision created" event: every inserted decision fires this

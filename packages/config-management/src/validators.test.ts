@@ -1,5 +1,5 @@
 /**
- * Tests for validators.ts — ported from dev-dashboard-v2 tests/config-validator.test.ts.
+ * Tests for validators.ts — ported from 実運用SaaS tests/config-validator.test.ts.
  * env モックの代わりにバリデータ設定オブジェクトを組み立てて注入する。
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";

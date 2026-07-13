@@ -2,7 +2,7 @@
  * AdPlatformAdapter — the injected boundary between this package and real
  * ad-platform APIs (Google Ads / Meta / TikTok, historically via Nango).
  *
- * The original dev-dashboard-v2 code imported a concrete `proxyRequest` Nango
+ * The original 実運用SaaS code imported a concrete `proxyRequest` Nango
  * client. Here that dependency is injected as `ProxyFn` so the package stays
  * self-contained and testable with in-memory fakes.
  */

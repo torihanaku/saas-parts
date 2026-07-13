@@ -62,7 +62,7 @@ guard.invalidateConsentCache(userId, tenantId, "ai_learning");
 
 ## 想定スキーマ（元実装の migration を転記）
 
-`dev-dashboard-v2/supabase/migrations/202604200005_005_consent_registry.sql` より:
+`実運用SaaS/supabase/migrations/202604200005_005_consent_registry.sql` より:
 
 ```sql
 CREATE TABLE IF NOT EXISTS sup_consent_registry (
@@ -95,7 +95,7 @@ Node.js 18+ / Bun / エッジランタイム（Node固有APIなし。`Map` と `
 
 ## 出典パス
 
-- `dev-dashboard-v2/server/lib/consent-guard.ts`（約140行）
-- `dev-dashboard-v2/shared/types/consent.ts`（約47行）
-- `dev-dashboard-v2/supabase/migrations/202604200005_005_consent_registry.sql`（スキーマ）
-- テスト出典: `dev-dashboard-v2/tests/integration/consent-wiring.test.ts`（Consent Guard セクション）
+- `実運用SaaS/server/lib/consent-guard.ts`（約140行）
+- `実運用SaaS/shared/types/consent.ts`（約47行）
+- `実運用SaaS/supabase/migrations/202604200005_005_consent_registry.sql`（スキーマ）
+- テスト出典: `実運用SaaS/tests/integration/consent-wiring.test.ts`（Consent Guard セクション）

@@ -1,7 +1,7 @@
 /**
  * 高レベル同期オーケストレーション（provider-agnostic）。
  *
- * 出典: dev-dashboard-v2 server/lib/nango-operations.ts。
+ * 出典: 実運用SaaS server/lib/nango-operations.ts。
  * fire-and-wait のポーリングロジックと成功/失敗/タイムアウトの状態機械は元実装のまま。
  * 汎用化ポイント:
  *   - nango-client 直import → IntegrationProvider 注入

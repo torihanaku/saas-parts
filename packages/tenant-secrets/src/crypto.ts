@@ -1,5 +1,5 @@
 /**
- * AES-256-GCM encrypt/decrypt — dev-dashboard-v2 server/lib/token.ts の
+ * AES-256-GCM encrypt/decrypt — 実運用SaaS server/lib/token.ts の
  * encrypt/decrypt のプライベートコピー（このパッケージ内専用）。
  *
  * 元実装は env.SESSION_SECRET からモジュールロード時に鍵を導出していた。

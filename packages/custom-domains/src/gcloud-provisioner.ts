@@ -2,7 +2,7 @@
  * Default {@link DomainMappingProvisioner} implementation: GCP Cloud Run
  * `gcloud run domain-mappings` via a subprocess.
  *
- * Ported from dev-dashboard-v2 `server/lib/white-label/ssl-provisioner.ts`
+ * Ported from 実運用SaaS `server/lib/white-label/ssl-provisioner.ts`
  * (#1341). This is the documented source default — swap in your own
  * provisioner (Cloudflare for SaaS, AWS ACM + ALB, Caddy on-demand TLS, …)
  * by implementing the two-method interface.

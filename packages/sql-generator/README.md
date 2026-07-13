@@ -57,5 +57,5 @@ if (valid) await bq.query(sanitizedSql!);
 
 ## 出典
 
-- `dev-dashboard-v2/server/lib/sql-generator.ts` の移植（テストは `tests/sql-generator.test.ts` から移植し注入フェイクに置換）
+- `実運用SaaS/server/lib/sql-generator.ts` の移植（テストは `tests/sql-generator.test.ts` から移植し注入フェイクに置換）
 - 変更点: `bigquery-client` 依存→ `SchemaQueryRunner` 注入、`claude-api-client.generateJson` 直import→ `JsonGenerator` 注入、安全性正規表現4定数を公開エクスポート化

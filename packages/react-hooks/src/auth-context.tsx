@@ -1,7 +1,7 @@
 /**
  * AuthContext: Centralized authentication state management.
  *
- * Ported from dev-dashboard-v2 `src/contexts/AuthContext.ts`.
+ * Ported from 実運用SaaS `src/contexts/AuthContext.ts`.
  * Product coupling removed: the hardcoded `UserProfile` shape (plan/limits/
  * usage/config specific to the product) is replaced by a generic `TUser`
  * type parameter via a `createAuthContext<TUser>()` factory. The Supabase-

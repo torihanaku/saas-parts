@@ -1,5 +1,5 @@
 /**
- * Ported from dev-dashboard-v2 `tests/server/lib/causal/psm-service.test.ts`.
+ * Ported from 実運用SaaS `tests/server/lib/causal/psm-service.test.ts`.
  */
 import { describe, it, expect } from "vitest";
 import { runPsm } from "./psm.js";

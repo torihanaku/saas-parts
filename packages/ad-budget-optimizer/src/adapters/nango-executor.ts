@@ -1,5 +1,5 @@
 /**
- * Budget reallocation executor (ported from dev-dashboard-v2 #1301).
+ * Budget reallocation executor (ported from 実運用SaaS #1301).
  *
  * Bridges an execution decision and the real ad-platform APIs. Two paths:
  *   - Google Ads: POST /customers/{id}/campaignBudgets:mutate (amount_micros)

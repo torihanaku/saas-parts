@@ -1,5 +1,5 @@
 /**
- * Anonymization primitives — ported verbatim from dev-dashboard-v2
+ * Anonymization primitives — ported verbatim from 実運用SaaS
  * `server/lib/template-marketplace.ts`.
  *
  * 匿名化原則: 企業名・人名・絶対数値 (件数/円/%) は除去し、 構成要素 (subject pattern、

@@ -1,5 +1,5 @@
 /**
- * Forecast data-source contract + registry (ported from dev-dashboard-v2
+ * Forecast data-source contract + registry (ported from 実運用SaaS
  * server/lib/marketing/data-source.ts + data-source-factory.ts).
  *
  * A `ForecastDataSource` returns a normalized daily time series. The registry

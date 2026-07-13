@@ -3,7 +3,7 @@
  * LLM caller, persists it as `pending_approval`, and supports natural-language
  * feedback regeneration ("Learning Loop").
  *
- * 出典: dev-dashboard-v2 server/services/agentPlanner.ts
+ * 出典: 実運用SaaS server/services/agentPlanner.ts
  * 変更点: Supabase 直結 → PlanStore 注入 / ANTHROPIC_API_KEY・BYOK 解決 →
  *         LlmCaller 注入 / マーケ固有プロンプト → PlannerPrompts 設定に外出し。
  */

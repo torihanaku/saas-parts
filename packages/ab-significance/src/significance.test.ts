@@ -1,5 +1,5 @@
 /**
- * Ported from dev-dashboard-v2 `tests/ab-testing/significance.test.ts`
+ * Ported from 実運用SaaS `tests/ab-testing/significance.test.ts`
  * plus golden numeric fixtures (fixed posteriors → expected quantiles
  * within tolerance).
  *

@@ -1,6 +1,6 @@
 /**
  * Dormant-email scanner (AssetScanner 実装例)。
- * 出典: dev-dashboard-v2 server/lib/marketing-debt/dormant-email-scanner.ts (#1334)。
+ * 出典: 実運用SaaS server/lib/marketing-debt/dormant-email-scanner.ts (#1334)。
  *
  * 過去 90 日送信のないメールキャンペーンを検出。入力 rows は注入。
  */

@@ -4,7 +4,7 @@
  *
  * GitHub API 直接呼び出しは IssueProvider 注入に一般化した。
  *
- * 出典: dev-dashboard-v2 server/lib/navigator/github-subissue-matcher.ts
+ * 出典: 実運用SaaS server/lib/navigator/github-subissue-matcher.ts
  */
 import type { IssueProvider, LlmClient } from "./ports";
 import type { Card, ExternalIssue } from "./types";
@@ -91,7 +91,7 @@ export async function suggestRelatedIssues(
 
 /**
  * カードに既存 issue を手動リンクする (cardData.meta.linkedIssueNumber を更新)。
- * 出典: dev-dashboard-v2 server/routes/navigator/subissues.ts handleLinkIssue
+ * 出典: 実運用SaaS server/routes/navigator/subissues.ts handleLinkIssue
  */
 export async function linkIssueToCard(
   userId: string,

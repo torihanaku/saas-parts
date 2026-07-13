@@ -1,6 +1,6 @@
 /**
  * AI Bias Detection — shared types (frontend + backend).
- * Ported from dev-dashboard-v2 `shared/types/bias.ts` (Epic G10 MOAT, #356).
+ * Ported from 実運用SaaS `shared/types/bias.ts` (Epic G10 MOAT, #356).
  * The detector uses the Claude v1 per-bias prompt set.
  */
 

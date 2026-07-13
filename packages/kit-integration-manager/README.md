@@ -2,7 +2,7 @@
 
 外部SaaS統合マネージャーの汎用コア。テナント別の統合接続管理 → fire-and-wait同期（トリガー＋ポーリング）→ データ正規化取り込み → マルチプラットフォーム・コンテンツ発行 → 接続ヘルスチェックまでを、provider-agnostic な `IntegrationProvider` 契約の上で提供する。
 
-dev-dashboard-v2 の Nango（統合ハブSaaS）連携システムから抽出。Nango実装は「注入可能な一プロバイダ」（`providers/nango.ts`、実働コード）に落とし、コアはプロバイダ非依存。
+実運用SaaS の Nango（統合ハブSaaS）連携システムから抽出。Nango実装は「注入可能な一プロバイダ」（`providers/nango.ts`、実働コード）に落とし、コアはプロバイダ非依存。
 
 ## 機能説明
 
@@ -147,7 +147,7 @@ npx vitest run packages/kit-integration-manager   # 6ファイル / 68テスト
 
 ## 出典
 
-| 移植先 | 元ファイル（dev-dashboard-v2） |
+| 移植先 | 元ファイル（実運用SaaS） |
 |---|---|
 | `src/providers/nango.ts` / `src/connection-id.ts` | `server/lib/nango-client.ts`（266行） |
 | `src/operations.ts` / `src/publish.ts` | `server/lib/nango-operations.ts`（297行） |

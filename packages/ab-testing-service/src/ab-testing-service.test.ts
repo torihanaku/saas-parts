@@ -1,6 +1,6 @@
 /**
  * Tests for ab-testing-service.ts (ported service-layer coverage from
- * dev-dashboard-v2 tests/ab-testing.test.ts). Store / allocator / significance
+ * 実運用SaaS tests/ab-testing.test.ts). Store / allocator / significance
  * are injected via in-memory fakes.
  */
 import { describe, it, expect, beforeEach } from "vitest";

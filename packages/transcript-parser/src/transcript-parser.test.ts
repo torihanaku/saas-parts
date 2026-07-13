@@ -1,6 +1,6 @@
 /**
  * Tests for the transcript parser (.vtt / .srt → plain text).
- * Ported from dev-dashboard-v2 (tests/utils/transcriptParser.test.ts) plus golden cases.
+ * Ported from 実運用SaaS (tests/utils/transcriptParser.test.ts) plus golden cases.
  */
 import { describe, it, expect } from "vitest";
 import {

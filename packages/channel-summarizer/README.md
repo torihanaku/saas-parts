@@ -73,4 +73,4 @@ const summarizer = createChannelSummarizer({
 
 ## 出典
 
-`dev-dashboard-v2` の `server/lib/multi-channel-summarizer.ts`（154 行, #1031 MVP / #1156 transcript 対応）。移植差分: `claude-api-client.generateJson` → 注入コールバック、BYOK（tenant secret → env fallback）→ 注入 `resolveApiKey`、`ChannelType` union → 汎用文字列＋設定拡張。プロンプト・正規化・clamp・空結果フォールバックのロジックは原典を維持。
+`実運用SaaS` の `server/lib/multi-channel-summarizer.ts`（154 行, #1031 MVP / #1156 transcript 対応）。移植差分: `claude-api-client.generateJson` → 注入コールバック、BYOK（tenant secret → env fallback）→ 注入 `resolveApiKey`、`ChannelType` union → 汎用文字列＋設定拡張。プロンプト・正規化・clamp・空結果フォールバックのロジックは原典を維持。

@@ -7,7 +7,7 @@
  * - Token expiry enforced
  * - Uses Node.js crypto (compatible with both Bun and Node/vitest)
  *
- * Decoupling notes (port of dev-dashboard-v2/server/lib/auth.ts):
+ * Decoupling notes (port of 実運用SaaS/server/lib/auth.ts):
  * - env reads (SESSION_SECRET / ADMIN_EMAIL / SUPABASE_*) → {@link AuthConfig}
  * - Supabase JWT Bearer verification (/auth/v1/user) → injected {@link BearerResolver};
  *   the 5-minute token cache with bounded size is preserved inside this module.
@@ -20,7 +20,7 @@
  * Takes standard `Request` objects (WHATWG fetch API — available in Node 18+/Bun),
  * no framework types.
  *
- * 出典: dev-dashboard-v2/server/lib/auth.ts
+ * 出典: 実運用SaaS/server/lib/auth.ts
  */
 import { createTokenService, type SessionStore, type TokenConfig } from "./token";
 

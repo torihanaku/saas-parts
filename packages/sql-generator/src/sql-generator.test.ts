@@ -1,5 +1,5 @@
 /**
- * Ported from dev-dashboard-v2 tests/sql-generator.test.ts.
+ * Ported from 実運用SaaS tests/sql-generator.test.ts.
  * vi.mock によるBigQuery/Claudeモックは注入フェイクに置き換え。
  */
 import { describe, it, expect, vi } from "vitest";

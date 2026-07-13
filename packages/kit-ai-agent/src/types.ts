@@ -1,7 +1,7 @@
 /**
  * Core domain types for the plan → approve → execute → rollback lifecycle.
  *
- * 出典: dev-dashboard-v2 server/services/agentPlanner.ts /
+ * 出典: 実運用SaaS server/services/agentPlanner.ts /
  *       server/lib/agent/{approval-service,executor,rollback-service}.ts
  * （Supabase テーブル dd_agent_plans / dd_agent_actions / dd_agent_executions を
  *   ストアインターフェースとして抽象化）

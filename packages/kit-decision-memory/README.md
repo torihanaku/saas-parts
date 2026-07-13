@@ -184,7 +184,7 @@ match_institutional_memory(query_embedding, match_tenant_id, match_threshold = 0
 
 ## 出典
 
-`dev-dashboard-v2`（読み取りのみ・非公開）:
+`実運用SaaS`（読み取りのみ・非公開）:
 
 - `server/lib/institutional-memory.ts`（MEM-1 コア: logMemory / searchMemory / getMemoryByType）
 - `server/lib/institutional-memory/why-search-service.ts`（why 検索）

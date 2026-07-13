@@ -1,7 +1,7 @@
 /**
  * デプロイタイムライン — submission の deploy_log を正規化・集計する純関数群。
  *
- * dev-dashboard-v2 server/lib/autonomous-deploy/timeline.ts から抽出。
+ * 実運用SaaS server/lib/autonomous-deploy/timeline.ts から抽出。
  * DeployTarget を固定 4 値から任意文字列に汎用化するため、有効 target 集合は
  * 呼び出し側が渡す（未指定なら status のみで検証）。
  */

@@ -1,5 +1,5 @@
 /**
- * Notion page decision-candidate ingest (ported from dev-dashboard-v2
+ * Notion page decision-candidate ingest (ported from 実運用SaaS
  * institutional-memory/notion-extractor, MEM-1b / #1376).
  *
  * Notion is a staging source: likely decisions are extracted from pages and

@@ -38,4 +38,4 @@ if (isTenantInRollout(tenantId, config)) {
 
 ## 出自
 
-`dev-dashboard-v2/server/services/canaryRollout.ts`（32 LOC）の純粋移植。ロジック変更なし。
+`実運用SaaS/server/services/canaryRollout.ts`（32 LOC）の純粋移植。ロジック変更なし。

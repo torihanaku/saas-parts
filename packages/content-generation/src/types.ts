@@ -1,7 +1,7 @@
 /**
  * 共有型 + LLM 注入ポート。
  *
- * dev-dashboard-v2 の content-engine / prototype / content routes から抽出。
+ * 実運用SaaS の content-engine / prototype / content routes から抽出。
  * Claude クライアントは関数型 `GenerateText` / `GenerateJson` として注入する
  * （原実装の `generateText(apiKey, system, user, opts)` 等を汎用化）。
  */

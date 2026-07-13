@@ -12,7 +12,7 @@
  *   const { sql, explanation } = await generateSql(generateJson, "月別売上", schemas);
  *   const { valid, sanitizedSql } = validateSql(sql);
  *
- * Ported from dev-dashboard-v2 server/lib/sql-generator.ts.
+ * Ported from 実運用SaaS server/lib/sql-generator.ts.
  * 変更点: BigQueryクライアント→ `SchemaQueryRunner` 注入、Claude API直呼び→
  * `JsonGenerator` コールバック注入（@torihanaku/claude-api の `generateJson` が適合）。
  */

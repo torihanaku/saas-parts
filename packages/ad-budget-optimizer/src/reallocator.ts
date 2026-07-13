@@ -1,5 +1,5 @@
 /**
- * Realtime Budget Reallocator (ported from dev-dashboard-v2 #358 / #1346).
+ * Realtime Budget Reallocator (ported from 実運用SaaS #358 / #1346).
  *
  * Detects triggers (CPA spike / ROAS drop), proposes shifts, runs safety
  * checks, persists proposals, and executes through per-platform adapters.

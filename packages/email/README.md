@@ -58,4 +58,4 @@ Node 18+ / Bun / Edge（`fetch` があればよい）。
 
 ## 出典
 
-`dev-dashboard-v2/server/lib/email.ts`（テスト: `tests/email.test.ts` を移植・拡張）
+`実運用SaaS/server/lib/email.ts`（テスト: `tests/email.test.ts` を移植・拡張）

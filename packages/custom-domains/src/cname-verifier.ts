@@ -7,7 +7,7 @@
  * Misconfiguration is captured as an `error` string so a partner dashboard
  * can surface it.
  *
- * Ported from dev-dashboard-v2 `server/lib/white-label/cname-verifier.ts`
+ * Ported from 実運用SaaS `server/lib/white-label/cname-verifier.ts`
  * (#1340 WhiteLabel-3a). Decoupled: DNS resolution is injected (default is a
  * lazily-imported node:dns wrapper so edge runtimes can supply e.g. a
  * DNS-over-HTTPS resolver), storage is an injected {@link DomainStore}, and

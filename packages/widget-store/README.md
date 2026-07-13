@@ -93,4 +93,4 @@ const store = createWidgetStore({ driver, logger: (msg, err) => log.error(msg, e
 
 ## 出典
 
-`dev-dashboard-v2` の `server/lib/daily-dashboard-store.ts`（356 行, #721）。Supabase PostgREST 直叩き（`supabaseGet` / `fetch`）を `WidgetStoreDriver` 注入に置き換え、`dd_dashboards` / `dd_dashboard_widgets_favorites` / `v_dd_signals_24h` の概念を汎用の dashboard / favorite / signal 用語へ改名。フォールバック挙動・整列順・upsert 条件は原典を維持。
+`実運用SaaS` の `server/lib/daily-dashboard-store.ts`（356 行, #721）。Supabase PostgREST 直叩き（`supabaseGet` / `fetch`）を `WidgetStoreDriver` 注入に置き換え、`dd_dashboards` / `dd_dashboard_widgets_favorites` / `v_dd_signals_24h` の概念を汎用の dashboard / favorite / signal 用語へ改名。フォールバック挙動・整列順・upsert 条件は原典を維持。

@@ -1,6 +1,6 @@
 /**
  * Tests for tenant-secrets.
- * 移植元: dev-dashboard-v2 tests/tenant-secrets.test.ts (supabase/env モック → 注入に置換)。
+ * 移植元: 実運用SaaS tests/tenant-secrets.test.ts (supabase/env モック → 注入に置換)。
  * 追加: encrypt/decrypt roundtrip、legacy 平文互換パス。
  *
  * SECURITY: 全ての鍵値は明らかなダミー (fake/dummy/test)。実鍵は一切含めない。

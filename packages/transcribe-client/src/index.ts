@@ -16,7 +16,7 @@
  *   - Errors throw `TranscribeError` so callers can distinguish missing key vs
  *     transient API failure vs malformed audio URL.
  *
- * Ported from dev-dashboard-v2 `server/lib/transcribe-client.ts`.
+ * Ported from 実運用SaaS `server/lib/transcribe-client.ts`.
  * Changes from source: API key is injected via `TranscribeConfig` (no env
  * reads), `fetchWithTimeout` is inlined, base URL / fetch impl are injectable.
  */
@@ -86,7 +86,7 @@ interface PollResponse extends SubmitResponse {
   }>;
 }
 
-/** Private copy of dev-dashboard-v2 helpers.fetchWithTimeout. */
+/** Private copy of 実運用SaaS helpers.fetchWithTimeout. */
 async function fetchWithTimeout(
   fetchImpl: typeof fetch,
   url: string | URL,

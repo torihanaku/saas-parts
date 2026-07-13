@@ -1,6 +1,6 @@
 /**
  * MCP 雛形のディスパッチ／認証テスト。
- * 元テスト出典: dev-dashboard-v2 server/mcp/rpc.ts の各 case ＋ auth.ts の
+ * 元テスト出典: 実運用SaaS server/mcp/rpc.ts の各 case ＋ auth.ts の
  * bearer/loopback 仕様（env 直読み → 設定注入に置換）。
  */
 import { describe, expect, it } from "vitest";

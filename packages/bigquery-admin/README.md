@@ -2,7 +2,7 @@
 
 テナント別に暗号化保存された BigQuery サービスアカウントキーの管理（保存/取得/削除・AES-256-GCM）＋設定解決（テナント設定 → フォールバック認証情報）＋クエリ実行/接続テスト。
 
-移植元: dev-dashboard-v2 `server/lib/bigquery-client.ts`（+ `server/lib/token.ts` の encrypt/decrypt をインライン移植）
+移植元: 実運用SaaS `server/lib/bigquery-client.ts`（+ `server/lib/token.ts` の encrypt/decrypt をインライン移植）
 
 ## 特徴
 

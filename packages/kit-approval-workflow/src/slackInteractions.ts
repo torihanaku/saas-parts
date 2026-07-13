@@ -1,7 +1,7 @@
 /**
  * Slack Block Kit interaction handling for the approval workflow.
  *
- * Ported from dev-dashboard-v2:
+ * Ported from 実運用SaaS:
  *   - server/routes/firewall/slack-dispatch.ts      (payload types + dispatch)
  *   - server/routes/firewall/slack-interactions.ts  (HTTP entrypoint)
  *   - server/lib/firewall/slack-notifier.ts         (buildRejectModalView)

@@ -2,7 +2,7 @@
  * MAPE (Mean Absolute Percentage Error) tracking and drift detection —
  * the algorithm parts of the prediction-accuracy jobs.
  *
- * Ported from dev-dashboard-v2 `server/jobs/whatifMapeTracker.ts` and
+ * Ported from 実運用SaaS `server/jobs/whatifMapeTracker.ts` and
  * `server/jobs/mape-drift-check.ts`. Changes vs. origin: data acquisition
  * (Supabase queries over `dd_content_performance` / `dd_prediction_accuracy`)
  * and side effects (Sentry alert, `dd_events` insert, logging) were dropped —

@@ -1,5 +1,5 @@
 /**
- * Ad-insight sync connector (ported from dev-dashboard-v2
+ * Ad-insight sync connector (ported from 実運用SaaS
  * server/lib/marketing/connectors/{linkedin,tiktok}.ts).
  *
  * Both source connectors were byte-for-byte identical except for the platform

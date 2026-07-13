@@ -2,7 +2,7 @@
  * DORA メトリクス — 4 指標（デプロイ頻度 / リードタイム / 変更失敗率 / MTTR）を
  * GitHub Actions のワークフロー実行から計算する。
  *
- * dev-dashboard-v2 server/routes/dora/{helpers,calculation}.ts から抽出。
+ * 実運用SaaS server/routes/dora/{helpers,calculation}.ts から抽出。
  * 計算ロジックは verbatim（ゴールデンテストで固定）。REPOS 定数と GitHub fetch は
  * 引数（repos, GitProvider）に置き換えた。
  */

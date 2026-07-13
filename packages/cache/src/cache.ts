@@ -3,7 +3,7 @@
  * Features: hit/miss stats, pattern invalidation, graceful Redis fallback,
  * distributed sliding-window rate limiting.
  *
- * Ported from dev-dashboard-v2 /cache.ts. The Redis client is now INJECTED
+ * Ported from 実運用SaaS /cache.ts. The Redis client is now INJECTED
  * (any ioredis-compatible client) instead of being created from env vars —
  * this package never imports ioredis at runtime.
  */

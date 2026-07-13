@@ -1,7 +1,7 @@
 /**
  * Chief of Staff (COS) kit — 共有型と注入インターフェース。
  *
- * 出典: dev-dashboard-v2 shared/types/cos.ts（COS-1 Foundation）＋
+ * 出典: 実運用SaaS shared/types/cos.ts（COS-1 Foundation）＋
  * server/lib/cos/* の暗黙依存（Claude / consent / Supabase / logger）を
  * 明示的な注入インターフェースとして抽出したもの。
  */

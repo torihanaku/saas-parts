@@ -1,5 +1,5 @@
 /**
- * Tests for pr-ops-service (ported from dev-dashboard-v2).
+ * Tests for pr-ops-service (ported from 実運用SaaS).
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";
 

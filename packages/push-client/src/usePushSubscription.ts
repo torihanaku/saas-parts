@@ -11,7 +11,7 @@
  * Components consume `{ supported, status, error, enable, disable }`.
  * Status values are stable so a notification button can drive UI state machines.
  *
- * Ported from dev-dashboard-v2 `src/hooks/usePushSubscription.ts` (155 LOC).
+ * Ported from 実運用SaaS `src/hooks/usePushSubscription.ts` (155 LOC).
  * Differences from the original:
  *   - react-i18next `useTranslation` → injectable strings (defaults = original
  *     ja locale values; en set also exported)
@@ -49,13 +49,13 @@ export interface PushStrings {
   errorGeneric: string;
 }
 
-/** Original ja locale values (`push.*` in dev-dashboard-v2 `src/locales/ja.json`). */
+/** Original ja locale values (`push.*` in 実運用SaaS `src/locales/ja.json`). */
 export const PUSH_STRINGS_JA: PushStrings = {
   denied: "プッシュ通知の許可がブロックされています",
   errorGeneric: "プッシュ通知の操作に失敗しました",
 };
 
-/** Original en locale values (`push.*` in dev-dashboard-v2 `src/locales/en.json`). */
+/** Original en locale values (`push.*` in 実運用SaaS `src/locales/en.json`). */
 export const PUSH_STRINGS_EN: PushStrings = {
   denied: "Push notification permission is blocked",
   errorGeneric: "Push notification action failed",

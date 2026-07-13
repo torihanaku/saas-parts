@@ -1,5 +1,5 @@
 /**
- * Ported from dev-dashboard-v2 `tests/gdpr-executor.test.ts` and
+ * Ported from 実運用SaaS `tests/gdpr-executor.test.ts` and
  * `tests/gdpr-executor-cascade.test.ts`, adapted to the injected
  * GdprStore + caller-supplied cascade targets.
  */

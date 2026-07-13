@@ -1,7 +1,7 @@
 /**
  * handoff.ts — 担当者交代向け「案件の全経緯」引き継ぎパッケージ生成（MEM-7）。
  *
- * 出典: dev-dashboard-v2 server/lib/institutional-memory/handoff-summarizer.ts
+ * 出典: 実運用SaaS server/lib/institutional-memory/handoff-summarizer.ts
  * + handoff-markdown.ts。
  * 案件（caseId = MemoryItem.source）に紐づく記録を mem_type 別にバケットし、
  * 主要連絡先（decidedBy）を抽出、LLM で 600 字のナラティブを生成して

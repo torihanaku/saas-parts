@@ -1,5 +1,5 @@
 /**
- * Ported from dev-dashboard-v2 server/__tests__/multi-channel-summarizer.test.ts.
+ * Ported from 実運用SaaS server/__tests__/multi-channel-summarizer.test.ts.
  * vi.mock (claude-api-client / tenant-secrets / env) を config 注入に置換。
  * BYOK の tenant secret → env fallback カスケードは resolveApiKey 注入側の
  * 責務になったため、キーゲート挙動 (解決成功 / null / throw) として移植。

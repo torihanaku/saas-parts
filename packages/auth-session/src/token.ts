@@ -17,7 +17,7 @@
  * the SESSION_SECRET environment variable; read it in your composition root and
  * pass it in.
  *
- * 出典: dev-dashboard-v2/server/lib/token.ts
+ * 出典: 実運用SaaS/server/lib/token.ts
  */
 import {
   createHmac,

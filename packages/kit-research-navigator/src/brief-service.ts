@@ -3,7 +3,7 @@
  * verdict 優先度 (big_deal > worth_watching > meh) → importance 降順で
  * 上位 topLimit 件と source 内訳を返す。
  *
- * 出典: dev-dashboard-v2 server/lib/navigator/brief-service.ts
+ * 出典: 実運用SaaS server/lib/navigator/brief-service.ts
  */
 import type { ContextStore, SignalStore } from "./ports";
 import type { BriefSignalSummary, NavigatorBrief, Verdict } from "./types";

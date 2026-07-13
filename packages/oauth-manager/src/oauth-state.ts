@@ -6,7 +6,7 @@
  * in-memory TTL store (single process). For multi-instance deployments,
  * inject a Redis/Firestore/Memcached-backed implementation.
  *
- * Ported from dev-dashboard-v2/server/lib/oauth-state.ts — the hard
+ * Ported from 実運用SaaS/server/lib/oauth-state.ts — the hard
  * dependency on the product's Redis cache layer (`cacheGet`/`cacheSet`/
  * `cacheDel`) was replaced by the injected `StateStore` interface.
  *

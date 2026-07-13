@@ -4,7 +4,7 @@
  * 日本の 4 法令（薬機法 / 景表法 / 特商法 / 個情法）に対する **AI 一次見解**
  * （違反/非該当の判定 + 根拠）を生成する。免責事項を強制付与する。
  *
- * 出典: dev-dashboard-v2 server/lib/legal/first-opinion.ts
+ * 出典: 実運用SaaS server/lib/legal/first-opinion.ts
  *
  * 移植方針:
  * - LLM 呼び出し（generateJson）を注入式に。

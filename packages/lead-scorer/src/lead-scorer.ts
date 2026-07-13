@@ -1,7 +1,7 @@
 /**
  * Lead scoring engine — deterministic scoring based on CRM and campaign data.
  *
- * Ported from dev-dashboard-v2 `server/lib/lead-scoring.ts`.
+ * Ported from 実運用SaaS `server/lib/lead-scoring.ts`.
  * Calculates behavior, fit, and engagement scores for contacts, determines
  * MQL qualification, and persists results via an injected {@link LeadScoringStore}
  * (replacing the original dd_crm_contacts / dd_crm_deals / dd_marketing_campaigns /

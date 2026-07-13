@@ -1,5 +1,5 @@
 /**
- * AI Bias Detection service (ported from dev-dashboard-v2, Epic G10 MOAT #356).
+ * AI Bias Detection service (ported from 実運用SaaS, Epic G10 MOAT #356).
  *
  * Detects cognitive biases (sunk_cost / confirmation / recency / bandwagon /
  * anchoring / hippo) on a marketing decision context. Production delegates to

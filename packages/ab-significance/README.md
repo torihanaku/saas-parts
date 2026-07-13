@@ -53,5 +53,5 @@ const ci = betaCredibleInterval(100, 200); // { mean, lower, upper }
 
 ## 出典
 
-- dev-dashboard-v2 `server/lib/ab-testing/significance.ts`（#1357）
+- 実運用SaaS `server/lib/ab-testing/significance.ts`（#1357）
 - 移植時の変更: なし（コメント内の社内ファイル参照を `@torihanaku/thompson-bandit` への言及に置換したのみ。数値ロジックは原文どおり）

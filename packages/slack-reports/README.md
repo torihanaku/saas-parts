@@ -1,6 +1,6 @@
 # @torihanaku/slack-reports
 
-定期レポートを **Slack Block Kit** として組み立てる 4 種のビルダーと、それらを名前で束ねる registry。dev-dashboard-v2 の週次 Slack レポート実装から「ペイロードの型」だけを抽出したものです。
+定期レポートを **Slack Block Kit** として組み立てる 4 種のビルダーと、それらを名前で束ねる registry。実運用SaaS の週次 Slack レポート実装から「ペイロードの型」だけを抽出したものです。
 
 - **データ取得 → provider に注入** (`ReportDefinition.provider`)
 - **文言・書式 → config に集約** (`*Copy`。省略時は原文どおりのデフォルト)

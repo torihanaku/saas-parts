@@ -2,7 +2,7 @@
  * React hook for the command palette: fetch command history + submit
  * free-text commands to the backend.
  *
- * Ported from dev-dashboard-v2 `src/hooks/useCommands.ts` (72 LOC).
+ * Ported from 実運用SaaS `src/hooks/useCommands.ts` (72 LOC).
  * Differences from the original:
  *   - app-wide `api` client → injectable fetch-shaped API
  *   - endpoints → options (defaults preserve the original `/api/commands`
@@ -65,7 +65,7 @@ export function createDefaultCommandsApi(
 }
 
 /**
- * Ported from dev-dashboard-v2 `src/utils/api.ts` — safely extract an array
+ * Ported from 実運用SaaS `src/utils/api.ts` — safely extract an array
  * from a raw response that may be `T[]`, `{ data: T[] }` or `{ items: T[] }`.
  */
 export function toArray<T>(data: unknown): T[] {

@@ -1,5 +1,5 @@
 /**
- * Tests for @torihanaku/abm (ported from dev-dashboard-v2 abm-service.test.ts).
+ * Tests for @torihanaku/abm (ported from 実運用SaaS abm-service.test.ts).
  *
  * Supabase モックを InMemoryAbmStore に、env/tenant-secrets を注入式
  * resolveApiKey に、claude-api-client を注入式 generateJson に置換。

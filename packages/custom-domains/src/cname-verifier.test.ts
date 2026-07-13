@@ -1,5 +1,5 @@
 /**
- * Ported from dev-dashboard-v2 `tests/white-label/cname-verifier.test.ts`
+ * Ported from 実運用SaaS `tests/white-label/cname-verifier.test.ts`
  * (#1340). Supabase/feature-flag mocks replaced by the injected memory store
  * and the `enabled` callback.
  */

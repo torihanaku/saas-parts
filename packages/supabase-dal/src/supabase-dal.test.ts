@@ -1,5 +1,5 @@
 /**
- * Ported from dev-dashboard-v2 tests/supabase.test.ts (generic helpers only).
+ * Ported from 実運用SaaS tests/supabase.test.ts (generic helpers only).
  * Adapted: vi.mock of env/context modules became constructor config; the
  * product-specific state/activity/SSO helpers were removed with the port.
  */

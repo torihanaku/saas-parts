@@ -1,5 +1,5 @@
 /**
- * Ported from dev-dashboard-v2 `tests/server/lib/causal/rdd/fuzzy.test.ts`.
+ * Ported from 実運用SaaS `tests/server/lib/causal/rdd/fuzzy.test.ts`.
  */
 import { describe, expect, it } from 'vitest';
 import { runFuzzyRdd } from './rdd-fuzzy.js';

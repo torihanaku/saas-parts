@@ -2,7 +2,7 @@
 
 コマンドパレット用のクライアント部品。自由入力コマンドの送信・履歴取得を行う React フック（`useCommands`）と、送信前プレビュー用のクライアント側分類器（`classifyCommand` / `createClassifier`）を提供する。
 
-移植元: dev-dashboard-v2 `src/hooks/useCommands.ts`（72 LOC）。
+移植元: 実運用SaaS `src/hooks/useCommands.ts`（72 LOC）。
 
 ## なぜバックエンドを同梱しないか
 

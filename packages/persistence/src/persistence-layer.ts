@@ -5,7 +5,7 @@
  * copy-pasted. This module centralises that logic as a generic PersistenceLayer<T>
  * class and convenience factories for the most common scoping columns.
  *
- * Ported from dev-dashboard-v2 server/lib/persistence-layer.ts. The project's
+ * Ported from 実運用SaaS server/lib/persistence-layer.ts. The project's
  * supabase wrapper import was replaced by an injected DalClient (see dal.ts).
  *
  * Usage:

@@ -1,6 +1,6 @@
 /**
  * Renders the applicant-facing GDPR (article 17) deletion confirmation page.
- * Ported verbatim from dev-dashboard-v2 `recruitment/gdpr-delete-page.ts`.
+ * Ported verbatim from 実運用SaaS `recruitment/gdpr-delete-page.ts`.
  *
  * The page POSTs `DELETE /api/careers/applications/:token`; the delete endpoint
  * is served by {@link HiringService.applicantDeleteApplication}. `deleteUrl`

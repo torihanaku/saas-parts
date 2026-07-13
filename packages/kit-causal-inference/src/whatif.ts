@@ -3,7 +3,7 @@
  * scenario multipliers, confidence-level mapping, input mapping, and CSV
  * export.
  *
- * Ported from dev-dashboard-v2 `server/services/whatIfSimulator.ts` (types
+ * Ported from 実運用SaaS `server/services/whatIfSimulator.ts` (types
  * from `shared/types/whatif.ts`). Changes vs. origin:
  *   - The core predictive simulator (`server/lib/twin/simulator-service`) is
  *     NOT bundled here — it is extracted separately as `@torihanaku/stats-sim`.

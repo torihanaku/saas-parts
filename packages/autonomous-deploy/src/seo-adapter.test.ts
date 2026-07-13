@@ -1,5 +1,5 @@
 /**
- * Tests for SeoAdapter (ported from dev-dashboard-v2 seo-adapter.test.ts).
+ * Tests for SeoAdapter (ported from 実運用SaaS seo-adapter.test.ts).
  * supabase-admin / feature-flags / nango-client を注入式 config に置換。
  */
 import { describe, it, expect, vi } from "vitest";

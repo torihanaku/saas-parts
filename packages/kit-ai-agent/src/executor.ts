@@ -4,7 +4,7 @@
  * outcome to the execution log, and moves status through
  * approved → executing → completed | failed | cancelled.
  *
- * 出典: dev-dashboard-v2 server/lib/agent/executor.ts
+ * 出典: 実運用SaaS server/lib/agent/executor.ts
  * 変更点: Supabase 直結 → PlanStore/ExecutionLogStore 注入 /
  *         製品ハンドラー (blog/sns/email/ad) → ActionHandler レジストリ注入 /
  *         compliance チェック → preExecutionCheck ポリシー注入 /

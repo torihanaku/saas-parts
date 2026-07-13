@@ -1,7 +1,7 @@
 /**
  * stores.ts — 永続化の注入インターフェース + インメモリ実装。
  *
- * 本家（dev-dashboard-v2）は Supabase(Postgres + pgvector) 直結だったが、
+ * 本家（実運用SaaS）は Supabase(Postgres + pgvector) 直結だったが、
  * キットではストレージをインターフェースとして注入する。
  * SQL スキーマは README の「SQLスキーマ」参照。
  */

@@ -19,7 +19,7 @@
  *   - intermediate: 0.85
  *   - beginner: 0.6
  *
- * 出典: dev-dashboard-v2 server/lib/bm25.ts をクロスインポートせず自己完結の
+ * 出典: 実運用SaaS server/lib/bm25.ts をクロスインポートせず自己完結の
  *       プライベートコピーとして内包（ロジックは verbatim）。
  */
 

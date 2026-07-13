@@ -70,5 +70,5 @@ const refined = await skills.refine(id, { question: "Q&A テキスト" }); // mo
 
 ## 出典
 
-- `dev-dashboard-v2/server/routes/skills/{index,shared,crud,ai}.ts`
+- `実運用SaaS/server/routes/skills/{index,shared,crud,ai}.ts`
 ```

@@ -56,5 +56,5 @@ any（`onFail: "exit"` のデフォルト動作のみ `process` に依存。edge
 
 ## 出典
 
-- `dev-dashboard-v2/server/lib/env.ts`（parseEnv のエラー集約・optionalUrl 正規化・merge 構成を移植）
-- テスト: `dev-dashboard-v2/tests/env.test.ts`
+- `実運用SaaS/server/lib/env.ts`（parseEnv のエラー集約・optionalUrl 正規化・merge 構成を移植）
+- テスト: `実運用SaaS/tests/env.test.ts`

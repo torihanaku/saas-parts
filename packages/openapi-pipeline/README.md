@@ -4,7 +4,7 @@
 
 クライアント（React）とサーバー（Hono / Node）で **API の型と契約を 1 か所に集約して共有する仕組み**の雛形集です。`shared/` を単一ソースにして、コンパイル対象のコードではなく、**新規プロジェクトのリポジトリ直下にコピーして相対構造のまま使うテンプレート**を `templates/shared/` に収録しています（`src/` を持たないため saas-parts の tsc / vitest の対象外）。
 
-出典: `dev-dashboard-v2/shared/`。秘密情報・実プロジェクト ID は含みません（型定義・スキーマ・OpenAPI 契約のみ）。
+出典: `実運用SaaS/shared/`。秘密情報・実プロジェクト ID は含みません（型定義・スキーマ・OpenAPI 契約のみ）。
 
 ## この「型共有パイプライン」の仕組み（3 層）
 
@@ -69,4 +69,4 @@ templates/shared/
 
 ## 出典
 
-`dev-dashboard-v2/shared/`（openapi 1 / schemas 1 / types 3 ファイル）。
+`実運用SaaS/shared/`（openapi 1 / schemas 1 / types 3 ファイル）。

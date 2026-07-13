@@ -1,5 +1,5 @@
 /**
- * Ported from dev-dashboard-v2 tests/helpers.test.ts (imports adapted).
+ * Ported from 実運用SaaS tests/helpers.test.ts (imports adapted).
  */
 import { describe, it, expect, vi } from 'vitest'
 import { parsePagination, generateETag, checkConditionalRequest, getContentType, jsonResponse, paginatedResponse } from './index'

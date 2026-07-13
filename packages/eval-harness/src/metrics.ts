@@ -4,7 +4,7 @@
  * Pure, side-effect-free metric calculators consumed by the eval runner
  * and directly by dashboards.
  *
- * Ported from dev-dashboard-v2 `server/lib/eval/firewall-metrics.ts`
+ * Ported from 実運用SaaS `server/lib/eval/firewall-metrics.ts`
  * (#1040 Brand Firewall observability). The three KPI families are generic:
  *   1. precision / recall / F1 / accuracy against a ground-truth dataset
  *   2. "repeat-catch rate" (similar edge cases auto-rejected on the

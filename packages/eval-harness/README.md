@@ -63,7 +63,7 @@ if (!cmp.passed) throw new Error(`regression: ${JSON.stringify(cmp.regressions)}
 
 ## 出典
 
-- dev-dashboard-v2 `server/lib/eval/firewall-metrics.ts`（#1040・逐語移植。firewall 固有だった `lint_` プレフィックスのみ一般名に変更: lint_f1 → f1）
-- dev-dashboard-v2 `server/lib/eval/firewall-eval-runner.ts`（しきい値検出・ラン永続化の骨格。Supabase → 注入ストア）
-- dev-dashboard-v2 `tools/eval-lab/`（Python 製の実験ラボ。「ゴールデンクエリ集合＋ジャッジ＋実験間比較」という設計思想のみ採用。auto-tune / gap-detector はドメイン固有のため対象外）
+- 実運用SaaS `server/lib/eval/firewall-metrics.ts`（#1040・逐語移植。firewall 固有だった `lint_` プレフィックスのみ一般名に変更: lint_f1 → f1）
+- 実運用SaaS `server/lib/eval/firewall-eval-runner.ts`（しきい値検出・ラン永続化の骨格。Supabase → 注入ストア）
+- 実運用SaaS `tools/eval-lab/`（Python 製の実験ラボ。「ゴールデンクエリ集合＋ジャッジ＋実験間比較」という設計思想のみ採用。auto-tune / gap-detector はドメイン固有のため対象外）
 - テストは `server/__tests__/firewall-metrics.test.ts` を逐語移植＋runner/golden/regression の新規テスト

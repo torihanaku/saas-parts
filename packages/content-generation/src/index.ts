@@ -2,7 +2,7 @@
  * @torihanaku/content-generation
  *
  * ペルソナ別コンテンツ生成・コピー多変量生成・長文→SNS原子化・実績ベースリミックス。
- * dev-dashboard-v2 の content-engine / prototype / content routes から抽出。
+ * 実運用SaaS の content-engine / prototype / content routes から抽出。
  * 全 LLM 呼び出しは注入（`GenerateText` / `GenerateJson`）、プロンプトは原文をデフォルト保持。
  *
  * マーケ / ブランド製品向け。ブランド表現の lint は @torihanaku/brand-lint を、

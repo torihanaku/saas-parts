@@ -1,7 +1,7 @@
 /**
  * Shared types for @torihanaku/feature-flags.
  *
- * Ported from dev-dashboard-v2 server/lib/feature-flags.ts.
+ * Ported from 実運用SaaS server/lib/feature-flags.ts.
  * The product flag enum (FeatureFlags / FeatureFlagKey) is replaced by a
  * caller-supplied, string-keyed registry generic over the flag-key union.
  */

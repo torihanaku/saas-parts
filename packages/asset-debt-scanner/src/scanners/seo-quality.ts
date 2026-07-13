@@ -1,6 +1,6 @@
 /**
  * SEO quality scanner (AssetScanner 実装例)。
- * 出典: dev-dashboard-v2 server/lib/marketing-debt/seo-quality-scanner.ts (#1295)。
+ * 出典: 実運用SaaS server/lib/marketing-debt/seo-quality-scanner.ts (#1295)。
  *
  * 取得済み HTML 文字列に対する純粋関数チェック (title/meta/h1/img alt)。I/O なし。
  * asset_type='seo_article' で URL 単位に issues をロールアップして記録する。

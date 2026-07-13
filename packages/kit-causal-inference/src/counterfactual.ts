@@ -2,7 +2,7 @@
  * Counterfactual Analyzer — "what would have happened without the
  * intervention", estimated by projecting the pre-period baseline mean.
  *
- * Ported from dev-dashboard-v2 `server/services/counterfactualAnalyzer.ts`.
+ * Ported from 実運用SaaS `server/services/counterfactualAnalyzer.ts`.
  * Changes vs. origin: data acquisition (Supabase fetch + date-window slicing
  * into 14-day pre / 7-day post) was dropped — the caller passes the pre- and
  * post-period observation arrays directly. Statistics and rounding unchanged.

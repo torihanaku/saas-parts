@@ -2,7 +2,7 @@
  * コンテンツ生成エンジン。
  *
  * テンプレート定義・トーンガイド・SEO スコアリング・「LLM を呼んで下書きを作る」
- * パイプラインを集約。dev-dashboard-v2 の content-engine.ts を、LLM 呼び出しを
+ * パイプラインを集約。実運用SaaS の content-engine.ts を、LLM 呼び出しを
  * 注入（`GenerateText`）に置換して移植。
  */
 import type {

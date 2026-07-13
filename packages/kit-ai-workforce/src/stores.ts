@@ -2,7 +2,7 @@
  * 注入ストアのメモリ内リファレンス実装。テスト・ローカル検証・クイックスタート用。
  * 本番では各自の永続化層（Postgres/Firestore/Supabase…）で実装して差し替える。
  *
- * 出典: dev-dashboard-v2 の Supabase テーブル
+ * 出典: 実運用SaaS の Supabase テーブル
  *       dashboard_characters / character_skills / role_models を
  *       インターフェース化したもの（実装は新規）。
  */

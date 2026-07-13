@@ -1,6 +1,6 @@
 # @torihanaku/kit-causal-inference
 
-因果推論エンジン — dev-dashboard-v2 から抽出した純粋 TypeScript の統計計算コア。
+因果推論エンジン — 実運用SaaS から抽出した純粋 TypeScript の統計計算コア。
 入力はプレーンな配列・オブジェクトのみ。I/O・環境変数・DB アクセスは一切なし。
 
 ```ts
@@ -152,7 +152,7 @@ detectMapeDrift([{ groupId: "t1", mape: 0.4 }]); // → [{ groupId: "t1", avgMap
 
 ## 出典（収録元ファイル）
 
-すべて dev-dashboard-v2（読み取り専用ソース）から。数値は変更していない。
+すべて 実運用SaaS（読み取り専用ソース）から。数値は変更していない。
 
 - `server/lib/causal/stats-utils.ts` → `src/stats.ts`
 - `server/lib/causal/did-service.ts` → `src/did.ts`

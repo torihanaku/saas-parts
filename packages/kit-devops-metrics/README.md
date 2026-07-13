@@ -1,7 +1,7 @@
 # @torihanaku/kit-devops-metrics
 
 開発組織メトリクス（DORA）とデプロイ運用のための汎用コアキット。
-`dev-dashboard-v2` の `dora` / `deploy-*` / `git-workspace` / `autonomous-deploy`
+`実運用SaaS` の `dora` / `deploy-*` / `git-workspace` / `autonomous-deploy`
 から抽出し、GitHub API・Supabase・Slack への直接依存をすべて **注入インターフェース**
 に置き換えて自己完結にしたものです。
 

@@ -1,7 +1,7 @@
 # @torihanaku/kit-approval-workflow
 
 承認ワークフロー（申請 → リスク評価 → 承認 → 監査）の汎用コア。
-dev-dashboard-v2 の「ブランドファイアウォール／稟議（ringi）」システムから、プロダクト固有ロジックを剥がして抽出したもの。
+実運用SaaS の「ブランドファイアウォール／稟議（ringi）」システムから、プロダクト固有ロジックを剥がして抽出したもの。
 
 ## 機能説明
 
@@ -195,7 +195,7 @@ app.post("/slack/interactions", (c) => adapter.slackInteractions(c.req.raw));  /
 
 ## 出典
 
-dev-dashboard-v2（READ-ONLY）:
+実運用SaaS（READ-ONLY）:
 
 - `server/routes/firewall/` — submit.ts / decision.ts / reapply.ts / exception.ts / slack-signature.ts / slack-dispatch.ts / slack-interactions.ts / slack-actions.ts
 - `server/routes/ringi/` — submit.ts / approve.ts

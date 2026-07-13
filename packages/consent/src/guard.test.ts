@@ -1,6 +1,6 @@
 /**
  * Guard tests ported from the "Consent Guard" section of
- * dev-dashboard-v2 `tests/integration/consent-wiring.test.ts`,
+ * 実運用SaaS `tests/integration/consent-wiring.test.ts`,
  * plus grant/revoke and revocation-cascade coverage.
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";

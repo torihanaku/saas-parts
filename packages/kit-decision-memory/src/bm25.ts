@@ -1,7 +1,7 @@
 /**
  * bm25.ts — 汎用 BM25 キーワードランキング（キット内プライベート実装）。
  *
- * 出典メモ: dev-dashboard-v2 の server/lib/bm25.ts はキャラクター×スキル
+ * 出典メモ: 実運用SaaS の server/lib/bm25.ts はキャラクター×スキル
  * マッチング専用（TF=1 前提・proficiency 重み付き）で、意思決定 why 検索は
  * 本家では pgvector を使っており BM25 に依存していなかった。
  * 本キットでは「EmbeddingSearcher 未注入でも動く自己完結キット」にするため、

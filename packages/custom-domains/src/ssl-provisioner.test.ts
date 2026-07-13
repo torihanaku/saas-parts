@@ -1,5 +1,5 @@
 /**
- * Ported from dev-dashboard-v2 `tests/white-label/ssl-provisioner.test.ts`
+ * Ported from 実運用SaaS `tests/white-label/ssl-provisioner.test.ts`
  * (#1341 WhiteLabel-3b).
  *
  * Covers:

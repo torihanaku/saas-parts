@@ -2,7 +2,7 @@
  * Client-side command classification (preview of which "assignee" / repo a
  * free-text command will be routed to).
  *
- * Ported from dev-dashboard-v2 `src/hooks/useCommands.ts` (`classifyCommand`).
+ * Ported from 実運用SaaS `src/hooks/useCommands.ts` (`classifyCommand`).
  * The hard-coded rule chain is externalised as configuration; the default
  * rule set reproduces the original behaviour verbatim (order matters —
  * first match wins).

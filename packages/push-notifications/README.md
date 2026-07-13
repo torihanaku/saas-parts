@@ -63,4 +63,4 @@ Node 18+ / Bun / Edge（URL と Promise があればよい。I/O なし）。
 
 ## 出典
 
-`dev-dashboard-v2/server/lib/push-notifications.ts`（テスト: `tests/push-notifications.test.ts` の lib 単体テスト部を移植。ルートハンドラ部はアプリ側の責務のため未移植）
+`実運用SaaS/server/lib/push-notifications.ts`（テスト: `tests/push-notifications.test.ts` の lib 単体テスト部を移植。ルートハンドラ部はアプリ側の責務のため未移植）

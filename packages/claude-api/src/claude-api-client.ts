@@ -1,7 +1,7 @@
 /**
  * Unified Claude API client.
  *
- * Ported from dev-dashboard-v2 `server/lib/claude-api-client.ts`.
+ * Ported from 実運用SaaS `server/lib/claude-api-client.ts`.
  * Centralises the fetch boilerplate for the Anthropic Messages API:
  * plain chat, Tool Use loop, structured (JSON) output parsing, prompt
  * caching headers, and a usage-tracking hook for cost attribution.

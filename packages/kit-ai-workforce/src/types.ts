@@ -5,7 +5,7 @@
  * 製品コンセプトを表現するデータモデル。すべての永続化はストア注入で行い、
  * このパッケージ自体は DB/HTTP/LLM に直接依存しない。
  *
- * 出典: dev-dashboard-v2
+ * 出典: 実運用SaaS
  *   - server/routes/team-characters/*  (characters / role-models / presets)
  *   - server/routes/character-templates/*  (templates / match)
  *   - supabase/migrations の dashboard_characters / character_skills / role_models

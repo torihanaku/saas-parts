@@ -1,5 +1,5 @@
 /**
- * RLS staged-rollout canary helpers — ported from dev-dashboard-v2
+ * RLS staged-rollout canary helpers — ported from 実運用SaaS
  * tests/rls-jwt.test.ts. process.env mutation is replaced by injected sources
  * (a mutable fixture object read through closures).
  */

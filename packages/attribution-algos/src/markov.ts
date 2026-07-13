@@ -1,6 +1,6 @@
 /**
  * Markov-chain removal-effect attribution.
- * Ported verbatim from dev-dashboard-v2 `server/lib/marketing-roi/markov.ts`.
+ * Ported verbatim from 実運用SaaS `server/lib/marketing-roi/markov.ts`.
  */
 import {
   type ConversionPath,

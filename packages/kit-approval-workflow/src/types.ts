@@ -1,7 +1,7 @@
 /**
  * Core types for the approval workflow kit (申請→リスク評価→承認→監査).
  *
- * Ported from dev-dashboard-v2:
+ * Ported from 実運用SaaS:
  *   - server/routes/firewall/submit.ts / decision.ts (submission lifecycle)
  *   - supabase/migrations/20260421100000_g9_s3_firewall_foundation.sql (dd_submissions)
  *   - supabase/migrations/202604210002_g9_s4_active_learning_foundation.sql (dd_exception_requests)

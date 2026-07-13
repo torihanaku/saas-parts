@@ -1,5 +1,5 @@
 /**
- * Embedding pipeline for institutional memory (ported from dev-dashboard-v2
+ * Embedding pipeline for institutional memory (ported from 実運用SaaS
  * institutional-memory/embedding-pipeline, Memory-2 / #1326).
  *
  * Wraps an injected `embed()` to add:

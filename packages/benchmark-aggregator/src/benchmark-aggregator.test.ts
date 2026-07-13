@@ -1,5 +1,5 @@
 /**
- * Ported from dev-dashboard-v2 `tests/industry-benchmark.test.ts` (lib-level
+ * Ported from 実運用SaaS `tests/industry-benchmark.test.ts` (lib-level
  * scenarios; HTTP route tests stay in the app) — adapted from supabase mocks
  * to InMemoryBenchmarkStore. Anonymizer tests folded in from
  * `server/lib/benchmark/anonymizer.ts` usage.

@@ -5,7 +5,7 @@
  * 各試行の DeployStep を deploy_log に追記する。いずれかのステップがハード失敗
  * したら、成功済みステップをアダプタの rollback() で逆順に巻き戻す。
  *
- * dev-dashboard-v2 server/lib/autonomous-deploy/orchestrator.ts から抽出。
+ * 実運用SaaS server/lib/autonomous-deploy/orchestrator.ts から抽出。
  * Supabase 永続化 → SubmissionStore、監査ログ → AuditLogger コールバック、
  * Slack 通知 → DeployNotifier コールバックに置き換え、マーケ用チャンネルアダプタ
  * 実装（seo/cms/sns/ad）はキットに含めず注入する。

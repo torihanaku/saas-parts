@@ -3,7 +3,7 @@
  * (submit → evaluate → pending → approve/reject → audit) plus the
  * exception-request (稟議 / ringi) escape hatch.
  *
- * Ported from dev-dashboard-v2:
+ * Ported from 実運用SaaS:
  *   - server/routes/firewall/submit.ts     (submit + evaluate + status machine)
  *   - server/routes/firewall/decision.ts   (dashboard decision)
  *   - server/routes/firewall/reapply.ts    (quick-fix reapply + re-evaluate)

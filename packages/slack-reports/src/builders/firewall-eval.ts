@@ -2,7 +2,7 @@ import type { BlockKitPayload } from "../types";
 
 /**
  * 週次 Firewall 精度サマリー Block Kit ビルダー。
- * 出典: dev-dashboard-v2 server/services/firewallEvalWeeklySlack.ts (#1040) の buildEvalSummaryPayload。
+ * 出典: 実運用SaaS server/services/firewallEvalWeeklySlack.ts (#1040) の buildEvalSummaryPayload。
  *
  * ドメイン用語 (Brand Firewall / Lint F1 等) はマーケ由来。config で全て差し替え可能。
  */

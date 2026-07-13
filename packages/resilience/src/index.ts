@@ -5,7 +5,7 @@
  * - CircuitBreaker: fail-fast when downstream is unhealthy
  * - LRUCache: in-memory cache with TTL for graceful degradation
  *
- * Ported from dev-dashboard-v2 server/lib/resilience.ts (zero product deps).
+ * Ported from 実運用SaaS server/lib/resilience.ts (zero product deps).
  */
 
 // ---------------------------------------------------------------------------

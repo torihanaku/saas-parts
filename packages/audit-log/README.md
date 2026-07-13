@@ -70,6 +70,6 @@ Node.js 18+（`Buffer` / `node:crypto` / fetch API `Request` を使用）。Bun 
 
 ## 出典パス
 
-- `dev-dashboard-v2/server/lib/audit.ts`（ロガー本体 約133行）
-- `dev-dashboard-v2/server/lib/audit-worm-exporter.ts`（`verifyHashChain` 検証ロジック 約33行）
-- テスト出典: `dev-dashboard-v2/tests/audit.test.ts`
+- `実運用SaaS/server/lib/audit.ts`（ロガー本体 約133行）
+- `実運用SaaS/server/lib/audit-worm-exporter.ts`（`verifyHashChain` 検証ロジック 約33行）
+- テスト出典: `実運用SaaS/tests/audit.test.ts`

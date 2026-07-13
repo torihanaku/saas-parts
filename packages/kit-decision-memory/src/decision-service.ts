@@ -2,7 +2,7 @@
  * decision-service.ts — 意思決定レコードのライフサイクル
  * （作成 / 更新 / 削除 / 抽出候補の confirm・reject リンク）。
  *
- * 出典: dev-dashboard-v2 server/routes/decisions/{crud.ts,index.ts}。
+ * 出典: 実運用SaaS server/routes/decisions/{crud.ts,index.ts}。
  * HTTP 層（Express / fetch Response）と Supabase を剥がし、
  * decision カテゴリと「登録後フック」（本家では bias-detection キュー投入）を
  * パラメータ化した。

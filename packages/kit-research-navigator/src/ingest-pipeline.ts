@@ -4,7 +4,7 @@
  * ソース群からシグナルを収集 → 重複を除いて保存 → verdict 判定 →
  * context 保存 → "big_deal" は仮説カードを自動生成する。
  *
- * 出典: dev-dashboard-v2 server/jobs/nav-signals-ingest.ts
+ * 出典: 実運用SaaS server/jobs/nav-signals-ingest.ts
  */
 import type {
   CardStore,

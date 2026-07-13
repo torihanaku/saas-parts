@@ -6,7 +6,7 @@
  *   an individual `approveAction` (元実装の high-risk 二段承認と同じ挙動).
  * - Rejection cancels all still-pending actions.
  *
- * 出典: dev-dashboard-v2 server/lib/agent/approval-service.ts
+ * 出典: 実運用SaaS server/lib/agent/approval-service.ts
  * 変更点: Supabase 直結 → PlanStore 注入 / logAuditSystem → AuditLogger 注入 /
  *         Slack 通知 → ApprovalNotifier 注入（省略可）。
  */

@@ -67,6 +67,6 @@ const res = extractElasticitiesWithCausalPreference(mmmRow, links);
 
 ## 出典
 
-- `dev-dashboard-v2/server/lib/twin/monte-carlo.ts`（#1360）
-- `dev-dashboard-v2/server/lib/twin/elasticity-extractor.ts`（#1307/#1324）＋ `causal-link.ts` の純粋部分（`channelToInputKey`/`buildCausalElasticityTable`）
+- `実運用SaaS/server/lib/twin/monte-carlo.ts`（#1360）
+- `実運用SaaS/server/lib/twin/elasticity-extractor.ts`（#1307/#1324）＋ `causal-link.ts` の純粋部分（`channelToInputKey`/`buildCausalElasticityTable`）
 - 変更点: Supabase取得を撤去し引数渡しの純粋関数化（async→sync）。型は最小限をローカル定義。`rng` 直接注入を追加

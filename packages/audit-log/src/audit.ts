@@ -2,7 +2,7 @@
  * Audit logging — immutable operation logs for all data mutations.
  * Hash chain enforced to detect tampering (ISMAP/SOC2 CC7.2).
  *
- * Ported from dev-dashboard-v2 `server/lib/audit.ts`.
+ * Ported from 実運用SaaS `server/lib/audit.ts`.
  * The canonical JSON serialization is preserved byte-for-byte so that
  * chains written by the original implementation remain verifiable.
  */

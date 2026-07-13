@@ -1,6 +1,6 @@
 /**
  * パーソナライズされたダッシュボード編成 (Stage 1: AI 構成判断)。
- * 出典: dev-dashboard-v2 server/routes/daily-dashboard.ts の handleDailyCompose / handleShotCompose。
+ * 出典: 実運用SaaS server/routes/daily-dashboard.ts の handleDailyCompose / handleShotCompose。
  *
  * 移植方針:
  * - HTTP ルーティング・認証・使用量制限・API キー解決は呼び出し側の責務として除外。
@@ -29,7 +29,7 @@ export interface DashboardSpec {
   widgets: WidgetSpec[];
 }
 
-/** LLM 構成呼び出しの入力 (dev-dashboard-v2 の ComposeInput 相当・最小形)。 */
+/** LLM 構成呼び出しの入力 (実運用SaaS の ComposeInput 相当・最小形)。 */
 export interface ComposeInput {
   apiKey: string;
   userContextText: string;
@@ -47,7 +47,7 @@ export interface ComposeOutput {
   outputTokens: number;
 }
 
-/** 構成 LLM 呼び出し (注入式)。dev-dashboard-v2 の composeDashboard を充足する。 */
+/** 構成 LLM 呼び出し (注入式)。実運用SaaS の composeDashboard を充足する。 */
 export type ComposeFn = (input: ComposeInput) => Promise<ComposeOutput>;
 
 /** 編成に必要な文脈を集める provider 群 (注入式)。 */

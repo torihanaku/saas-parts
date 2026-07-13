@@ -1,7 +1,7 @@
 /**
  * MCP tool / resource registries.
  *
- * 出典: dev-dashboard-v2 server/mcp/tools-def.ts（37ツールの定義配列）＋
+ * 出典: 実運用SaaS server/mcp/tools-def.ts（37ツールの定義配列）＋
  *       call-tool.ts（impl チェーン）＋ resources.ts（RESOURCES/readResource）。
  * 変更点: 製品ツール（tasks/CRM/git/intel/content）は落とし、
  *         「定義＋ハンドラーを register して list()/call() で使う」機構だけを

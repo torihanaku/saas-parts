@@ -1,7 +1,7 @@
 /**
  * @torihanaku/email — Resend API 経由のメール送信＋日本語HTMLテンプレートビルダー。
  *
- * 出典: dev-dashboard-v2/server/lib/email.ts（忠実移植）。
+ * 出典: 実運用SaaS/server/lib/email.ts（忠実移植）。
  * 元実装は Resend SDK ではなく素の fetch で https://api.resend.com/emails を叩く。
  * env 直読みを廃し、apiKey / from / fetch / logger を設定注入に変更。
  * APIキー未設定時はメール内容をログに出して graceful にスキップする（元実装と同じ）。

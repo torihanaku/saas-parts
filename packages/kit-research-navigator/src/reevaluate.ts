@@ -8,7 +8,7 @@
  *
  * 代表選出は importance_score 降順 → signalId 昇順の決定的タイブレーク。
  *
- * 出典: dev-dashboard-v2 server/jobs/nav-weekly-reevaluate.ts
+ * 出典: 実運用SaaS server/jobs/nav-weekly-reevaluate.ts
  */
 import type { CardStore, ContextStore, LlmClient, SignalStore } from "./ports";
 import type { Card, SignalContext } from "./types";

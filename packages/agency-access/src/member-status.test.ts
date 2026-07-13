@@ -1,6 +1,6 @@
 /**
  * Unit tests for team member status derivation logic (fix for #739).
- * 移植元: dev-dashboard-v2 tests/team-member-status.test.ts
+ * 移植元: 実運用SaaS tests/team-member-status.test.ts
  *
  * When a member logs in via SAML/OAuth (not through the invite-accept flow),
  * their team-member status stays "invited" even though they are clearly active.

@@ -2,7 +2,7 @@
  * Lightweight client-side analytics: page-view / feature-use / session
  * tracking with sendBeacon flushing on page unload.
  *
- * Ported from dev-dashboard-v2 `src/hooks/useAnalytics.ts` (113 LOC).
+ * Ported from 実運用SaaS `src/hooks/useAnalytics.ts` (113 LOC).
  * Differences from the original:
  *   - app-wide `api` client → injectable {@link AnalyticsTransport}
  *   - endpoint / anonymous-id storage key → options (defaults preserve

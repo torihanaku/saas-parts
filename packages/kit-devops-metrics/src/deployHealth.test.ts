@@ -33,12 +33,12 @@ describe("getDeployReach", () => {
     };
 
     const res = await getDeployReach(provider as GitProvider, {
-      owner: "torihanaku",
-      repo: "dev-dashboard",
+      owner: "acme",
+      repo: "web",
       now: NOW,
     });
 
-    expect(res.repo).toBe("torihanaku/dev-dashboard");
+    expect(res.repo).toBe("acme/web");
     expect(res.merged_prs).toBe(2);
     expect(res.releases).toBe(1);
     expect(res.reach_rate).toBe(0.5);

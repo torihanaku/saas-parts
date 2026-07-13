@@ -1,6 +1,6 @@
 /**
  * Tests for @torihanaku/stripe-billing.
- * Stripe SDK is mocked; behaviors ported from dev-dashboard-v2
+ * Stripe SDK is mocked; behaviors ported from 実運用SaaS
  * tests/billing-routes.test.ts plus new coverage for the extracted library.
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";

@@ -82,5 +82,5 @@ any（Node / Bun / edge。`fetch` の `Response` が存在すればよい。`pro
 
 ## 出典
 
-- `dev-dashboard-v2/server/lib/feature-flags.ts`（フラグ計算・オーバーライドキャッシュ・resolveFeatureFlags・details・canary・featureNotConfigured）
-- `dev-dashboard-v2/server/routes/feature-flag-overrides.ts`（upsert/delete → キャッシュ無効化 → 監査、`updated_by: email || "unknown"` の挙動）
+- `実運用SaaS/server/lib/feature-flags.ts`（フラグ計算・オーバーライドキャッシュ・resolveFeatureFlags・details・canary・featureNotConfigured）
+- `実運用SaaS/server/routes/feature-flag-overrides.ts`（upsert/delete → キャッシュ無効化 → 監査、`updated_by: email || "unknown"` の挙動）

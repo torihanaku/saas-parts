@@ -1,7 +1,7 @@
 /**
  * @torihanaku/asset-debt-scanner — 資産劣化の巡回スキャン + 修繕提案フレームワーク
  *
- * dev-dashboard-v2 の Marketing Debt Tracker (#355) から抽出。
+ * 実運用SaaS の Marketing Debt Tracker (#355) から抽出。
  * 「放置すると価値が下がる資産」を per-tenant で巡回スキャンし、劣化スコアと
  * 修繕提案を出す。
  *

@@ -1,6 +1,6 @@
 /**
  * Transcript domain types.
- * Ported from dev-dashboard-v2 `server/routes/transcripts/` (#226).
+ * Ported from 実運用SaaS `server/routes/transcripts/` (#226).
  */
 
 /** Transcript lifecycle: pending → transcribing → structuring → completed | error. */

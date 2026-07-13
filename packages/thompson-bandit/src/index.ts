@@ -5,7 +5,7 @@
  * 乱数は全関数で注入可能（`rand: () => number`、デフォルト Math.random）。
  * テストではシード付きPRNGを渡せば完全決定的になる。
  *
- * Ported from dev-dashboard-v2 server/lib/ab-testing-bandit.ts (#362).
+ * Ported from 実運用SaaS server/lib/ab-testing-bandit.ts (#362).
  * 変更点: shared/types からの AllocationResult import をローカル定義にインライン化。
  */
 

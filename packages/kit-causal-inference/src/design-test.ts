@@ -3,7 +3,7 @@
  * sample size and duration for an experiment given a baseline rate and an
  * expected relative lift.
  *
- * Ported from dev-dashboard-v2 `server/services/incrementalityDesignAgent.ts`
+ * Ported from 実運用SaaS `server/services/incrementalityDesignAgent.ts`
  * (numerics unchanged; already a pure function in the origin).
  */
 

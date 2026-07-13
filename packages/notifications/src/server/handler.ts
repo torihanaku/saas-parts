@@ -1,7 +1,7 @@
 /**
  * Notification routes: CRUD API for dashboard in-app notifications.
  *
- * Ported from dev-dashboard-v2 `server/routes/notifications.ts` (246 LOC).
+ * Ported from 実運用SaaS `server/routes/notifications.ts` (246 LOC).
  * Framework-free: the handler takes a `Request` and returns a `Response`,
  * or `null` when the request does not match any notification endpoint.
  *

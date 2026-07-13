@@ -3,7 +3,7 @@
  * shocks (3-sigma drops vs. a rolling 21-day baseline) and proposes DID
  * pre/post windows around each shock.
  *
- * Ported from dev-dashboard-v2 `server/services/naturalExperimentDetector.ts`.
+ * Ported from 実運用SaaS `server/services/naturalExperimentDetector.ts`.
  * Changes vs. origin: data acquisition (Supabase fetch + per-day aggregation)
  * and persistence (dedup lookup + insert into `dd_natural_experiments`, plus
  * the hard-coded placeholder p_value) were dropped — the caller passes the

@@ -4,7 +4,7 @@ import type { IsoWeekFn } from "./types";
  * ISO 8601 週文字列 (YYYY-WNN) を返す。
  *
  * 週の判定は「その週の木曜日が属する年・週番号」に従う (ISO 8601 準拠)。
- * 出典: dev-dashboard-v2 server/services/weeklyReportSlack.ts の isoWeek。
+ * 出典: 実運用SaaS server/services/weeklyReportSlack.ts の isoWeek。
  */
 export const isoWeek: IsoWeekFn = (date: Date = new Date()): string => {
   const target = new Date(

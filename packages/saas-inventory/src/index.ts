@@ -4,7 +4,7 @@
  * プロジェクト（テナント）が使う SaaS ツールの一覧管理・コスト集計・自動検出・
  * 重複検知を行う。
  *
- * 出典: dev-dashboard-v2 server/lib/saas-inventory.ts。
+ * 出典: 実運用SaaS server/lib/saas-inventory.ts。
  * 移植方針:
  * - DB アクセス (supabaseGet/Insert/Patch) は `InventoryStore` の注入に置換。
  * - integration 自動検出のソース (nango-sync getIntegrationStatus) は
@@ -39,7 +39,7 @@ export type IntegrationSource = () => Promise<IntegrationStatus[]>;
 
 /**
  * SaaS インベントリの永続化ストア (注入式)。
- * dev-dashboard-v2 では Supabase (`dd_saas_inventory`) だった。
+ * 実運用SaaS では Supabase (`dd_saas_inventory`) だった。
  */
 export interface InventoryStore {
   /** project 内の全アイテムを tool_name 昇順で返す。 */

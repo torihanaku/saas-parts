@@ -1,6 +1,6 @@
 # @torihanaku/ai-visibility-monitor
 
-ChatGPT / Perplexity / Gemini などの AI 検索エンジンでの自社ブランド言及をサンプリング監視するパッケージ。dev-dashboard-v2（マーケ運用ダッシュボード製品）の AI 可視性ジョブを移植・自己完結化したものです。
+ChatGPT / Perplexity / Gemini などの AI 検索エンジンでの自社ブランド言及をサンプリング監視するパッケージ。実運用SaaS（マーケ運用ダッシュボード製品）の AI 可視性ジョブを移植・自己完結化したものです。
 
 ## これは何か（正直な適用範囲）
 

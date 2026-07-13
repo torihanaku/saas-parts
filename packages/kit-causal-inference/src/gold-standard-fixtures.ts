@@ -1,7 +1,7 @@
 /**
  * Gold-standard fixture data for causal estimators.
  *
- * Ported from dev-dashboard-v2 `tests/causal/gold-standard/fixtures.ts`.
+ * Ported from 実運用SaaS `tests/causal/gold-standard/fixtures.ts`.
  *
  * Expected values computed with Python (statsmodels, DoWhy, causalinference)
  * and verified against R (MatchIt, rdd, CausalImpact).

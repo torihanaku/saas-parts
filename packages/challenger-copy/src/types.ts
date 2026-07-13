@@ -1,7 +1,7 @@
 /**
  * 共有型 + 注入ポート。
  *
- * dev-dashboard-v2 の Active Learning「Challenger」機構
+ * 実運用SaaS の Active Learning「Challenger」機構
  * （server/lib/challenger + server/services/challengerGenerator）から抽出。
  * LLM / embedding / lint / 永続化はすべて注入に置換。
  */

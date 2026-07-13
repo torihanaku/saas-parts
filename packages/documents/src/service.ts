@@ -2,7 +2,7 @@
  * Documents service — template + document CRUD, versioning, comments, and
  * AI content generation from a template + assembled project context.
  *
- * Ported from dev-dashboard-v2 `server/routes/documents/{crud,generate,shared}.ts`.
+ * Ported from 実運用SaaS `server/routes/documents/{crud,generate,shared}.ts`.
  * The Anthropic REST call is replaced by an injected {@link DocumentLLM}; when
  * omitted (or returning null), the original "no API key" placeholder path runs.
  */

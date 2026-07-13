@@ -1,5 +1,5 @@
 /**
- * Scenario twin simulator (ported from dev-dashboard-v2 twin/simulator-service).
+ * Scenario twin simulator (ported from 実運用SaaS twin/simulator-service).
  *
  * Projects a scenario forward from the latest baseline using an elasticity
  * table (injected via `TwinMath.extractElasticities`), then layers a

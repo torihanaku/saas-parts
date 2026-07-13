@@ -47,4 +47,4 @@ any（Node/Bun/エッジ。Redisを注入する場合はそのクライアント
 
 ## 出典
 
-dev-dashboard-v2 `/cache.ts`（リポジトリルート。テストは `tests/cache.test.ts` から移植）。
+実運用SaaS `/cache.ts`（リポジトリルート。テストは `tests/cache.test.ts` から移植）。

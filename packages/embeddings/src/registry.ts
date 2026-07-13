@@ -1,7 +1,7 @@
 /**
  * Multi-provider embedding registry.
  *
- * Ported from dev-dashboard-v2 `server/lib/embedding-client.ts`.
+ * Ported from 実運用SaaS `server/lib/embedding-client.ts`.
  * Central abstraction so that callers use `embedText` / `embedBatch`
  * without knowing which provider is active.
  *

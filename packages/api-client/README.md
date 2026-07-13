@@ -66,4 +66,4 @@ try { await api.get('/x'); } catch (e) {
 
 ## 出典
 
-`dev-dashboard-v2/src/lib/api-client.ts`（約218行）
+`実運用SaaS/src/lib/api-client.ts`（約218行）

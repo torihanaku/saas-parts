@@ -1,5 +1,5 @@
 /**
- * Ported from dev-dashboard-v2 `tests/audit.test.ts`, adapted to the
+ * Ported from 実運用SaaS `tests/audit.test.ts`, adapted to the
  * injected AuditStore/AuditContext, plus hash-chain verifier tests
  * (including tampered-row detection).
  */

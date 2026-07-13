@@ -9,7 +9,7 @@
  * 空の UnifiedSummary を返す。呼び出し側は sources を確認することで
  * 入力自体は失われていないことを保証できる。
  *
- * 出典: dev-dashboard-v2 server/lib/multi-channel-summarizer.ts (#1031 / #1156)
+ * 出典: 実運用SaaS server/lib/multi-channel-summarizer.ts (#1031 / #1156)
  *
  * 移植方針:
  * - LLM 呼び出し (claude-api-client の generateJson) は注入式コールバックに置換。

@@ -1,5 +1,5 @@
 /**
- * 出典テスト: dev-dashboard-v2 tests/brand-dna-prediction-claude.test.ts /
+ * 出典テスト: 実運用SaaS tests/brand-dna-prediction-claude.test.ts /
  * tests/server/lib/brand-dna/*.test.ts のコアシナリオを、注入インターフェース
  * （EmbeddingSearcher / SnapshotStore / PerformanceStore / LlmCaller）向けに再構成。
  */

@@ -4,7 +4,7 @@
  * Single matchMedia listener so multiple consumers share work. SSR safe:
  * defaults to `false` when `window` is unavailable.
  *
- * Ported from dev-dashboard-v2 `src/hooks/useIsMobile.ts` (#1284 PWA-3).
+ * Ported from 実運用SaaS `src/hooks/useIsMobile.ts` (#1284 PWA-3).
  * The breakpoint is now injectable (default preserved: max-width 768px).
  */
 import { useEffect, useState } from "react";

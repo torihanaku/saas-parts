@@ -1,6 +1,6 @@
 /**
  * Tests for @torihanaku/usage-quota.
- * Ported from dev-dashboard-v2 tests/usage-limiter.test.ts (enforceUsageLimit)
+ * Ported from 実運用SaaS tests/usage-limiter.test.ts (enforceUsageLimit)
  * and the quota sections of tests/user-context.test.ts
  * (getPlanLimits / getDailyUsage / trackUsage / checkUsageLimit),
  * adapted to the injected UsageStore + plan-limits config.

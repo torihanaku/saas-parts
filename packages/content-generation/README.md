@@ -1,7 +1,7 @@
 # @torihanaku/content-generation
 
 ペルソナ別コンテンツ生成・コピー多変量生成・長文 → SNS 原子化・実績ベースリミックス。
-dev-dashboard-v2 の content-engine / prototype / content routes から、インフラ依存を剥がして抽出。
+実運用SaaS の content-engine / prototype / content routes から、インフラ依存を剥がして抽出。
 
 > **マーケ / ブランド製品向け**のパーツです。「テンプレートからブログ・SNS・レポートを量産する」「1 本の記事を X スレッド・LinkedIn・ニュースレターなどへ一括変換する」「広告コピーを多変量で出す」用途を想定しています。
 

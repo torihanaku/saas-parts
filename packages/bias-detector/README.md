@@ -1,6 +1,6 @@
 # @torihanaku/bias-detector
 
-マーケティング意思決定文から**認知バイアス6種**（sunk_cost / confirmation / recency / bandwagon / anchoring / hippo）をAIで検知するパッケージです。dev-dashboard-v2（Epic G10 MOAT / #356）の実装を移植し、外部依存を差し込み式にして自己完結化しました。
+マーケティング意思決定文から**認知バイアス6種**（sunk_cost / confirmation / recency / bandwagon / anchoring / hippo）をAIで検知するパッケージです。実運用SaaS（Epic G10 MOAT / #356）の実装を移植し、外部依存を差し込み式にして自己完結化しました。
 
 ## 特徴
 

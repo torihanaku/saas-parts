@@ -1,5 +1,5 @@
 /**
- * Tests for media-ledger-service (ported from dev-dashboard-v2).
+ * Tests for media-ledger-service (ported from 実運用SaaS).
  * Covers: calculateRelationshipScore, suggestSortRule, generatePitchEmail
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";

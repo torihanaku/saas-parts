@@ -1,7 +1,7 @@
 /**
  * Generic multi-touch attribution primitives.
  *
- * Ported from dev-dashboard-v2 `server/lib/marketing-roi/attribution.ts`.
+ * Ported from 実運用SaaS `server/lib/marketing-roi/attribution.ts`.
  * Product plumbing (DB row mapping `toTouchpoint`, `id` / `tenantId` fields)
  * was stripped; the pure journey-building and rule-based attribution logic
  * (first-touch / last-click / linear) is preserved verbatim.

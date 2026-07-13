@@ -1,7 +1,7 @@
 /**
  * Webhook delivery service — handles outbound HTTP POST requests to configured endpoints.
  *
- * Ported from dev-dashboard-v2/server/lib/webhook-delivery.ts.
+ * Ported from 実運用SaaS/server/lib/webhook-delivery.ts.
  * Supabase persistence is replaced by injected `EndpointSource` / `DeliveryLogStore`
  * interfaces, and all behavior knobs (timeout, header names, retry policy) are
  * constructor-injected with defaults preserving the original behavior.

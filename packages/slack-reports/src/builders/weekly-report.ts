@@ -2,7 +2,7 @@ import type { BlockKitPayload } from "../types";
 
 /**
  * 週次レポート Block Kit ビルダー。
- * 出典: dev-dashboard-v2 server/services/weeklyReportSlack.ts (#1024) の buildWeeklyReportPayload。
+ * 出典: 実運用SaaS server/services/weeklyReportSlack.ts (#1024) の buildWeeklyReportPayload。
  */
 
 /** 週次レポートビルダーの文言・書式設定。省略時は原文デフォルトを使う。 */

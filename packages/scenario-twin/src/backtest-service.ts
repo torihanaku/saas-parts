@@ -1,5 +1,5 @@
 /**
- * Backtest service (ported from dev-dashboard-v2 twin/backtest-service).
+ * Backtest service (ported from 実運用SaaS twin/backtest-service).
  *
  * Records predicted-vs-actual pairs and computes accuracy (MAPE / RMSE / MAE)
  * per metric. Persistence is injected via `TwinStore`.

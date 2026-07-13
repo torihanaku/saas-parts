@@ -1,5 +1,5 @@
 /**
- * Scenario comparison (ported from dev-dashboard-v2 twin/comparison-service).
+ * Scenario comparison (ported from 実運用SaaS twin/comparison-service).
  *
  * Runs 2–3 scenarios through the simulator and computes pairwise diffs + the
  * best scenario per metric. The simulator is injected as `SimulateFn` so this

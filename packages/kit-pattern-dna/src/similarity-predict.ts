@@ -12,7 +12,7 @@
  *   - getSnapshotStats / listSnapshotSummaries — ダッシュボード用集計。
  *   - ingestSnapshots — 既存コンテンツの embedding 化 + 重複防止付き蓄積。
  *
- * 出典: dev-dashboard-v2 `server/lib/brand-dna/prediction-service.ts`,
+ * 出典: 実運用SaaS `server/lib/brand-dna/prediction-service.ts`,
  * `recommendation-service.ts`, `ingest-service.ts`,
  * `server/routes/brand-dna/stats.ts`（集計部分のみ — HTTP 配線は落とした）。
  * pgvector RPC → EmbeddingSearcher 注入、Supabase → SnapshotStore /

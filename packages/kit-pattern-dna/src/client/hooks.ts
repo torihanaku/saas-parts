@@ -1,7 +1,7 @@
 /**
  * client/hooks.ts — React フック（フェッチャ注入版）。
  *
- * 出典: dev-dashboard-v2 `src/hooks/usePatternAlerts.ts`,
+ * 出典: 実運用SaaS `src/hooks/usePatternAlerts.ts`,
  * `useCompanyDnaStats.ts`, `useBrandDna.ts`。
  * アプリ全体の `api` クライアント → 注入インターフェース PatternDnaClientApi、
  * エンドポイント → オプション（デフォルトは本家の値を維持）に置き換えた。

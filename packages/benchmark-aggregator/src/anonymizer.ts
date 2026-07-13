@@ -1,6 +1,6 @@
 /**
  * Benchmark anonymizer.
- * Ported from dev-dashboard-v2 `server/lib/benchmark/anonymizer.ts` (same
+ * Ported from 実運用SaaS `server/lib/benchmark/anonymizer.ts` (same
  * benchmark system — folded in).
  *
  * Cross-company benchmark responses leak tenant names if raw rows are

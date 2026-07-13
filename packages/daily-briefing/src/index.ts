@@ -1,7 +1,7 @@
 /**
  * @torihanaku/daily-briefing — 毎朝の AI ブリーフィング編成
  *
- * dev-dashboard-v2 の AI Daily Dashboard (#721) と Briefings ルートから
+ * 実運用SaaS の AI Daily Dashboard (#721) と Briefings ルートから
  * 「ウィジェットデータ収集 → LLM 要約 → パーソナライズ構成」の編成ロジックを抽出。
  *
  * 3 レイヤー:

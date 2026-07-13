@@ -4,7 +4,7 @@
  * 構造化プレスリリースの生成、ブランドボイス準拠チェック、テキスト整形を提供する。
  * LLM 呼び出し（generateJson）は注入式。
  *
- * 出典: dev-dashboard-v2 server/lib/press-release-engine.ts
+ * 出典: 実運用SaaS server/lib/press-release-engine.ts
  */
 
 import type { GenerateJson } from "./llm";

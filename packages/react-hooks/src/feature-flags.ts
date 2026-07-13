@@ -2,7 +2,7 @@
  * Client-side feature-flag hook with a module-level cache (fetch once per
  * factory instance, shared by all consumers).
  *
- * Ported from dev-dashboard-v2 `src/hooks/useFeatureFlags.ts`.
+ * Ported from 実運用SaaS `src/hooks/useFeatureFlags.ts`.
  * Product coupling removed:
  *   - the hardcoded product flag list      -> `defaults` you pass in
  *   - the hardcoded `/api/config/features` -> `endpoint` config

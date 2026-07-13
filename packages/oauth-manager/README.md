@@ -69,7 +69,7 @@ node（`node:crypto` の `createHash`/`randomBytes` を使用。Bun でも動作
 
 失敗SaaSプロジェクトからの移植:
 
-- `/Users/nakanomanabu/torihanaku/dev-dashboard-v2/server/lib/oauth-manager.ts`
-- `/Users/nakanomanabu/torihanaku/dev-dashboard-v2/server/lib/oauth-state.ts`（本パッケージに吸収。Redis キャッシュ層依存 → 注入式 `StateStore` に置換）
+- `実運用SaaS/server/lib/oauth-manager.ts`
+- `実運用SaaS/server/lib/oauth-state.ts`（本パッケージに吸収。Redis キャッシュ層依存 → 注入式 `StateStore` に置換）
 
 移植時の変更点: Supabase ヘルパー → 注入式 `ConnectionStore`、`fetchWithTimeout` ヘルパー → 内蔵化、ファクトリの env 読み → 呼び出し側から認証情報を注入、PKCE (S256) をオプトインで追加。

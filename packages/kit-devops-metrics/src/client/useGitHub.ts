@@ -1,7 +1,7 @@
 /**
  * React フック — GitHub のコミット / ワークフロー実行をポーリングする。
  *
- * dev-dashboard-v2 src/hooks/useGitHub.ts から抽出。
+ * 実運用SaaS src/hooks/useGitHub.ts から抽出。
  * ハードコードされていた REPOS は引数化し、fetch URL も注入可能にした。
  */
 import { useState, useEffect, useCallback } from "react";

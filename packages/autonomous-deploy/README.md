@@ -1,6 +1,6 @@
 # @torihanaku/autonomous-deploy
 
-コンテンツ等の **自律デプロイオーケストレーション**。承認済み submission を複数チャネル（SEO / CMS / SNS / 広告…）へ順に段階実行し、各試行を構造化タイムラインに記録、後段が失敗したら完了済みステップを compensating rollback で巻き戻す。dev-dashboard-v2 `server/lib/autonomous-deploy/` の移植。
+コンテンツ等の **自律デプロイオーケストレーション**。承認済み submission を複数チャネル（SEO / CMS / SNS / 広告…）へ順に段階実行し、各試行を構造化タイムラインに記録、後段が失敗したら完了済みステップを compensating rollback で巻き戻す。実運用SaaS `server/lib/autonomous-deploy/` の移植。
 
 ## 特徴
 

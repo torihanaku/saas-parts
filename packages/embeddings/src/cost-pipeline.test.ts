@@ -1,5 +1,5 @@
 /**
- * Ported from dev-dashboard-v2 server/__tests__/embedding-pipeline.test.ts,
+ * Ported from 実運用SaaS server/__tests__/embedding-pipeline.test.ts,
  * with the Supabase mocks replaced by a fake EmbeddingCostStore and the
  * embed function injected directly (no vi.mock needed).
  */

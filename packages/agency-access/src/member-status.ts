@@ -1,7 +1,7 @@
 /**
  * Team member status healing (#739 fix).
  *
- * 移植元: dev-dashboard-v2 server/routes/team-members.ts の GET ハンドラ内ロジックを
+ * 移植元: 実運用SaaS server/routes/team-members.ts の GET ハンドラ内ロジックを
  * 純関数として抽出したもの。
  *
  * SAML/OAuth 経由でログインしたメンバー (invite-accept フローを通らない) は

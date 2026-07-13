@@ -1,7 +1,7 @@
 /**
  * Shared statistical primitives for the causal-inference kit.
  *
- * Ported from dev-dashboard-v2 `server/lib/causal/stats-utils.ts`
+ * Ported from 実運用SaaS `server/lib/causal/stats-utils.ts`
  * (byte-equivalent numerics).
  */
 

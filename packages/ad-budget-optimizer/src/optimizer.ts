@@ -1,6 +1,6 @@
 /**
  * Budget optimization, cost forecasting, and executive report generation
- * (ported from dev-dashboard-v2 server/lib/budget-optimizer.ts).
+ * (ported from 実運用SaaS server/lib/budget-optimizer.ts).
  *
  * The original targeted GCP billing data. The logic is domain-agnostic enough
  * to reuse for any cost stream. All LLM calls are injected via `LlmClient`; the

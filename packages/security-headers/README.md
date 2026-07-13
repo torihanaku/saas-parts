@@ -87,5 +87,5 @@ return addSecurityHeaders(config, response, request, requestId);
 
 ## 出典
 
-- 元実装: `/Users/nakanomanabu/torihanaku/dev-dashboard-v2/server/middleware/security.ts`
-- 元テスト: `/Users/nakanomanabu/torihanaku/dev-dashboard-v2/tests/security-headers.test.ts`
+- 元実装: `実運用SaaS/server/middleware/security.ts`
+- 元テスト: `実運用SaaS/tests/security-headers.test.ts`

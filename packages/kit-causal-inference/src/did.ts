@@ -1,7 +1,7 @@
 /**
  * Difference-in-Differences (DID).
  *
- * Ported from dev-dashboard-v2 `server/lib/causal/did-service.ts`.
+ * Ported from 実運用SaaS `server/lib/causal/did-service.ts`.
  * Changes vs. origin: `tenantId` / `experimentId` are now optional metadata
  * (the kit does not require product identifiers). Statistics unchanged.
  */

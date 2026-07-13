@@ -2,7 +2,7 @@
  * Tests for src/oauth-manager.ts
  * OAuth 2.0 flow manager: auth URL, PKCE, token exchange, persistence.
  *
- * Ported from dev-dashboard-v2/tests/oauth-manager.test.ts with mocks adapted:
+ * Ported from 実運用SaaS/tests/oauth-manager.test.ts with mocks adapted:
  *   - '../server/lib/supabase' mock → injected mock ConnectionStore
  *   - '../server/lib/helpers' (fetchWithTimeout) mock → injected mock fetch
  *   - '../server/lib/env' mock → caller-supplied credentials for factories

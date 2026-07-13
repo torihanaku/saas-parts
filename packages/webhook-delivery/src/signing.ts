@@ -4,7 +4,7 @@ import { createHmac } from "node:crypto";
  * Signs a webhook payload using HMAC-SHA256.
  * Returns the hex-encoded signature.
  *
- * Ported from dev-dashboard-v2/server/lib/webhook-signing.ts
+ * Ported from 実運用SaaS/server/lib/webhook-signing.ts
  * (only the part actually used by webhook-delivery.ts).
  */
 export function signPayload(payload: string, secret: string): string {

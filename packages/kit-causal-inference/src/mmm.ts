@@ -11,7 +11,7 @@ import { bayesianFit, type ChannelParams } from './mmm-bayesian-fit.js';
 /**
  * Top-level Media Mix Modeling (MMM) entry point.
  *
- * Ported from dev-dashboard-v2 `server/lib/causal/mmm/index.ts`
+ * Ported from 実運用SaaS `server/lib/causal/mmm/index.ts`
  * (numerics unchanged).
  *
  * Pulls the per-channel adstock + saturation parameters out of the Bayesian

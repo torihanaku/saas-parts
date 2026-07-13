@@ -267,7 +267,7 @@ CREATE TABLE character_presets (
 
 ## 出典
 
-- `dev-dashboard-v2`（READ-ONLY）
+- `実運用SaaS`（READ-ONLY）
   - `server/lib/state.ts` → `state.ts`
   - `server/lib/bm25.ts` → `bm25.ts`（プライベートコピー）
   - `server/routes/team-characters/{characters,role-models,presets-resume}.ts`

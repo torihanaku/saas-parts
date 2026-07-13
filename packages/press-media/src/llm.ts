@@ -3,7 +3,7 @@
  *
  * このパッケージは LLM プロバイダに直接触れない。呼び出し側が
  * `@torihanaku/claude-api` の `generateJson` / `generateText`（あるいは
- * 任意のモック）を注入する。シグネチャは原典 dev-dashboard-v2 の
+ * 任意のモック）を注入する。シグネチャは原典 実運用SaaS の
  * `server/lib/claude-api-client.ts` と互換に保っている。
  *
  * どちらの実装も「失敗時は fallback を返す（throw しない）」ことが望ましい。

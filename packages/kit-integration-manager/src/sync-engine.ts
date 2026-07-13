@@ -1,7 +1,7 @@
 /**
  * 同期エンジン: プロバイダからレコードを取得し、正規化して保存する。
  *
- * 出典: dev-dashboard-v2 server/lib/nango-sync.ts（syncIntegrationRecords /
+ * 出典: 実運用SaaS server/lib/nango-sync.ts（syncIntegrationRecords /
  * syncConnection / syncAllConnections / getIntegrationStatus）。
  * 汎用化ポイント:
  *   - Supabase 直書き（cockpit_project_sources）→ RecordSink 注入（exists + insert）

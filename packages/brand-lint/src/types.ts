@@ -1,7 +1,7 @@
 /**
  * 共有型 — 表現lint（禁止語 / トーン / 類似度）とルール自動進化。
  *
- * dev-dashboard-v2 の Brand Firewall（server/services/brandLint + jobs）から抽出。
+ * 実運用SaaS の Brand Firewall（server/services/brandLint + jobs）から抽出。
  * 具体的な永続化（Supabase）や LLM / embedding クライアントはすべて注入 (ports) に置換。
  */
 
@@ -46,7 +46,7 @@ export interface QuickFixResult {
 /* ── 注入ポート（LLM / embedding） ─────────────────────────────────────── */
 
 /**
- * JSON を返す LLM 呼び出し。dev-dashboard-v2 の `generateJson(apiKey, system, user, fallback, opts)`
+ * JSON を返す LLM 呼び出し。実運用SaaS の `generateJson(apiKey, system, user, fallback, opts)`
  * を汎用化。失敗時に fallback を返す実装を想定。
  */
 export type GenerateJson = <T>(

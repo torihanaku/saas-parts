@@ -2,7 +2,7 @@
  * Skills service — CRUD for codified company know-how ("skills") plus AI
  * generation and refinement of skill definitions.
  *
- * Ported from dev-dashboard-v2 `server/routes/skills/{index,crud,ai,shared}.ts`.
+ * Ported from 実運用SaaS `server/routes/skills/{index,crud,ai,shared}.ts`.
  * The Claude REST calls are replaced by an injected {@link SkillLLM}; when
  * omitted (or returning null), the original "no API key" template / standard-
  * questions fallbacks run.

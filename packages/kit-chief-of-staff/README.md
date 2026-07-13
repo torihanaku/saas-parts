@@ -217,7 +217,7 @@ CREATE TABLE cos_email_settings (
 
 ## 出典
 
-失敗プロダクト dev-dashboard-v2（G9 Sprint 4, COS-1〜COS-7 / #361 / #1208）から抽出:
+実運用SaaS から抽出・脱結合:
 
 - `server/lib/cos/{briefing-generator,email-ingest,meeting-ingest,qa-engine,slack-ingest,task-sync,linear-client}.ts`
 - `server/routes/cos/{ask,briefing,email-settings,feed,meeting-ingest,settings,slack-ingest,status-report,task-review}.ts`（ロジック部のみ）

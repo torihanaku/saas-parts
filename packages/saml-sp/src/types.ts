@@ -2,7 +2,7 @@
  * Local type definitions for @torihanaku/saml-sp.
  *
  * `IdpConfig` is the ported shape of the original `SsoConfiguration` row
- * (dev-dashboard-v2 `server/lib/supabase.ts`). Persistence coupling is
+ * (実運用SaaS `server/lib/supabase.ts`). Persistence coupling is
  * removed: instead of reading from a database, callers inject the config
  * (or an `IdpConfigStore`) themselves. ACS URL, SP entity ID, and IdP cert
  * are all fields on this config — nothing is read from process.env.
@@ -53,7 +53,7 @@ export interface IdpConfigStore {
 
 /**
  * Normalised SAML assertion returned to the caller after validation.
- * Ported from dev-dashboard-v2 `shared/types/sso.ts`.
+ * Ported from 実運用SaaS `shared/types/sso.ts`.
  */
 export interface SamlAssertion {
   /** The NameID from the Subject element (typically the user's email or a persistent ID). */

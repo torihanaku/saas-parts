@@ -1,7 +1,7 @@
 /**
  * Stripe webhook processing — signature verification, idempotency, event routing.
  *
- * Ported from dev-dashboard-v2 `server/routes/billing.ts` (handleBillingWebhook).
+ * Ported from 実運用SaaS `server/routes/billing.ts` (handleBillingWebhook).
  * Coupling removed:
  * - Stripe SDK instance is injected (no env reads, no singleton).
  * - Idempotency storage (was: supabase `stripe_webhook_events` table) is an

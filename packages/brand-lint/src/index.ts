@@ -2,7 +2,7 @@
  * @torihanaku/brand-lint
  *
  * 表現lint（禁止語 / トーン / 類似度）＋ 却下事例からのルール自動進化。
- * dev-dashboard-v2 の Brand Firewall ルールエンジン側（word/tone/similarity checkers、
+ * 実運用SaaS の Brand Firewall ルールエンジン側（word/tone/similarity checkers、
  * hard negative の embedding 注入、ルール進化の LLM 注入）から抽出。
  *
  * マーケ / ブランド製品向け。承認ワークフロー本体（申請〜承認〜監査）は

@@ -1,11 +1,11 @@
 /**
  * AI社員のライブ状態機械 + アクティビティログ + セッション追跡 + SSE ブロードキャスト。
  *
- * 元実装（dev-dashboard-v2 server/lib/state.ts）は fs / Supabase / Redis に直結して
+ * 元実装（実運用SaaS server/lib/state.ts）は fs / Supabase / Redis に直結して
  * いたが、このキットではそれらを剥がし「状態機械と SSE ブロードキャストのロジックは
  * そのまま」に、永続化はオプションのコールバック注入とした（デフォルトはメモリ内）。
  *
- * 出典: dev-dashboard-v2 server/lib/state.ts（181行）
+ * 出典: 実運用SaaS server/lib/state.ts（181行）
  */
 
 // ─── 型 ──────────────────────────────────────────────────────────────────────
@@ -78,7 +78,7 @@ export class WorkforceState {
    * SSE クライアントの所属スコープ（tenant / user 等の任意ラベル）。
    * `addSseClient(id, controller, scope)` で登録した場合のみ記録される。
    *
-   * ⚠️ マルチテナント安全性: 元実装（dev-dashboard-v2）は「1 プロセス =
+   * ⚠️ マルチテナント安全性: 元実装（実運用SaaS）は「1 プロセス =
    * 1 テナント」前提で全クライアントへ無差別ブロードキャストしていた。
    * 複数テナントが同一プロセスの `sseClients` を共有すると、あるテナントの
    * 通知が別テナントの購読者へ漏れる。scope を登録し broadcast に scope /

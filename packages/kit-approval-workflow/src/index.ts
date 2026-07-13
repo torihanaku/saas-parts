@@ -2,7 +2,7 @@
  * @torihanaku/kit-approval-workflow
  *
  * 承認ワークフロー (申請→リスク評価→承認→監査) の汎用コア。
- * dev-dashboard-v2 の firewall / ringi システムから抽出。
+ * 実運用SaaS の firewall / ringi システムから抽出。
  */
 export type {
   SubmissionStatus,

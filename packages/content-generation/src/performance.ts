@@ -1,7 +1,7 @@
 /**
  * コンテンツ実績（パフォーマンス）メトリクスの合成。
  *
- * dev-dashboard-v2 の content performance ルートから、決定的な seeded RNG による
+ * 実運用SaaS の content performance ルートから、決定的な seeded RNG による
  * メトリクス合成と集計ロジックを抽出（Supabase フェッチと Hono レスポンスは除外）。
  * draft ID をシードにするため、同じ入力からは常に同じメトリクスが再現される。
  */

@@ -1,6 +1,6 @@
 # @torihanaku/white-label-branding
 
-テナント別のブランディング設定（ロゴ／色／ブランド名／独自ドメイン）の CRUD と、パートナー（リセラー）↔ クライアント関係の管理・認可ヘルパー。dev-dashboard-v2 の `white-label.ts` (#346) から抽出しました。
+テナント別のブランディング設定（ロゴ／色／ブランド名／独自ドメイン）の CRUD と、パートナー（リセラー）↔ クライアント関係の管理・認可ヘルパー。実運用SaaS の `white-label.ts` (#346) から抽出しました。
 
 - **永続化 → store 注入** (`WhiteLabelStore`)。元は Supabase (`dd_white_label_configs` / `dd_partner_relationships`) への PostgREST クエリでした。セマンティックなメソッド（`getConfig` / `insertConfig` / `patchConfig` / `hasActiveRelationship` / `listRelationships` / `insertRelationship`）に置き換えています。
 - 型（`WhiteLabelConfig` 等）と入力バリデータ（`validateWhiteLabelConfigUpdate` / `validateCreatePartnerClient`）も同梱（自己完結）。

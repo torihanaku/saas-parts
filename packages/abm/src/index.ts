@@ -4,7 +4,7 @@
  * 連絡先を会社単位で ABM アカウントに集約し、tier 判定・エンゲージメント
  * スコア算出・パーソナライズ戦略生成（LLM）を行う。
  *
- * 出典: dev-dashboard-v2 server/lib/abm-service.ts
+ * 出典: 実運用SaaS server/lib/abm-service.ts
  *
  * 移植方針:
  * - Supabase 直呼び（supabaseGet/Insert/Patch）を `AbmStore` インターフェースに

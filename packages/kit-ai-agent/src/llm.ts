@@ -4,7 +4,7 @@
  * @torihanaku/claude-api の generateJson / generateText / callClaude が
  * そのままこれらを満たす（README 参照）。モックを注入すればオフラインで動く。
  *
- * 出典: dev-dashboard-v2 server/lib/claude-api-client.ts の呼び出しシグネチャを
+ * 出典: 実運用SaaS server/lib/claude-api-client.ts の呼び出しシグネチャを
  * インターフェース化（実装は持たない）。
  */
 

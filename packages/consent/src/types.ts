@@ -1,6 +1,6 @@
 /**
  * Consent domain types.
- * Ported from dev-dashboard-v2 `shared/types/consent.ts`.
+ * Ported from 実運用SaaS `shared/types/consent.ts`.
  * The purpose enum is now a generic string union supplied by the caller;
  * the source purposes are kept below as a documented example.
  */

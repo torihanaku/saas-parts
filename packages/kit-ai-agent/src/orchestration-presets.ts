@@ -5,7 +5,7 @@
  * synthesis）はそのまま。ここは「名前付きチーム（役割の並び）」を選べるようにする
  * プリセット層だけを追加する。
  *
- * 出典: dev-dashboard-v2 server/routes/orchestration.ts
+ * 出典: 実運用SaaS server/routes/orchestration.ts
  *   - ORCHESTRATION_PRESETS: そのまま EXAMPLE プリセットとして移植
  *   - RunOrchestrationBody（objective + agent_roles? + custom_agents?）の解決ロジックを
  *     `resolveTeam` として純粋関数化。HTTP/auth/Supabase/env 配線は除去。

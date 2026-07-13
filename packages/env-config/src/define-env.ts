@@ -1,7 +1,7 @@
 /**
  * 環境変数の一元管理と起動時 Zod 検証（Fail-Fast ハーネス）。
  *
- * Ported from dev-dashboard-v2 `server/lib/env.ts`. The product's ~40 flag
+ * Ported from 実運用SaaS `server/lib/env.ts`. The product's ~40 flag
  * definitions are NOT included — this package extracts the reusable harness:
  *
  * - Fail-fast validation at startup: on failure the aggregated issue list is

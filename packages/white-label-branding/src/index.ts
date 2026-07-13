@@ -4,7 +4,7 @@
  * テナント単位の white label 設定 (ロゴ / 色 / ブランド名 / ドメイン) の CRUD と、
  * partner ↔ client 関係の管理・認可ヘルパー。
  *
- * 出典: dev-dashboard-v2 server/lib/white-label.ts (#346 Foundation)。
+ * 出典: 実運用SaaS server/lib/white-label.ts (#346 Foundation)。
  * 移植方針:
  * - DB アクセス (supabaseGet/Insert/Patch + PostgREST クエリ文字列) は
  *   セマンティックな `WhiteLabelStore` の注入に置換。
@@ -28,7 +28,7 @@ export interface WriteResult {
 
 /**
  * white label / partner 関係の永続化ストア (注入式)。
- * dev-dashboard-v2 では Supabase (`dd_white_label_configs` / `dd_partner_relationships`)。
+ * 実運用SaaS では Supabase (`dd_white_label_configs` / `dd_partner_relationships`)。
  */
 export interface WhiteLabelStore {
   /** tenant の white label 設定を 1 件返す (無ければ null)。 */

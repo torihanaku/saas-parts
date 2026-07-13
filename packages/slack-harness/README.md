@@ -2,7 +2,7 @@
 
 Slack ユーザー ↔ アプリユーザーの解決（1時間キャッシュ・graceful degradation）と、承認フロー向け Block Kit メッセージ/却下モーダルの構築・DM 送信ハーネス。
 
-移植元: dev-dashboard-v2 `server/lib/slack-user-mapping.ts` + `server/lib/firewall/slack-notifier.ts`
+移植元: 実運用SaaS `server/lib/slack-user-mapping.ts` + `server/lib/firewall/slack-notifier.ts`
 
 ## 責務境界（重複なし）
 

@@ -66,6 +66,6 @@ await suggest({ text, violation, rule }, suggestLlm);
 
 ## 出典
 
-- dev-dashboard-v2 `server/lib/compliance/rules/{yakkihou,keihyouhou,tokushouhou,types,index}.ts`（#934・ルール内容は逐語移植）
-- dev-dashboard-v2 `server/lib/compliance/checker-service.ts` / `suggestion-service.ts`
+- 実運用SaaS `server/lib/compliance/rules/{yakkihou,keihyouhou,tokushouhou,types,index}.ts`（#934・ルール内容は逐語移植）
+- 実運用SaaS `server/lib/compliance/checker-service.ts` / `suggestion-service.ts`
 - テストは `tests/jp-law-rules.test.ts`（全 50 ルールの違反テキスト検出＋安全テキスト通過のフィクスチャ）、`tests/server/lib/compliance/checker-service.test.ts`、`tests/compliance-suggestion.test.ts` を移植
