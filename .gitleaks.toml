@@ -1,0 +1,21 @@
+# gitleaks 設定。デフォルトルール＋このリポの既知の"偽物フィクスチャ"を許可リスト化。
+# リポは全数監査済みで本物の secret は含まない（鍵名のみ・値はダミー）。
+# 非テストコードに本物の secret が混入したら検出したいので、テスト/READMEのみ緩める。
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Fake fixtures / test data — audited: no real secrets in this repo"
+paths = [
+  '''.*\.test\.ts$''',
+  '''.*\.property\.test\.ts$''',
+  '''.*README\.md$''',
+  '''packages/sql-templates/test/.*''',
+]
+regexes = [
+  '''whsec_test_fake''',
+  '''sk-1234567890abcdef''',
+  '''sk-(user|caller)-byok''',
+  '''MIIC\.\.\.FAKE''',
+]
+stopwords = ["fake", "example", "dummy", "test-secret"]
