@@ -72,6 +72,22 @@ describe("parseBodyWithLimit", () => {
   it("returns null for invalid JSON", async () => {
     expect(await parseBodyWithLimit(makeReq("{not json"))).toBeNull();
   });
+
+  it("enforces the limit in BYTES, not UTF-16 code units (multibyte bypass)", async () => {
+    // 50 emoji: each is 2 UTF-16 code units but 4 UTF-8 bytes. The JSON string
+    // is ~111 code units / ~211 bytes. A byte-correct limiter must reject it
+    // when maxBytes sits between the two (regression for the code-unit bypass).
+    const payload = JSON.stringify({ data: "\u{1F600}".repeat(50) });
+    const codeUnits = payload.length;
+    const bytes = new TextEncoder().encode(payload).length;
+    expect(bytes).toBeGreaterThan(codeUnits); // sanity: multibyte payload
+    // maxBytes above code-unit count but below true byte size → must reject.
+    expect(await parseBodyWithLimit(makeReq(payload), codeUnits + 5)).toBeNull();
+    // And when the byte budget genuinely fits, it still parses.
+    expect(await parseBodyWithLimit(makeReq(payload), bytes + 5)).toEqual({
+      data: "\u{1F600}".repeat(50),
+    });
+  });
 });
 
 describe("error envelopes", () => {

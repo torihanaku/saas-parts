@@ -118,8 +118,13 @@ export async function archiveAuditEvents(
     const groups: Record<string, ArchivableAuditEvent[]> = {};
     for (const ev of events) {
       const date = new Date(ev.occurred_at);
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, "0");
+      // Group by the UTC calendar month of occurred_at. Using local-time
+      // getFullYear()/getMonth() would place the same event in a different
+      // year/month folder depending on the server's timezone (e.g. an event
+      // at 2023-12-31T23:00Z lands in 2024/01 on a JST host), producing
+      // non-deterministic archive paths and split retention buckets.
+      const year = date.getUTCFullYear();
+      const month = String(date.getUTCMonth() + 1).padStart(2, "0");
       const key = `${ev.tenant_id}/${year}/${month}`;
       (groups[key] ??= []).push(ev);
     }

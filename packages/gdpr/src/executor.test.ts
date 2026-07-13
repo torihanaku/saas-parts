@@ -102,6 +102,42 @@ describe("executeDeletion", () => {
     expect(log.some((e) => e.detail.includes("network error"))).toBe(true);
   });
 
+  it("does NOT mark the request completed when a table delete errors (residue guard)", async () => {
+    // One table deletes fine, another fails (permission denied) leaving PII residue.
+    store.seed("app_analytics", [{ user_id: "u1" }]);
+    store.seed("app_team_members", [{ email: "u1@example.com" }]);
+    store.failingTables.set("app_content_drafts", "permission denied");
+    const req = makeRequest({ id: "req-residue", user_id: "u1", email: "u1@example.com" });
+    store.deletionRequests.push(req);
+    const markSpy = vi.spyOn(store, "markDeletionCompleted");
+
+    const executor = createGdprExecutor({
+      store,
+      cascadeTargets: [
+        { table: "app_analytics", column: "user_id" },
+        { table: "app_content_drafts", column: "author" },
+        { table: "app_team_members", column: "email" },
+      ],
+      logger: silentGdprLogger,
+    });
+    const log = await executor.executeDeletion(req);
+
+    // The failing table is reported as an error in the log...
+    expect(log.some((e) => e.table === "app_content_drafts" && e.status === "error")).toBe(true);
+    // ...and crucially the request must NOT be recorded as completed.
+    expect(markSpy).not.toHaveBeenCalled();
+    expect(store.deletionRequests[0]!.status).toBe("pending");
+  });
+
+  it("still marks completed when tables are only skipped (table-missing), not errored", async () => {
+    for (const t of TARGETS) store.missingTables.add(t.table);
+    const req = makeRequest({ id: "req-skip", user_id: "uid-skip" });
+    store.deletionRequests.push(req);
+    const executor = makeExecutor();
+    await executor.executeDeletion(req);
+    expect(store.deletionRequests[0]!.status).toBe("completed");
+  });
+
   it("logs error but does not throw when markDeletionCompleted fails", async () => {
     vi.spyOn(store, "markDeletionCompleted").mockResolvedValue({ ok: false });
     const executor = makeExecutor();

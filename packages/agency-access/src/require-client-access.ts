@@ -73,6 +73,12 @@ export function createRequireClientAccess<TReq = Request>(
     }
 
     if (role === "agency_member") {
+      // member 自身の tenant が実際に agency であることを必須にする
+      // (agency_admin と同じ健全性チェック)。これが無いと、direct tenant に
+      // 残った・誤設定された agency_member role の行が assigned_clients 経由で
+      // 他テナントへアクセスできてしまう (tenant isolation gap)。
+      const tenant = await store.findTenantById(userTenantId);
+      if (!tenant || tenant.type !== "agency") return false;
       // assigned_clients に含まれていれば pass
       const assigned = member?.assigned_clients ?? [];
       return assigned.includes(clientId);

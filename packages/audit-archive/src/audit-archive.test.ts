@@ -121,6 +121,29 @@ describe("Audit Archive Job", () => {
     );
   });
 
+  it("groups by UTC month, not the host timezone (path determinism)", async () => {
+    // 2023-12-31T23:00Z is still December in UTC, but January in JST.
+    // The archive path must not depend on the server timezone.
+    const prevTz = process.env.TZ;
+    process.env.TZ = "Asia/Tokyo";
+    try {
+      const { source } = makeSource([
+        { id: "boundary", tenant_id: "t1", occurred_at: "2023-12-31T23:00:00.000Z" },
+      ]);
+      const { storage, put } = makeStorage();
+      await archiveAuditEvents({
+        source,
+        storage,
+        retentionYears: 1,
+        now: () => new Date("2026-01-01T00:00:00.000Z"),
+      });
+      const path = put.mock.calls[0]![0] as string;
+      expect(path.startsWith("t1/2023/12/")).toBe(true);
+    } finally {
+      process.env.TZ = prevTz;
+    }
+  });
+
   it("swallows errors and logs them instead of throwing (scheduler safety)", async () => {
     const { source } = makeSource([
       { id: "ev1", tenant_id: "t1", occurred_at: isoYearsAgo(2) },

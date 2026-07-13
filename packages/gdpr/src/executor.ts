@@ -146,6 +146,21 @@ export function createGdprExecutor(options: GdprExecutorOptions): GdprExecutor {
       log.push(entry);
     }
 
+    // Do NOT record the erasure request as completed if any table delete
+    // errored — that would leave PII residue while telling the data subject
+    // (and auditors) the request was fulfilled. Leave the request pending so
+    // the next checker cycle retries. "skipped" (table-missing) is fine:
+    // there is nothing to delete there.
+    const failed = log.filter((e) => e.status === "error");
+    if (failed.length > 0) {
+      logger.error(
+        "gdpr",
+        `Deletion request ${request.id} NOT completed: ${failed.length} table(s) failed ` +
+          `(${failed.map((e) => e.table).join(", ")}); leaving pending for retry`,
+      );
+      return log;
+    }
+
     // Mark request as completed
     const now = new Date().toISOString();
     const result = await store.markDeletionCompleted(request.id, now, log);
