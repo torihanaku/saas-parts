@@ -121,9 +121,15 @@ export class StripeWebhookProcessor {
 
   /**
    * Process a raw webhook payload.
-   * Mirrors the source flow: verify signature → idempotency check →
-   * mark processed (best-effort) → dispatch handler → 400 on handler error
-   * so Stripe retries.
+   * Flow: verify signature → idempotency check → dispatch handler →
+   * 400 on handler error so Stripe retries → mark processed (best-effort)
+   * ONLY after the handler succeeds.
+   *
+   * The event is marked processed AFTER the handler succeeds, not before. If it
+   * were marked first, a handler failure would return 400 to ask Stripe to retry,
+   * but the retry would then be short-circuited as a duplicate and the event
+   * silently dropped. Marking after preserves at-least-once delivery; handlers
+   * should therefore be idempotent to tolerate a genuine duplicate delivery.
    */
   async process(rawBody: string, signature: string | null): Promise<WebhookResult> {
     if (!signature) {
@@ -142,22 +148,25 @@ export class StripeWebhookProcessor {
     }
 
     // Idempotency check — skip if already processed
-    if (this.eventStore) {
-      if (await this.eventStore.hasProcessed(event.id)) {
-        return { status: 200, body: { received: true, skipped: true } };
-      }
-      // Record this event before processing (best-effort; failures don't block processing)
-      await this.eventStore.markProcessed(event.id, event.type).catch(() => {});
+    if (this.eventStore && (await this.eventStore.hasProcessed(event.id))) {
+      return { status: 200, body: { received: true, skipped: true } };
     }
 
     try {
       const handler = this.handlers[event.type];
       if (handler) await handler(event);
     } catch (err: unknown) {
-      // Return 400 so Stripe retries the event
+      // Return 400 so Stripe retries the event. Deliberately NOT marked processed,
+      // so the retry is not skipped as a duplicate.
       const message = err instanceof Error ? err.message : "Unknown error";
       this.onError(message, event.id);
       return { status: 400, body: { error: "Plan update failed, will retry" } };
+    }
+
+    // Handler succeeded — record the event (best-effort; a store failure must not
+    // turn a successful handoff into a 500).
+    if (this.eventStore) {
+      await this.eventStore.markProcessed(event.id, event.type).catch(() => {});
     }
 
     return { status: 200, body: { received: true } };

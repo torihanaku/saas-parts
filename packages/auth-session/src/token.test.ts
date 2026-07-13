@@ -72,6 +72,37 @@ describe("signToken / verifyToken", () => {
   });
 });
 
+describe("verifySessionToken (signature + expiry)", () => {
+  const { verifySessionToken } = svc;
+
+  it("returns the payload for a valid, unexpired token", () => {
+    const token = signToken("auth:user@example.com:9999999999999");
+    expect(verifySessionToken(token)).toBe("auth:user@example.com:9999999999999");
+  });
+
+  it("returns null for an expired but correctly-signed token", () => {
+    const token = signToken(`auth:user@example.com:${Date.now() - 1000}`);
+    // verifyToken (signature-only) still passes...
+    expect(verifyToken(token)).toBe(true);
+    // ...but verifySessionToken rejects on expiry.
+    expect(verifySessionToken(token)).toBeNull();
+  });
+
+  it("returns null for a tampered token", () => {
+    const token = signToken("auth:user@example.com:9999999999999");
+    expect(verifySessionToken(token.slice(0, -5) + "XXXXX")).toBeNull();
+  });
+});
+
+describe("fallbackIdentity option", () => {
+  it("uses a configured non-privileged identity instead of admin", async () => {
+    const safe = createTokenService({ secret: TEST_SECRET, fallbackIdentity: "anonymous" });
+    const token = await safe.createSessionCookie();
+    const opaque = token.substring(0, token.lastIndexOf("."));
+    expect(safe.decrypt(opaque)).toMatch(/^auth:anonymous:\d+$/);
+  });
+});
+
 describe("decrypt", () => {
   it("returns null for malformed ciphertext (missing colons)", () => {
     expect(decrypt("notvalidatall")).toBeNull();

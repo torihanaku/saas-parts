@@ -210,6 +210,17 @@ describe("hash chain + verifyHashChain", () => {
     await expect(verifyHashChain(store, "test-tenant-id")).rejects.toThrow(/Hash mismatch/);
   });
 
+  it("detects tampering INSIDE the nested changes payload", async () => {
+    // Regression: the old canonicalizer used JSON.stringify(obj, sortedKeys),
+    // whose key-array replacer recursively stripped nested keys — so mutating
+    // changes.title went undetected. The recursive canonicalizer must catch it.
+    await logThree();
+    const changes = store.rows[0]!.changes as Record<string, unknown>;
+    expect(changes.title).toBe("hello");
+    changes.title = "tampered";
+    await expect(verifyHashChain(store, "test-tenant-id")).rejects.toThrow(/Hash mismatch/);
+  });
+
   it("detects a broken chain (prev_hash relinked)", async () => {
     await logThree();
     store.rows[1]!.prev_hash = Buffer.from("00".repeat(32), "hex").toString("base64");

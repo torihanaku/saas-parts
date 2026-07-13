@@ -112,6 +112,9 @@ describe("headCheck / filterReachableUrls", () => {
     global.fetch = originalFetch;
   });
 
+  // Injectable resolver so unit tests never touch real DNS. Returns a public IP.
+  const PUBLIC: (h: string) => Promise<string[]> = async () => ["93.184.216.34"];
+
   describe("headCheck", () => {
     it("rejects non-HTTPS URL via preflight", async () => {
       const result = await headCheck("http://example.com");
@@ -138,22 +141,47 @@ describe("headCheck / filterReachableUrls", () => {
       expect(result.reason).toContain("Invalid");
     });
 
+    it("rejects a public hostname that RESOLVES to a private IP (DNS rebinding)", async () => {
+      const fetchSpy = vi.fn();
+      global.fetch = fetchSpy as unknown as typeof fetch;
+      // Hostname looks public but DNS points it at cloud metadata.
+      const result = await headCheck("https://evil.example.com", 3000, {
+        lookup: async () => ["169.254.169.254"],
+      });
+      expect(result.ok).toBe(false);
+      expect(result.reason).toContain("private");
+      // Must reject BEFORE issuing the request.
+      expect(fetchSpy).not.toHaveBeenCalled();
+    });
+
+    it("rejects when a resolved address is an IPv4-mapped loopback", async () => {
+      const result = await headCheck("https://evil.example.com", 3000, {
+        lookup: async () => ["::ffff:127.0.0.1"],
+      });
+      expect(result.ok).toBe(false);
+      expect(result.reason).toContain("private");
+    });
+
     it("returns ok=true for 200 response", async () => {
       global.fetch = vi.fn(async () => new Response(null, { status: 200 })) as typeof fetch;
-      const result = await headCheck("https://example.com");
+      const result = await headCheck("https://example.com", 3000, { lookup: PUBLIC });
       expect(result.ok).toBe(true);
       expect(result.status).toBe(200);
     });
 
-    it("returns ok=true for 301 redirect chain (redirect: follow)", async () => {
-      global.fetch = vi.fn(async () => new Response(null, { status: 200 })) as typeof fetch;
-      const result = await headCheck("https://example.com");
+    it("does NOT follow redirects (redirect: manual) — returns reachable without chasing", async () => {
+      const fetchSpy = vi.fn(async () => new Response(null, { status: 301 }));
+      global.fetch = fetchSpy as unknown as typeof fetch;
+      const result = await headCheck("https://example.com", 3000, { lookup: PUBLIC });
       expect(result.ok).toBe(true);
+      // fetch was called with redirect: "manual"
+      const init = (fetchSpy.mock.calls[0] as unknown[])?.[1] as RequestInit | undefined;
+      expect(init?.redirect).toBe("manual");
     });
 
     it("returns ok=false for 404", async () => {
       global.fetch = vi.fn(async () => new Response(null, { status: 404 })) as typeof fetch;
-      const result = await headCheck("https://example.com");
+      const result = await headCheck("https://example.com", 3000, { lookup: PUBLIC });
       expect(result.ok).toBe(false);
       expect(result.status).toBe(404);
       expect(result.reason).toContain("non-success");
@@ -165,7 +193,7 @@ describe("headCheck / filterReachableUrls", () => {
         err.name = "AbortError";
         throw err;
       }) as typeof fetch;
-      const result = await headCheck("https://example.com", 10);
+      const result = await headCheck("https://example.com", 10, { lookup: PUBLIC });
       expect(result.ok).toBe(false);
       expect(result.reason).toContain("timeout");
     });
@@ -174,9 +202,19 @@ describe("headCheck / filterReachableUrls", () => {
       global.fetch = vi.fn(async () => {
         throw new Error("econnrefused");
       }) as typeof fetch;
-      const result = await headCheck("https://example.com");
+      const result = await headCheck("https://example.com", 3000, { lookup: PUBLIC });
       expect(result.ok).toBe(false);
       expect(result.reason).toBe("econnrefused");
+    });
+
+    it("returns ok=false when DNS resolution fails", async () => {
+      const result = await headCheck("https://nxdomain.example.com", 3000, {
+        lookup: async () => {
+          throw new Error("ENOTFOUND");
+        },
+      });
+      expect(result.ok).toBe(false);
+      expect(result.reason).toContain("dns resolution failed");
     });
   });
 
@@ -195,7 +233,7 @@ describe("headCheck / filterReachableUrls", () => {
       }) as typeof fetch;
 
       const onReject = vi.fn();
-      const kept = await filterReachableUrls(urls, { onReject });
+      const kept = await filterReachableUrls(urls, { onReject, lookup: PUBLIC });
 
       expect(kept).toEqual(["https://good.example.com"]);
       expect(onReject).toHaveBeenCalledTimes(2);
@@ -209,7 +247,7 @@ describe("headCheck / filterReachableUrls", () => {
       global.fetch = vi.fn(async () => new Response(null, { status: 500 })) as typeof fetch;
       const kept = await filterReachableUrls(
         ["https://a.example.com", "https://b.example.com"],
-        { onReject: () => {} }
+        { onReject: () => {}, lookup: PUBLIC }
       );
       expect(kept).toEqual([]);
     });
@@ -218,7 +256,7 @@ describe("headCheck / filterReachableUrls", () => {
       const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
       global.fetch = vi.fn(async () => new Response(null, { status: 404 })) as typeof fetch;
 
-      await filterReachableUrls(["https://broken.example.com"]);
+      await filterReachableUrls(["https://broken.example.com"], { lookup: PUBLIC });
 
       expect(warnSpy).toHaveBeenCalled();
       const logged = warnSpy.mock.calls[0]?.[0];
