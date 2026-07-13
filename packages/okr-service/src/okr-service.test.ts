@@ -133,6 +133,17 @@ describe("calculateProgress", () => {
       { objective_id: "o", title: "a", target: 0, current: 10, unit: "x" },
     ])).toBe(0);
   });
+
+  it("floors a below-baseline (negative current) KR at 0% (no negative progress)", () => {
+    // Regression: a regressed metric must not push objective progress negative.
+    expect(calculateProgress([
+      { objective_id: "o", title: "a", target: 100, current: -50, unit: "x" },
+    ])).toBe(0);
+    expect(calculateProgress([
+      { objective_id: "o", title: "a", target: 100, current: 200, unit: "x" },
+      { objective_id: "o", title: "b", target: 100, current: -100, unit: "x" },
+    ])).toBe(50); // (100 + 0) / 2, not (100 + -100)/2 = 0
+  });
 });
 
 describe("autoUpdateProgress", () => {

@@ -57,9 +57,19 @@ export type JsonGenerator = <T>(
 // ─── Dangerous statement pattern ─────────────────────────────────────────────
 
 export const DANGEROUS_KEYWORDS_RE =
-  /\b(CREATE|DROP|ALTER|TRUNCATE|INSERT|UPDATE|DELETE|MERGE|GRANT|REVOKE)\b/i;
+  /\b(CREATE|DROP|ALTER|TRUNCATE|INSERT|UPDATE|DELETE|MERGE|GRANT|REVOKE|CALL|EXECUTE|EXPORT|LOAD|REPLACE|DECLARE|BEGIN|COMMIT|ROLLBACK|ASSERT)\b/i;
 
 export const VALID_START_RE = /^\s*(SELECT|WITH)\b/i;
+
+/**
+ * Matches an internal statement separator — a `;` that is followed by any
+ * further non-whitespace content. A single trailing `;` is allowed; anything
+ * after it (a second statement) is rejected. This is the primary defense
+ * against multi-statement injection where a benign `SELECT` prefix is followed
+ * by a mutating/exfiltrating statement (e.g. `SELECT 1; CALL proc()` or
+ * `SELECT 1; EXPORT DATA ... AS SELECT * FROM secrets`).
+ */
+export const MULTI_STATEMENT_RE = /;\s*\S/;
 
 export const LIMIT_RE = /\bLIMIT\s+\d+/i;
 
@@ -201,6 +211,17 @@ export function validateSql(sql: string): SqlValidationResult {
 
   if (!trimmed) {
     return { valid: false, error: "Empty SQL query" };
+  }
+
+  // Reject multi-statement SQL. Only a single statement (with an optional
+  // trailing `;`) is allowed. This blocks `SELECT ...; <mutating statement>`
+  // injection even when the second statement's keyword is obfuscated or not in
+  // the blocklist below (defense in depth).
+  if (MULTI_STATEMENT_RE.test(trimmed)) {
+    return {
+      valid: false,
+      error: "Multiple SQL statements are not allowed. Only a single read-only query is permitted.",
+    };
   }
 
   // Check for dangerous keywords

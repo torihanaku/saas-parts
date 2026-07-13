@@ -204,6 +204,25 @@ describe("hashTenantId", () => {
     expect(hashTenantId("tenant-1")).toMatch(/^[0-9a-f]{16}$/);
     expect(hashTenantId("tenant-1")).not.toBe(hashTenantId("tenant-2"));
   });
+
+  it("with a pepper stays deterministic but is not the plain sha256 (rainbow-table resistant)", () => {
+    const pepper = "deployment-secret-pepper";
+    // deterministic across calls with the same pepper (tenant can still find its row)
+    expect(hashTenantId("tenant-1", pepper)).toBe(hashTenantId("tenant-1", pepper));
+    expect(hashTenantId("tenant-1", pepper)).toMatch(/^[0-9a-f]{16}$/);
+    // the peppered digest differs from the reversible unsalted one, so an
+    // attacker's sha256 rainbow table cannot reverse the opaque_id
+    expect(hashTenantId("tenant-1", pepper)).not.toBe(hashTenantId("tenant-1"));
+    // different peppers → different opaque ids for the same tenant
+    expect(hashTenantId("tenant-1", pepper)).not.toBe(hashTenantId("tenant-1", "other-pepper"));
+  });
+
+  it("anonymizeTenantRows threads the pepper through to opaque_id", () => {
+    const pepper = "deployment-secret-pepper";
+    const [row] = anonymizeTenantRows([{ tenant_id: "t1", kpi: 0.5 }], "tenant_id", pepper);
+    expect(row!.opaque_id).toBe(hashTenantId("t1", pepper));
+    expect(row!.opaque_id).not.toBe(hashTenantId("t1")); // not the reversible form
+  });
 });
 
 describe("anonymizeTenantRows", () => {

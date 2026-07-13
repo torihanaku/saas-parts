@@ -148,7 +148,11 @@ export function createDefaultAutoSourceProviders(metrics: OkrMetricsStore): Auto
 export function calculateProgress(keyResults: KeyResult[]): number {
   if (keyResults.length === 0) return 0;
   const total = keyResults.reduce((sum, kr) => {
-    const pct = kr.target > 0 ? Math.min((kr.current / kr.target) * 100, 100) : 0;
+    // Clamp each KR to [0, 100]. A KR below baseline (negative `current`, e.g.
+    // a metric that regressed) previously produced a negative percentage that
+    // dragged the objective's progress negative, violating the documented
+    // 0-100 invariant on Objective.progress.
+    const pct = kr.target > 0 ? Math.min(Math.max((kr.current / kr.target) * 100, 0), 100) : 0;
     return sum + pct;
   }, 0);
   return Math.round(total / keyResults.length);
