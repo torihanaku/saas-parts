@@ -97,6 +97,31 @@ export function createEmailClient(config: EmailClientConfig = {}): EmailClient {
   return { sendEmail };
 }
 
+// ─── Escaping ───────────────────────────────────────────────────────────────
+
+/**
+ * Escape user-supplied *data* before interpolating it into the email HTML.
+ *
+ * SECURITY: template builders below embed caller-supplied values (inviter name,
+ * role label, product name, and URLs) directly into HTML text and `href="..."`
+ * attributes. Without escaping, a value such as an inviter display name of
+ * `</strong><img src=x onerror=…>` or an invite URL containing `"` breaks out of
+ * its element / attribute and injects arbitrary markup into the rendered email
+ * (email HTML injection / phishing). Escaping the five HTML-significant
+ * characters is safe for both text and double-quoted attribute contexts and
+ * leaves ordinary names / URLs (including `&`-joined query strings) rendering
+ * identically. Fields explicitly documented as "HTML可" (bodyHtml / footerHtml /
+ * template subject+body / override strings) are trusted and NOT escaped.
+ */
+export function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 // ─── Shared template chrome ─────────────────────────────────────────────────
 
 function wrapBody(inner: string): string {
@@ -149,24 +174,29 @@ export function buildInviteEmail(opts: InviteEmailOptions): string {
   const productName = opts.productName ?? "ダッシュボード";
   const roleLabels = opts.roleLabels ?? DEFAULT_ROLE_LABELS;
   const label = roleLabels[opts.role] ?? opts.role;
+  // Escape caller-supplied data before it lands in HTML text / href attributes.
+  const inviterName = escapeHtml(opts.inviterName);
+  const labelEsc = escapeHtml(label);
+  const productNameEsc = escapeHtml(productName);
+  const inviteUrl = escapeHtml(opts.inviteUrl);
   const s: InviteEmailStrings = {
-    heading: opts.strings?.heading ?? `${productName}への招待`,
+    heading: opts.strings?.heading ?? `${productNameEsc}への招待`,
     buttonLabel: opts.strings?.buttonLabel ?? "招待を受け入れる",
     expiryNote: opts.strings?.expiryNote ?? "このリンクは7日間有効です。心当たりがない場合はこのメールを無視してください。",
     fallbackLinkLabel: opts.strings?.fallbackLinkLabel ?? "ボタンが機能しない場合:",
   };
   return wrapBody(`    <h1 style="font-size: 20px; font-weight: 700; color: #111; margin: 0 0 8px;">${s.heading}</h1>
     <p style="color: #555; font-size: 14px; line-height: 1.6; margin: 0 0 24px;">
-      <strong>${opts.inviterName}</strong> さんから、${productName}へ <strong>${label}</strong> として招待が届きました。
+      <strong>${inviterName}</strong> さんから、${productNameEsc}へ <strong>${labelEsc}</strong> として招待が届きました。
     </p>
-    <a href="${opts.inviteUrl}"
+    <a href="${inviteUrl}"
        style="display: inline-block; background: #111; color: #fff; text-decoration: none;
               font-size: 14px; font-weight: 600; padding: 12px 24px; border-radius: 6px;">
       ${s.buttonLabel}
     </a>
     <p style="color: #999; font-size: 12px; margin: 24px 0 0; line-height: 1.6;">
       ${s.expiryNote}<br>
-      ${s.fallbackLinkLabel} <a href="${opts.inviteUrl}" style="color: #555;">${opts.inviteUrl}</a>
+      ${s.fallbackLinkLabel} <a href="${inviteUrl}" style="color: #555;">${inviteUrl}</a>
     </p>`);
 }
 
@@ -195,17 +225,18 @@ export function buildTrialEndEmail(opts: TrialEndEmailOptions): string {
     buttonLabel: opts.strings?.buttonLabel ?? "設定画面を開く",
     fallbackLinkLabel: opts.strings?.fallbackLinkLabel ?? "ボタンが機能しない場合:",
   };
+  const settingsUrl = escapeHtml(opts.settingsUrl);
   return wrapBody(`    <h1 style="font-size: 20px; font-weight: 700; color: #111; margin: 0 0 8px;">${s.heading}</h1>
     <p style="color: #555; font-size: 14px; line-height: 1.6; margin: 0 0 24px;">
       ${s.bodyHtml}
     </p>
-    <a href="${opts.settingsUrl}"
+    <a href="${settingsUrl}"
        style="display: inline-block; background: #111; color: #fff; text-decoration: none;
               font-size: 14px; font-weight: 600; padding: 12px 24px; border-radius: 6px;">
       ${s.buttonLabel}
     </a>
     <p style="color: #999; font-size: 12px; margin: 24px 0 0; line-height: 1.6;">
-      ${s.fallbackLinkLabel} <a href="${opts.settingsUrl}" style="color: #555;">${opts.settingsUrl}</a>
+      ${s.fallbackLinkLabel} <a href="${settingsUrl}" style="color: #555;">${settingsUrl}</a>
     </p>`);
 }
 
@@ -266,14 +297,16 @@ export function buildOnboardingEmail(
   const templates = { ...defaultOnboardingTemplates(opts.productName), ...opts.templates };
   const t = templates[day];
   const buttonLabel = opts.buttonLabel ?? "ダッシュボードを開く";
+  const dashboardUrl = escapeHtml(opts.dashboardUrl);
+  const settingsUrl = escapeHtml(opts.settingsUrl);
   const footerHtml = opts.footerHtml ??
-    `配信停止をご希望の場合は <a href="${opts.settingsUrl}" style="color: #555;">設定画面</a> より変更してください。`;
+    `配信停止をご希望の場合は <a href="${settingsUrl}" style="color: #555;">設定画面</a> より変更してください。`;
 
   const html = wrapBody(`    <h1 style="font-size: 20px; font-weight: 700; color: #111; margin: 0 0 16px;">${t.subject}</h1>
     <p style="color: #555; font-size: 14px; line-height: 1.6; margin: 0 0 24px;">
       ${t.body}
     </p>
-    <a href="${opts.dashboardUrl}"
+    <a href="${dashboardUrl}"
        style="display: inline-block; background: #1b3a6b; color: #fff; text-decoration: none;
               font-size: 14px; font-weight: 600; padding: 12px 24px; border-radius: 6px;">
       ${buttonLabel}

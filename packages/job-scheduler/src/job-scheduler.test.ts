@@ -430,6 +430,87 @@ describe("tick — loadEnabled returns null (no store row)", () => {
 });
 
 // =========================================================================
+// Regression: overlapping ticks / trigger-vs-tick must not double-run a job
+// (the "running" lock is claimed synchronously, before the loadEnabled await)
+// =========================================================================
+
+describe("no double-run under overlapping ticks", () => {
+  let scheduler: JobScheduler | null = null;
+
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+  afterEach(() => {
+    scheduler?.stop();
+    scheduler = null;
+    vi.useRealTimers();
+  });
+
+  it("a slow loadEnabled does not let two ticks run the SAME job concurrently", async () => {
+    const store = makeMockStore();
+    // loadEnabled is slow: the tick that started it holds the async gap open
+    // long enough for the next tick interval to fire. Before the fix, both
+    // ticks passed the running-guard (still "idle") and each launched the
+    // handler for the same due window → concurrent execution.
+    store.loadEnabled.mockImplementation(
+      () => new Promise((resolve) => setTimeout(() => resolve(true), 200))
+    );
+
+    let inFlight = 0;
+    let maxConcurrent = 0;
+    const handler = vi.fn().mockImplementation(async () => {
+      inFlight++;
+      maxConcurrent = Math.max(maxConcurrent, inFlight);
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      inFlight--;
+    });
+
+    // Short check interval so a 2nd tick fires during the loadEnabled delay.
+    scheduler = createJobScheduler({ store, checkIntervalMs: 50 });
+    scheduler.registerJob(makeJob({ name: "overlap-test", handler, intervalMs: 1 }));
+
+    scheduler.start();
+    await vi.advanceTimersByTimeAsync(6_000);
+
+    // The job may run many times over 6s (interval 1ms), but never twice at once.
+    expect(maxConcurrent).toBe(1);
+  });
+
+  it("triggerJob racing an in-flight tick is rejected as already running", async () => {
+    const store = makeMockStore();
+    store.loadEnabled.mockImplementation(
+      () => new Promise((resolve) => setTimeout(() => resolve(true), 200))
+    );
+
+    let inFlight = 0;
+    let maxConcurrent = 0;
+    const handler = vi.fn().mockImplementation(async () => {
+      inFlight++;
+      maxConcurrent = Math.max(maxConcurrent, inFlight);
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      inFlight--;
+    });
+
+    // Job is due (short interval) so ticks are firing and holding the slow
+    // loadEnabled gap open; a manual trigger during that gap must still not
+    // start a second concurrent execution.
+    scheduler = createJobScheduler({ store, checkIntervalMs: 50 });
+    scheduler.registerJob(makeJob({ name: "trigger-race-test", handler, intervalMs: 1 }));
+
+    scheduler.start();
+    await vi.advanceTimersByTimeAsync(5_100);
+    // Fire many manual triggers across the window, racing in-flight ticks.
+    for (let i = 0; i < 10; i++) {
+      void scheduler.triggerJob("trigger-race-test");
+      await vi.advanceTimersByTimeAsync(30);
+    }
+    await vi.advanceTimersByTimeAsync(2_000);
+
+    expect(maxConcurrent).toBe(1);
+  });
+});
+
+// =========================================================================
 // on-complete hook (replaces the project webhook/notification coupling)
 // =========================================================================
 

@@ -108,6 +108,8 @@ export class JobScheduler {
   private async executeJob(state: JobState): Promise<void> {
     const { definition } = state;
     logInfo(`Starting job: ${definition.name}`);
+    // Claim the running lock synchronously (idempotent — callers may have
+    // already claimed it before an await gap to prevent overlapping runs).
     state.lastStatus = "running";
     const startTime = Date.now();
 
@@ -161,10 +163,18 @@ export class JobScheduler {
       if (state.lastStatus === "running") continue; // already running
       if (now < state.nextRunAt) continue;
 
+      // Claim the running lock BEFORE the async loadEnabled await. Otherwise
+      // two overlapping ticks (or a concurrent triggerJob) both pass the guard
+      // above during the await gap and double-run the same job. Remember the
+      // prior status so we can release the lock if the store disables the job.
+      const priorStatus = state.lastStatus;
+      state.lastStatus = "running";
+
       // Sync enabled flag from store (non-blocking for other jobs)
       const storedEnabled = await this.loadJobRowEnabled(state.definition.name);
       if (storedEnabled === false) {
         state.definition.enabled = false;
+        state.lastStatus = priorStatus; // release lock; job won't run this tick
         continue;
       }
 
@@ -232,6 +242,8 @@ export class JobScheduler {
     const state = this.jobs.get(name);
     if (!state) return { ok: false, error: `Job not found: ${name}` };
     if (state.lastStatus === "running") return { ok: false, error: `Job already running: ${name}` };
+    // Claim the lock synchronously so a racing tick/trigger can't double-run.
+    state.lastStatus = "running";
     this.executeJob(state).catch((err: unknown) => {
       console.error(JSON.stringify({ severity: "ERROR", message: "job_trigger_failed", job: name, error: String(err) }));
     });

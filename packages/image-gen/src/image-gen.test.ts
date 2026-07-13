@@ -295,6 +295,39 @@ describe("generateImage() routing (mocked fetch)", () => {
       /OpenAI Images API error 429/,
     );
   });
+
+  it("routes a BYOK request even when no default key is configured", async () => {
+    // Regression: with no default keys, listAllModels() returned [] because no
+    // provider was "available", so generateImage() rejected every valid model
+    // with a misleading "Unknown image model" — making BYOK (params.apiKey)
+    // unusable. The model catalog is static and must be resolved regardless of
+    // default-key availability; the BYOK key then authorizes the call.
+    const png = Buffer.from("byok-png");
+    mockFetch.mockResolvedValueOnce(
+      new Response(JSON.stringify({ data: [{ b64_json: png.toString("base64") }] }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+    const gen = createImageGen({}); // no openaiApiKey / falKey
+    const result = await gen.generateImage({
+      prompt: "an office",
+      model: "gpt-image-1",
+      apiKey: "sk-caller-byok",
+    });
+    expect(result.provider).toBe("openai");
+    expect(result.imageBuffer.equals(png)).toBe(true);
+    // the BYOK key is the one sent to OpenAI
+    const headers = (mockFetch.mock.calls[0]?.[1] as RequestInit).headers as Record<string, string>;
+    expect(headers.Authorization).toBe("Bearer sk-caller-byok");
+  });
+
+  it("still rejects when the provider is unavailable and no BYOK key is given", async () => {
+    const gen = createImageGen({}); // no keys, no BYOK
+    await expect(gen.generateImage({ prompt: "x", model: "gpt-image-1" })).rejects.toThrow(
+      /Provider "openai" is not available/,
+    );
+  });
 });
 
 describe("uploadImage() via ImageSink", () => {

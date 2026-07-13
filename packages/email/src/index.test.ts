@@ -10,6 +10,7 @@ import {
   buildTrialEndEmail,
   buildOnboardingEmail,
   defaultOnboardingTemplates,
+  escapeHtml,
   RESEND_API_URL,
 } from "./index";
 
@@ -109,6 +110,39 @@ describe("buildInviteEmail", () => {
     expect(occurrences).toBeGreaterThanOrEqual(2);
   });
 
+  // Regression: caller-supplied data (inviter name, role, product name, URL)
+  // must be HTML-escaped so it cannot break out of its element / attribute.
+  it("escapes HTML in inviterName to prevent markup injection", () => {
+    const html = buildInviteEmail({
+      inviterName: "Eve</strong><img src=x onerror=alert(1)>",
+      role: "editor",
+      inviteUrl: "https://app.example.com/invite/abc",
+    });
+    expect(html).not.toContain("<img src=x onerror=alert(1)>");
+    expect(html).toContain("&lt;img src=x onerror=alert(1)&gt;");
+  });
+
+  it("escapes quotes in inviteUrl so it cannot break out of the href attribute", () => {
+    const html = buildInviteEmail({
+      inviterName: "A",
+      role: "editor",
+      inviteUrl: 'https://app.example.com/i" onclick="steal()',
+    });
+    // The raw attribute-breaking sequence must not appear
+    expect(html).not.toContain('i" onclick="steal()');
+    expect(html).toContain("&quot;");
+  });
+
+  it("escapes HTML in an unknown role label", () => {
+    const html = buildInviteEmail({
+      inviterName: "A",
+      role: "<script>x</script>",
+      inviteUrl: "https://x.example/i",
+    });
+    expect(html).not.toContain("<script>x</script>");
+    expect(html).toContain("&lt;script&gt;x&lt;/script&gt;");
+  });
+
   it("supports productName and custom role labels", () => {
     const html = buildInviteEmail({
       inviterName: "A",
@@ -139,6 +173,22 @@ describe("buildTrialEndEmail", () => {
     expect(html).toContain("Trial ending");
     expect(html).toContain("Open settings");
   });
+
+  it("escapes quotes in settingsUrl (href attribute safety)", () => {
+    const html = buildTrialEndEmail({ settingsUrl: 'https://x.example/s" onclick="x()' });
+    expect(html).not.toContain('s" onclick="x()');
+    expect(html).toContain("&quot;");
+  });
+});
+
+describe("escapeHtml", () => {
+  it("escapes all five HTML-significant characters", () => {
+    expect(escapeHtml(`<>&"'`)).toBe("&lt;&gt;&amp;&quot;&#39;");
+  });
+  it("leaves ordinary text and URLs unchanged", () => {
+    expect(escapeHtml("Alice")).toBe("Alice");
+    expect(escapeHtml("https://app.example.com/x/y")).toBe("https://app.example.com/x/y");
+  });
 });
 
 describe("buildOnboardingEmail", () => {
@@ -161,6 +211,16 @@ describe("buildOnboardingEmail", () => {
     expect(buildOnboardingEmail(3, opts).subject).toContain("インテリジェンス・フィード");
     expect(buildOnboardingEmail(7, opts).subject).toContain("コンテンツ・スタジオ");
     expect(buildOnboardingEmail(13, opts).subject).toContain("フリートライアル終了まであと1日");
+  });
+
+  it("escapes quotes in dashboardUrl / settingsUrl (href attribute safety)", () => {
+    const { html } = buildOnboardingEmail(0, {
+      productName: "MyApp",
+      dashboardUrl: 'https://x.example/d" onclick="a()',
+      settingsUrl: 'https://x.example/s" onclick="b()',
+    });
+    expect(html).not.toContain('d" onclick="a()');
+    expect(html).not.toContain('s" onclick="b()');
   });
 
   it("allows partial template override", () => {

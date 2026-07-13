@@ -45,6 +45,38 @@ export function escapePostgrestValue(val: string): string {
   return val.replace(/[%_\\,().*]/g, (c) => `\\${c}`);
 }
 
+/**
+ * Reject Storage object paths that could escape the `object/{bucket}/` prefix.
+ *
+ * A `path` like `../../other-bucket/file` collapses under URL normalization
+ * (`.../storage/v1/object/mybucket/../../other-bucket/file` →
+ * `.../storage/v1/other-bucket/file`), letting a caller read/write outside the
+ * intended bucket — a cross-tenant traversal with the service-role key (RLS
+ * cannot mediate object storage). We forbid `.`/`..` segments, backslashes and
+ * absolute paths rather than silently normalizing, so callers get a clear error.
+ *
+ * @throws Error when the path is unsafe.
+ */
+export function assertSafeStoragePath(path: string): void {
+  if (typeof path !== "string" || path.length === 0) {
+    throw new Error("invalid storage path: must be a non-empty string");
+  }
+  // Normalize backslashes (Windows-style) so they can't smuggle traversal.
+  if (path.includes("\\")) {
+    throw new Error(`invalid storage path: backslash not allowed: ${path}`);
+  }
+  // Reject absolute paths (leading slash) — would also escape the prefix.
+  if (path.startsWith("/")) {
+    throw new Error(`invalid storage path: must be relative: ${path}`);
+  }
+  // Reject any "." or ".." path segment (the traversal primitives).
+  for (const segment of path.split("/")) {
+    if (segment === "." || segment === "..") {
+      throw new Error(`invalid storage path: traversal segment not allowed: ${path}`);
+    }
+  }
+}
+
 export class SupabaseDal {
   constructor(private readonly config: SupabaseDalConfig) {}
 
@@ -188,6 +220,8 @@ export class SupabaseDal {
   /** Upload an object to Supabase Storage (upsert enabled). */
   async upload(bucket: string, path: string, body: BodyInit, contentType: string): Promise<DbResult> {
     try {
+      assertSafeStoragePath(bucket);
+      assertSafeStoragePath(path);
       const res = await this.doFetch(
         `${this.config.url}/storage/v1/object/${bucket}/${path}`,
         {
@@ -214,6 +248,8 @@ export class SupabaseDal {
   /** Download an object from Supabase Storage. Returns the raw Response, or null. */
   async download(bucket: string, path: string): Promise<Response | null> {
     try {
+      assertSafeStoragePath(bucket);
+      assertSafeStoragePath(path);
       const res = await this.doFetch(
         `${this.config.url}/storage/v1/object/${bucket}/${path}`,
         { headers: this.getHeaders() }

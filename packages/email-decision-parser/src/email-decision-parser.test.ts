@@ -81,6 +81,25 @@ describe("email-decision-parser (edge cases)", () => {
     expect(result).toBeNull();
   });
 
+  // Regression: keyword prefixes must not match longer, unrelated words.
+  // Previously "yesterday" matched /^\s*yes/ → false approval, and
+  // "okey dokey I decline" matched /^\s*ok/ → false approval.
+  it("should NOT approve on words that merely start with an approval keyword", () => {
+    expect(parseReply("yesterday we discussed the budget")).toBeNull();
+    expect(parseReply("okey dokey I decline this one")).toBeNull();
+    expect(parseReply("nothing to add here")).toBeNull();
+  });
+
+  it("should NOT reject on words that merely start with a rejection keyword", () => {
+    expect(parseReply("notable concerns, please hold")).toBeNull();
+    expect(parseReply("nothing further, will revisit")).toBeNull();
+  });
+
+  it("still accepts legitimate 'okay' / 'ok,' approval shorthands", () => {
+    expect(parseReply("okay")).toEqual({ decision: "approve" });
+    expect(parseReply("ok, ship it")).toEqual({ decision: "approve" });
+  });
+
   it("should return null for empty body", () => {
     expect(parseReply("")).toBeNull();
     expect(parseReply("\n\n  \n")).toBeNull();
