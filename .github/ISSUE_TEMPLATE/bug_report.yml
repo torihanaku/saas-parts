@@ -1,0 +1,34 @@
+name: バグ報告 / Bug report
+description: 部品の不具合を報告する（セキュリティ問題は SECURITY.md から非公開で）
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ⚠️ **セキュリティ脆弱性はここではなく [Security Advisories](https://github.com/torihanaku/saas-parts/security/advisories/new) から非公開でご報告ください。**
+  - type: input
+    id: package
+    attributes:
+      label: 対象パッケージ
+      placeholder: "@torihanaku/rate-limiter"
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: 症状 / 期待した挙動
+      description: 何が起きて、本来どうあるべきか
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: 再現手順（できれば最小コード）
+      description: node -e やテストで再現できると助かります
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: 環境 / バージョン
+      placeholder: "bun 1.3 / node 22 / commit hash"
