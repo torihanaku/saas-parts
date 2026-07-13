@@ -17,7 +17,14 @@ const COMPANY_JP_PREFIX_RE = /(?:株式会社|有限会社|合同会社)\s*\S+/g
 const COMPANY_JP_SUFFIX_RE = /\S+\s*(?:株式会社|有限会社|合同会社)/g;
 // Standalone suffix safety net (in case the prefix didn't match a Capitalized form).
 const COMPANY_SUFFIX_ONLY_RE = /\b(?:Inc\.?|Corp\.?|Ltd\.?|LLC|GmbH|S\.A\.)\b/g;
-const ABSOLUTE_NUMBER_RE = /\b\d[\d,.]*\s*(?:件|円|%|％|JPY|USD|EUR|x|×|倍|名)\b/gi;
+// NOTE: no trailing `\b`. The units 件/円/%/％/倍/名 are CJK / punctuation
+// characters that never form a JS regex word-boundary with the following char,
+// so a trailing `\b` made this pattern match *nothing* for the most common
+// Japanese KPI units — leaking absolute numbers like "8%" / "3倍" / "3件" /
+// "5,000円" straight into the "anonymized" pattern. (Multi-digit runs happened
+// to be caught by BARE_DIGITS_RE, which is why the leak went unnoticed, but
+// single-digit values and the unit itself survived.)
+const ABSOLUTE_NUMBER_RE = /\b\d[\d,.]*\s*(?:件|円|%|％|JPY|USD|EUR|x|×|倍|名)/gi;
 const BARE_DIGITS_RE = /(?<!\d)\d{2,}(?!\d)/g;
 const URL_RE = /https?:\/\/\S+/gi;
 const EMAIL_RE = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/gi;

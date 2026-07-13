@@ -56,6 +56,20 @@ describe("scrubText (anonymization primitives)", () => {
     expect(scrubText("売上 1,200,000円 達成")).not.toMatch(/1,200,000/);
   });
 
+  it("fully strips single-digit and CJK-unit absolute numbers (regression: trailing \\b leak)", () => {
+    // Before the fix ABSOLUTE_NUMBER_RE matched nothing for CJK/% units, so
+    // these absolute values (and the surviving unit) leaked into the pattern.
+    expect(scrubText("CTRが8%改善")).not.toMatch(/8\s*%/);
+    expect(scrubText("成長は3倍でした")).not.toMatch(/3\s*倍/);
+    expect(scrubText("問い合わせが3件")).not.toMatch(/3\s*件/);
+    expect(scrubText("価格は5,000円")).not.toMatch(/\d/); // no digit survives
+    expect(scrubText("参加者10名")).not.toMatch(/10\s*名/);
+    // CTR 12.5% must lose the trailing "5%" too, not just the "12"
+    expect(scrubText("CTR 12.5% improved")).not.toMatch(/5\s*%/);
+    // structural relative tokens are still preserved
+    expect(scrubText("launch+30d")).toBe("launch+{n}d");
+  });
+
   it("strips emails and urls", () => {
     const out = scrubText("contact ceo@acme.io https://acme.io/case");
     expect(out).toContain("{email}");

@@ -60,8 +60,15 @@ export interface Bm25Result {
  * proficiencyに応じたIDF重みを掛けることで専門家を上位に評価する
  */
 export function computeBm25Scores(input: Bm25Input): Bm25Result[] {
-  const { matchedSkillsByChar, skillCountByChar, idfBySkill, avgSkillCount } = input;
+  const { matchedSkillsByChar, skillCountByChar, idfBySkill } = input;
   const results: Bm25Result[] = [];
+
+  // Guard against a zero/invalid avgdl (e.g. all-zero skill counts, or a caller
+  // passing avgSkillCount: 0). Dividing docLen by 0 yields NaN, which poisons
+  // every score and makes the ranking meaningless. Fall back to 1 so length
+  // normalization degrades to "no normalization" rather than producing NaN.
+  const avgSkillCount =
+    Number.isFinite(input.avgSkillCount) && input.avgSkillCount > 0 ? input.avgSkillCount : 1;
 
   for (const [charId, skills] of matchedSkillsByChar) {
     const docLen = skillCountByChar.get(charId) ?? avgSkillCount;
