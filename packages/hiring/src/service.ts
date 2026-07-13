@@ -13,6 +13,9 @@
 import type { HiringStore } from "./store";
 import {
   EMAIL_RE,
+  MAX_ANSWER_LEN,
+  MAX_APPLICANT_EMAIL_LEN,
+  MAX_APPLICANT_NAME_LEN,
   MAX_CUSTOM_QUESTIONS,
   isApplicationStatus,
   isValidUUID,
@@ -238,7 +241,10 @@ export class HiringService {
     const applicantName = typeof body.applicant_name === "string" ? body.applicant_name.trim() : "";
     const applicantEmail = typeof body.applicant_email === "string" ? body.applicant_email.trim() : "";
     if (!applicantName) return fail(400, "applicant_name is required");
-    if (!applicantEmail || !EMAIL_RE.test(applicantEmail)) {
+    if (applicantName.length > MAX_APPLICANT_NAME_LEN) {
+      return fail(400, `applicant_name exceeds max ${MAX_APPLICANT_NAME_LEN} characters`);
+    }
+    if (applicantEmail.length > MAX_APPLICANT_EMAIL_LEN || !EMAIL_RE.test(applicantEmail)) {
       return fail(400, "applicant_email is invalid");
     }
 
@@ -261,6 +267,9 @@ export class HiringService {
       if (!raw || typeof raw !== "object") continue;
       const obj = raw as Record<string, unknown>;
       if (typeof obj.question_id !== "string" || typeof obj.answer !== "string") continue;
+      if (obj.answer.length > MAX_ANSWER_LEN) {
+        return fail(400, `answer exceeds max ${MAX_ANSWER_LEN} characters`);
+      }
       answers.push({ question_id: obj.question_id, answer: obj.answer });
     }
     const questions = posting.custom_questions ?? [];

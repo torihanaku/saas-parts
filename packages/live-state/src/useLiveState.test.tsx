@@ -142,6 +142,40 @@ describe("useLiveState", () => {
     });
   });
 
+  it("stale fetch resolving last is discarded (seq guard)", async () => {
+    vi.useFakeTimers();
+    const resolvers: Array<(v: Record<string, unknown>) => void> = [];
+    const get = vi.fn(
+      () =>
+        new Promise<Record<string, unknown>>((resolve) => {
+          resolvers.push(resolve);
+        })
+    );
+    const api: LiveStateApi = {
+      get,
+      stream: () => ({ addEventListener: () => {}, close: () => {} }),
+    };
+    // 1s poll: mount issues req0, timer issues req1.
+    const { result } = renderHook(() => useLiveState(1000, { api }));
+    expect(get).toHaveBeenCalledTimes(1); // req0 in flight
+
+    await act(async () => { await vi.advanceTimersByTimeAsync(1000); }); // req1 in flight
+    expect(get).toHaveBeenCalledTimes(2);
+    expect(resolvers).toHaveLength(2);
+
+    const fresh = { updatedAt: "2026-01-02T00:00:00Z", tasks: { fresh: { status: "new" } } };
+    const stale = { updatedAt: "2026-01-01T00:00:00Z", tasks: { stale: { status: "old" } } };
+
+    // Fresher req1 resolves FIRST, stale req0 resolves LAST.
+    await act(async () => {
+      resolvers[1]!(fresh); // later-issued request applies
+      resolvers[0]!(stale); // earlier-issued request must be discarded
+    });
+
+    expect(result.current.updatedAt).toBe("2026-01-02T00:00:00Z");
+    expect(result.current.tasks).toEqual({ fresh: { status: "new" } });
+  });
+
   it("uses custom endpoints", async () => {
     const { api, get } = makeMockApi();
     const streamSpy = vi.spyOn(api, "stream");

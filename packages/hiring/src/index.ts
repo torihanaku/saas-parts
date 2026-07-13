@@ -8,6 +8,9 @@ export { InMemoryHiringStore, type HiringStore } from "./store";
 export { renderGdprDeletePage } from "./gdpr-delete-page";
 export {
   MAX_CUSTOM_QUESTIONS,
+  MAX_APPLICANT_NAME_LEN,
+  MAX_APPLICANT_EMAIL_LEN,
+  MAX_ANSWER_LEN,
   EMAIL_RE,
   isApplicationStatus,
   isJobPostingStatus,

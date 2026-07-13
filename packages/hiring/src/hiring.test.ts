@@ -8,6 +8,9 @@ import {
   validateCustomQuestions,
   validateJobPostingBody,
   MAX_CUSTOM_QUESTIONS,
+  MAX_APPLICANT_NAME_LEN,
+  MAX_APPLICANT_EMAIL_LEN,
+  MAX_ANSWER_LEN,
   type CustomQuestion,
   type JobPosting,
 } from "./types";
@@ -284,6 +287,77 @@ describe("public application submit", () => {
       null,
     );
     expect(r.ok).toBe(false);
+  });
+
+  // Regression: the PUBLIC (unauthenticated) intake previously stored
+  // arbitrarily large applicant-supplied strings, allowing storage-abuse / DoS.
+  it("rejects oversized applicant_name and never persists it", async () => {
+    const store = new InMemoryHiringStore();
+    seedPublic(store);
+    const { svc } = makeService(store);
+    const r = await svc.submitApplication(
+      "careers",
+      {
+        job_posting_id: UUID_A,
+        applicant_name: "x".repeat(MAX_APPLICANT_NAME_LEN + 1),
+        applicant_email: "b@x.co",
+      },
+      null,
+    );
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.status).toBe(400);
+    expect(store.applications.size).toBe(0);
+  });
+
+  it("rejects oversized applicant_email", async () => {
+    const store = new InMemoryHiringStore();
+    seedPublic(store);
+    const { svc } = makeService(store);
+    const local = "a".repeat(MAX_APPLICANT_EMAIL_LEN);
+    const r = await svc.submitApplication(
+      "careers",
+      { job_posting_id: UUID_A, applicant_name: "B", applicant_email: `${local}@x.co` },
+      null,
+    );
+    expect(r.ok).toBe(false);
+    expect(store.applications.size).toBe(0);
+  });
+
+  it("rejects oversized answer and never persists it", async () => {
+    const store = new InMemoryHiringStore();
+    seedPublic(store);
+    const { svc } = makeService(store);
+    const r = await svc.submitApplication(
+      "careers",
+      {
+        job_posting_id: UUID_A,
+        applicant_name: "B",
+        applicant_email: "b@x.co",
+        answers: [{ question_id: "q", answer: "y".repeat(MAX_ANSWER_LEN + 1) }],
+      },
+      null,
+    );
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.status).toBe(400);
+    expect(store.applications.size).toBe(0);
+  });
+
+  it("accepts applicant fields at the boundary limits", async () => {
+    const store = new InMemoryHiringStore();
+    seedPublic(store);
+    const { svc } = makeService(store);
+    const r = await svc.submitApplication(
+      "careers",
+      {
+        job_posting_id: UUID_A,
+        applicant_name: "n".repeat(MAX_APPLICANT_NAME_LEN),
+        applicant_email: "b@x.co",
+        answers: [{ question_id: "q", answer: "y".repeat(MAX_ANSWER_LEN) }],
+      },
+      null,
+    );
+    expect(r.ok).toBe(true);
+    expect(store.applications.size).toBe(1);
   });
 });
 

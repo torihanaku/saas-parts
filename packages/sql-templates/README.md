@@ -84,7 +84,8 @@ consent_registry (007・tenant_id/user_id は FK なしの疎結合)
 ## 適用時の注意
 
 - 001/002 の RLS は「API は常に service_role キーでアクセスする」前提。anon/authenticated から直接触る構成なら tenant 判定ポリシー（008 の形式）に差し替える
-- 004 のポリシーは `USING (true)` の全許可（service_role 前提）。公開スキーマで anon に触らせない こと
+- 003 の `tenant_product_subscriptions` / `tenant_product_entitlements` は `TO authenticated` の tenant 分離ポリシー＋`TO service_role` の全許可を明示（`current_tenant_id()` 関数が前提）。ENABLE だけでポリシー未定義だとテーブルオーナーがバイパスしてテナント分離が効かないため
+- 004 / 005 のポリシーは `TO service_role` にロールを明示（`USING (true)` を PUBLIC に開くと anon/authenticated が webhook イベントや監査ログの PII を横断参照できてしまうため）。005 の audit_logs を anon/authenticated から読ませたい場合は tenant_id 列を足して 008 形式のポリシーにする
 - 006 は追記専用化のため `REVOKE UPDATE, DELETE ... FROM PUBLIC` を含む。管理オペレーションも UPDATE 不可になる点に注意
 - ハッシュチェーン（006）の prev_hash/entry_hash の計算・検証はアプリ側の責務（このテンプレートはスキーマのみ）
 

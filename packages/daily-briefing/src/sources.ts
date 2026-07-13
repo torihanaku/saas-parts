@@ -40,6 +40,17 @@ export interface SourceTableConfig {
   integrations: string;
   adInsights: string;
   contentCalendar: string;
+  /**
+   * テナント分離のためのカラム名 (PostgREST フィルタ `<col>=eq.<tenantId>` に使う)。
+   *
+   * ⚠ マルチテナントで運用する場合は必須。省略したテーブルは **テナントで絞られず、
+   * 全テナントのデータを横断で読む** (dev-dashboard-v2 は単一テナント製品だったため
+   * 原文にはフィルタが無かった。汎用部品として cross-tenant leak を防ぐため注入式にした)。
+   *
+   * 例: `{ adInsights: "tenant_id", integrations: "tenant_id", contentCalendar: "project_id" }`
+   * (原スキーマは dd_ad_insights=tenant_id / dd_content_calendar=project_id / integrations=無し)。
+   */
+  tenantColumns?: Partial<Record<"integrations" | "adInsights" | "contentCalendar", string>>;
 }
 
 export const DEFAULT_SOURCE_TABLES: SourceTableConfig = {
@@ -47,6 +58,21 @@ export const DEFAULT_SOURCE_TABLES: SourceTableConfig = {
   adInsights: "dd_ad_insights",
   contentCalendar: "dd_content_calendar",
 };
+
+/**
+ * テナントフィルタ節を組み立てる。
+ * `tables.tenantColumns[which}` が設定されていれば `&<col>=eq.<encodedTenantId>` を返す。
+ * 未設定なら空文字 (原文どおりフィルタ無し = 単一テナント運用)。
+ */
+function tenantClause(
+  tables: SourceTableConfig,
+  which: "integrations" | "adInsights" | "contentCalendar",
+  tenantId: string,
+): string {
+  const col = tables.tenantColumns?.[which];
+  if (!col) return "";
+  return `&${col}=eq.${encodeURIComponent(tenantId)}`;
+}
 
 /**
  * GA4: 接続済み google_analytics integration の metrics_cache を平坦化。
@@ -58,11 +84,11 @@ export function makeFetchGa4(
 ) {
   return async function fetchGa4(
     _params: SourceParams,
-    _tenantId: string,
+    tenantId: string,
   ): Promise<WidgetDataResponse> {
     const rows = (await query(
       tables.integrations,
-      "select=metrics_cache,last_synced&type=eq.google_analytics&status=eq.connected&order=last_synced.desc&limit=1",
+      `select=metrics_cache,last_synced&type=eq.google_analytics&status=eq.connected${tenantClause(tables, "integrations", tenantId)}&order=last_synced.desc&limit=1`,
     )) as
       | { metrics_cache: Record<string, unknown> | null; last_synced: string | null }[]
       | null;
@@ -90,12 +116,12 @@ export function makeFetchCosts(
 ) {
   return async function fetchCosts(
     params: SourceParams,
-    _tenantId: string,
+    tenantId: string,
   ): Promise<WidgetDataResponse> {
     const since = dateOnlySince(params.dateRange);
     const rows = (await query(
       tables.adInsights,
-      `select=date,platform,spend&date=gte.${since}&order=date.asc&limit=2000`,
+      `select=date,platform,spend&date=gte.${since}${tenantClause(tables, "adInsights", tenantId)}&order=date.asc&limit=2000`,
     )) as { date: string; platform: string; spend: number | null }[] | null;
 
     const byDay = new Map<string, number>();
@@ -121,12 +147,12 @@ export function makeFetchCampaigns(
 ) {
   return async function fetchCampaigns(
     params: SourceParams,
-    _tenantId: string,
+    tenantId: string,
   ): Promise<WidgetDataResponse> {
     const since = dateOnlySince(params.dateRange);
     const rows = (await query(
       tables.adInsights,
-      `select=campaign_id,platform,spend,conversions,revenue&date=gte.${since}&limit=2000`,
+      `select=campaign_id,platform,spend,conversions,revenue&date=gte.${since}${tenantClause(tables, "adInsights", tenantId)}&limit=2000`,
     )) as
       | {
           campaign_id: string;
@@ -183,12 +209,12 @@ export function makeFetchSns(
 ) {
   return async function fetchSns(
     params: SourceParams,
-    _tenantId: string,
+    tenantId: string,
   ): Promise<WidgetDataResponse> {
     const sinceIso = isoSince(params.dateRange);
     const rows = (await query(
       tables.contentCalendar,
-      `select=status,platforms,published_at&status=eq.published&published_at=gte.${encodeURIComponent(sinceIso)}&limit=2000`,
+      `select=status,platforms,published_at&status=eq.published&published_at=gte.${encodeURIComponent(sinceIso)}${tenantClause(tables, "contentCalendar", tenantId)}&limit=2000`,
     )) as { status: string; platforms: unknown; published_at: string | null }[] | null;
 
     const counts = new Map<string, number>();
