@@ -8,18 +8,9 @@
  */
 import { createHash } from "node:crypto";
 import type { AuditStore } from "./store";
+import { canonicalPayload } from "./canonical";
 
 const EMPTY = Buffer.alloc(0);
-
-/**
- * Verifier-side canonical JSON — EXACTLY as in the source: strips
- * `id` / `prev_hash` / `entry_hash`, then stringifies the rest with its
- * sorted keys as the replacer array. Keep byte-identical to the logger side.
- */
-function canonicalJson(obj: Record<string, unknown>): Buffer {
-  const { id: _id, prev_hash: _prev_hash, entry_hash: _entry_hash, ...rest } = obj;
-  return Buffer.from(JSON.stringify(rest, Object.keys(rest).sort()));
-}
 
 function sha256(data: Buffer): Buffer {
   return createHash("sha256").update(data).digest();
@@ -53,7 +44,7 @@ export async function verifyHashChain(store: AuditStore, tenantId: string): Prom
       throw new Error(`Hash chain broken for tenant ${tenantId} at entry ${String(entry.id ?? i)}`);
     }
 
-    const payload = canonicalJson(entry);
+    const payload = canonicalPayload(entry);
     const calculatedHash = sha256(Buffer.concat([actualPrevHash ?? EMPTY, payload]));
 
     if (!actualEntryHash || !calculatedHash.equals(actualEntryHash)) {

@@ -165,6 +165,36 @@ describe("StripeWebhookProcessor", () => {
     expect(onError).toHaveBeenCalledWith("plan update failed", "evt_test_1");
   });
 
+  it("does NOT mark a failed event processed, so Stripe's retry re-runs it", async () => {
+    // Regression: marking-before-processing dropped failed events on retry.
+    const { mock, stripe } = makeStripeMock();
+    mock.webhooks.constructEventAsync.mockResolvedValue(makeEvent("checkout.session.completed"));
+    const store = new InMemoryWebhookEventStore();
+    let attempts = 0;
+    const handler = vi.fn(() => {
+      attempts += 1;
+      if (attempts === 1) throw new Error("transient failure");
+    });
+    const processor = new StripeWebhookProcessor({
+      stripe,
+      webhookSecret: WEBHOOK_SECRET,
+      eventStore: store,
+      handlers: { "checkout.session.completed": handler },
+      onError: () => {},
+    });
+
+    // First delivery fails → 400, event must NOT be recorded.
+    const first = await processor.process("{}", "sig");
+    expect(first.status).toBe(400);
+    expect(store.size).toBe(0);
+
+    // Stripe retries the same event → handler runs again and succeeds.
+    const retry = await processor.process("{}", "sig");
+    expect(retry.status).toBe(200);
+    expect(handler).toHaveBeenCalledTimes(2);
+    expect(store.size).toBe(1);
+  });
+
   it("skips already-processed events via the event store (idempotency)", async () => {
     const { mock, stripe } = makeStripeMock();
     mock.webhooks.constructEventAsync.mockResolvedValue(makeEvent("checkout.session.completed"));

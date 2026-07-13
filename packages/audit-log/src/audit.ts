@@ -8,6 +8,7 @@
  */
 import { createHash } from "node:crypto";
 import type { AuditStore, AuditRow } from "./store";
+import { canonicalPayload } from "./canonical";
 
 /**
  * Action strings used by the source application, kept as the documented
@@ -66,15 +67,6 @@ export interface AuditContext {
 
 const EMPTY = Buffer.alloc(0);
 
-/**
- * Canonical JSON — EXACTLY as in the source (JSON.stringify with the
- * top-level keys, sorted, as a replacer array). Do not "fix" this:
- * chain compatibility with existing data depends on it.
- */
-function canonicalJson(obj: Record<string, unknown>): Buffer {
-  return Buffer.from(JSON.stringify(obj, Object.keys(obj).sort()));
-}
-
 function sha256(data: Buffer): Buffer {
   return createHash("sha256").update(data).digest();
 }
@@ -112,7 +104,7 @@ export function createAuditLogger<TAction extends string = DefaultAuditAction>(
 
   async function persist(entry: Record<string, unknown>, tenantId: string): Promise<void> {
     const prevHash = await getLastEntryHash(tenantId);
-    const payload = canonicalJson(entry);
+    const payload = canonicalPayload(entry);
     const entryHash = sha256(Buffer.concat([prevHash ?? EMPTY, payload]));
 
     const res = await store.insert({

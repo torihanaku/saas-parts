@@ -69,6 +69,13 @@ export interface TokenConfig {
   inviteTtlMs?: number;
   /** Optional server-side session persistence (was: Supabase `sessions` table). */
   sessionStore?: SessionStore;
+  /**
+   * Identity embedded in the fallback token when createSessionCookie() is called
+   * with no email (dev / no-store mode). Defaults to "admin" for source parity —
+   * override with a NON-privileged value (or your own guard) in production so a
+   * no-arg call can't mint a privileged session.
+   */
+  fallbackIdentity?: string;
   /** Structured warning logger. Default: no-op. */
   logger?: LogFn;
 }
@@ -100,6 +107,7 @@ export function createTokenService(config: TokenConfig) {
   const sessionTtlMs = config.sessionTtlMs ?? DEFAULT_SESSION_TTL_MS;
   const inviteTtlMs = config.inviteTtlMs ?? DEFAULT_INVITE_TTL_MS;
   const sessionStore = config.sessionStore;
+  const fallbackIdentity = config.fallbackIdentity ?? "admin";
   const logger: LogFn = config.logger ?? (() => {});
 
   // Derive encryption key from cookie secret
@@ -138,7 +146,12 @@ export function createTokenService(config: TokenConfig) {
     return opaqueData + "." + hmac.digest("hex").substring(0, 32);
   }
 
-  /** Verify a signed token using timing-safe comparison */
+  /**
+   * Verify a signed token using timing-safe comparison.
+   * NOTE: this checks the SIGNATURE ONLY — it does not enforce the embedded
+   * expiry. Prefer {@link verifySessionToken} for session cookies so an expired
+   * (but still correctly-signed) token is rejected.
+   */
   function verifyToken(token: string): boolean {
     const dotIdx = token.lastIndexOf(".");
     if (dotIdx === -1) return false;
@@ -148,6 +161,24 @@ export function createTokenService(config: TokenConfig) {
     hmac.update(opaqueData);
     const expected = hmac.digest("hex").substring(0, 32);
     return timingSafeEqualStr(expected, sig);
+  }
+
+  /**
+   * Verify signature AND enforce the embedded expiry for a session token.
+   * Returns the decrypted payload (`session:{id}:{expires}` or
+   * `auth:{identity}:{expires}`) when valid, or null when the signature is bad,
+   * the ciphertext is tampered, or the token has expired.
+   */
+  function verifySessionToken(token: string): string | null {
+    if (!verifyToken(token)) return null;
+    const dotIdx = token.lastIndexOf(".");
+    const data = decrypt(token.substring(0, dotIdx));
+    if (!data) return null;
+    // The expiry is the trailing numeric segment; identity/id carry no colons.
+    const parts = data.split(":");
+    const expires = Number(parts[parts.length - 1]);
+    if (!Number.isFinite(expires) || Date.now() > expires) return null;
+    return data;
   }
 
   /**
@@ -167,7 +198,7 @@ export function createTokenService(config: TokenConfig) {
    */
   async function createSessionCookie(email?: string): Promise<string> {
     const expires = Date.now() + sessionTtlMs;
-    const identity = email || "admin";
+    const identity = email || fallbackIdentity;
 
     if (email && sessionStore) {
       const sessionId = randomUUID();
@@ -250,6 +281,7 @@ export function createTokenService(config: TokenConfig) {
     decrypt,
     signToken,
     verifyToken,
+    verifySessionToken,
     createSessionCookie,
     formatSessionCookie,
     createInviteToken,
