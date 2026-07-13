@@ -34,10 +34,25 @@ export class PersistenceLayer<T extends Record<string, unknown>> {
     private readonly options: PersistenceOptions = {},
   ) {}
 
-  /** Fetch all records matching the filter. */
+  /**
+   * PostgREST clause that excludes rows this layer's `remove()` flags as
+   * deleted. Reads MUST apply it, otherwise "removed" rows keep coming back
+   * (`remove()` never issues a true DELETE — it flags the row).
+   *
+   *  - softDelete mode → remove() sets `status = "deleted"`  → exclude those.
+   *  - default (hard)  → remove() sets `deleted = true`      → exclude those.
+   *
+   * `not.is.true` / `neq` keep the safe path: a row is only hidden once it has
+   * been explicitly flagged.
+   */
+  private notDeletedClause(): string {
+    return this.options.softDelete ? "status=neq.deleted" : "deleted=not.is.true";
+  }
+
+  /** Fetch all records matching the filter (excludes soft/flag-deleted rows). */
   async list(extraQuery = ""): Promise<T[]> {
     try {
-      const query = `${this.filterColumn}=eq.${encodeURIComponent(this.filterValue)}${extraQuery ? `&${extraQuery}` : ""}`;
+      const query = `${this.filterColumn}=eq.${encodeURIComponent(this.filterValue)}&${this.notDeletedClause()}${extraQuery ? `&${extraQuery}` : ""}`;
       const rows = await this.dal.get(this.table, query);
       return (rows ?? []) as T[];
     } catch {
@@ -45,12 +60,12 @@ export class PersistenceLayer<T extends Record<string, unknown>> {
     }
   }
 
-  /** Fetch a single record by ID. */
+  /** Fetch a single record by ID (excludes soft/flag-deleted rows). */
   async get(id: string): Promise<T | null> {
     try {
       const rows = await this.dal.get(
         this.table,
-        `id=eq.${encodeURIComponent(id)}&${this.filterColumn}=eq.${encodeURIComponent(this.filterValue)}&limit=1`,
+        `id=eq.${encodeURIComponent(id)}&${this.filterColumn}=eq.${encodeURIComponent(this.filterValue)}&${this.notDeletedClause()}&limit=1`,
       );
       return (rows?.[0] as T) ?? null;
     } catch {

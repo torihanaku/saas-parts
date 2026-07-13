@@ -38,6 +38,24 @@ describe('parsePagination', () => {
     const result = parsePagination(url)
     expect(result.limit).toBe(1)
   })
+
+  it('falls back to defaults for non-numeric params (no NaN leaks into limit/offset)', () => {
+    const url = new URL('http://localhost/api/test?page=abc&limit=xyz')
+    const result = parsePagination(url, 20, 100)
+    expect(result.page).toBe(1)
+    expect(result.limit).toBe(20)
+    expect(result.offset).toBe(0)
+    expect(Number.isNaN(result.limit)).toBe(false)
+    expect(Number.isNaN(result.offset)).toBe(false)
+  })
+
+  it('falls back to default when only limit is non-numeric', () => {
+    const url = new URL('http://localhost/api/test?page=3&limit=notanumber')
+    const result = parsePagination(url, 25, 100)
+    expect(result.page).toBe(3)
+    expect(result.limit).toBe(25)
+    expect(result.offset).toBe(50)
+  })
 })
 
 describe('generateETag', () => {

@@ -239,8 +239,12 @@ export class CacheLayer {
     if (r) {
       try {
         const member = `${now}:${Math.random().toString(36).slice(2, 8)}`;
-        // Pipeline: trim → count before add → add → expire
-        const [, , countResult] = await r
+        // Pipeline: trim (idx 0) → count-before-add (idx 1) → add (idx 2) → expire (idx 3).
+        // The count we gate on is the ZCARD result at index 1, NOT the ZADD
+        // result at index 2. ZADD returns the number of *new* members added
+        // (always 1 here), so reading index 2 makes `countBefore` a constant 1
+        // and the limit never trips for max >= 2 — a fail-open bug.
+        const execResult = await r
           .multi()
           .zremrangebyscore(key, '-inf', windowStart)
           .zcard(key)
@@ -248,7 +252,7 @@ export class CacheLayer {
           .pexpire(key, windowMs + 1000)
           .exec() as any /* eslint-disable-line @typescript-eslint/no-explicit-any */;
 
-        const countBefore = countResult?.[1] ?? 0;
+        const countBefore = execResult?.[1]?.[1] ?? 0;
         if (countBefore >= max) {
           // Undo the add — request not allowed
           await r.zrem(key, member);

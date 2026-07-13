@@ -53,8 +53,40 @@ export interface UploadAssetResult {
 }
 
 /**
+ * Reject a path segment that could escape the tenant prefix or corrupt the
+ * object key: empty, path separators, `..`/`.` traversal, or control bytes
+ * (incl. NUL). Both the tenant prefix and the filename must be a single, safe
+ * path segment — otherwise a filename like "../other-tenant/logo.png" lands in
+ * another tenant's space once the Storage backend normalises the key.
+ * Kept internal; callers receive a thrown Error.
+ */
+export function assertSafePathSegment(kind: "tenantId" | "filename", value: string): void {
+  if (typeof value !== "string" || value.length === 0) {
+    throw new Error(`invalid ${kind}: must be a non-empty string`);
+  }
+  // Reject any control char (0x00-0x1F and 0x7F), including NUL-byte injection.
+  for (let i = 0; i < value.length; i++) {
+    const c = value.charCodeAt(i);
+    if (c < 0x20 || c === 0x7f) {
+      throw new Error(`invalid ${kind}: control characters are not allowed`);
+    }
+  }
+  // A segment must not contain a slash or backslash (would create/select a
+  // sub-path, incl. absolute paths) and must not be a `.`/`..` traversal token.
+  if (value.includes("/") || value.includes("\\")) {
+    throw new Error(`invalid ${kind}: path separators are not allowed`);
+  }
+  if (value === "." || value === "..") {
+    throw new Error(`invalid ${kind}: path traversal is not allowed`);
+  }
+}
+
+/**
  * Upload a binary asset under `{tenantId}/{filename}` in the configured
  * bucket (upsert), returning the storage path and public URL.
+ *
+ * `tenantId` and `filename` are each validated as a single safe path segment
+ * so uploads cannot escape the tenant prefix (see assertSafePathSegment).
  */
 export async function uploadTenantAsset(
   config: StorageUploadConfig,
@@ -67,6 +99,9 @@ export async function uploadTenantAsset(
   if (!supabaseUrl || !serviceKey) {
     throw new Error("Supabase storage not configured (supabaseUrl + serviceKey required)");
   }
+  assertSafePathSegment("tenantId", tenantId);
+  assertSafePathSegment("filename", filename);
+
   const bucket = config.bucket ?? DEFAULT_BUCKET;
   const fetchImpl = config.fetchImpl ?? fetch;
 
