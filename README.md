@@ -1,5 +1,10 @@
 # saas-parts
 
+[![CI](https://github.com/torihanaku/saas-parts/actions/workflows/ci.yml/badge.svg)](https://github.com/torihanaku/saas-parts/actions/workflows/ci.yml)
+[![CodeQL](https://github.com/torihanaku/saas-parts/actions/workflows/codeql.yml/badge.svg)](https://github.com/torihanaku/saas-parts/actions/workflows/codeql.yml)
+[![RLS Isolation](https://github.com/torihanaku/saas-parts/actions/workflows/rls-test.yml/badge.svg)](https://github.com/torihanaku/saas-parts/actions/workflows/rls-test.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
+
 SaaS開発でよく必要になる「配管」を、実運用SaaSから抽出・脱結合した **自己完結・依存注入式・テスト付き** のTypeScript部品集です（bun / npm workspaces monorepo）。**全112パッケージ＝汎用96＋機能キット10＋テンプレート6・約3,443テストgreen**。
 
 認証・課金(Stripe)・マルチテナント/RLS・監査ログ・GDPR・レート制限・Webhook配信 … といった「作るのは面倒だが、間違えると事故になる20%」を、そのまま使える形で提供します。

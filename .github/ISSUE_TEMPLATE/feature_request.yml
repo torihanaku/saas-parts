@@ -1,0 +1,28 @@
+name: 機能/部品の提案 / Feature request
+description: 新しい部品や既存部品への機能追加を提案する
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: 解決したい課題
+      description: どんなSaaSでも使える「配管」か？（製品固有の業務ロジックは対象外です）
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: 提案内容
+      description: 新規パッケージ or 既存パッケージの拡張。API のイメージがあれば
+    validations:
+      required: true
+  - type: dropdown
+    id: kind
+    attributes:
+      label: 種別
+      options:
+        - 新規パッケージ
+        - 既存パッケージの拡張
+        - 未定
+    validations:
+      required: true
