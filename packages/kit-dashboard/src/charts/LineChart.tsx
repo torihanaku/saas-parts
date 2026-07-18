@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import * as d3 from "d3";
 import { useD3 } from "../lib/useD3";
 import { useResizeObserver } from "../lib/useResizeObserver";
@@ -6,6 +6,7 @@ import { useTooltip } from "../lib/useTooltip";
 import { DEFAULT_MARGIN, getInnerDimensions } from "../lib/d3Helpers";
 import { getColorScheme } from "../lib/colorUtils";
 import { categoricalColor, semanticColor } from "../lib/chartRoles";
+import { SHAPE_RX } from "../lib/chartStyle";
 import { formatNumber, formatDateShort } from "../lib/formatters";
 import {
   CHART_TEXT_MUTED,
@@ -114,7 +115,7 @@ export function LineChart({
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const { width: observedWidth } = useResizeObserver(containerRef);
-  const { state: tooltipState, show, hide } = useTooltip();
+  const { show, hide, tooltipRef } = useTooltip();
   const [hiddenSeries, setHiddenSeries] = useState<Set<string>>(new Set());
 
   const width = propWidth ?? observedWidth;
@@ -139,12 +140,19 @@ export function LineChart({
   const effectiveCount = seriesCount ?? 1;
   const effectiveSeriesNames =
     seriesLabels && seriesLabels.length > 0 ? seriesLabels : DEFAULT_SERIES_NAMES;
-  const resolvedData =
-    effectiveCount > 1
-      ? buildMultiSeriesData(data, effectiveCount, effectiveSeriesNames)
-      : data;
-  const resolvedSeries =
-    effectiveCount > 1 ? effectiveSeriesNames.slice(0, effectiveCount) : series;
+  // useMemo で安定化（毎レンダー新規配列を useD3 deps に載せない）。
+  const resolvedData = useMemo(
+    () =>
+      effectiveCount > 1
+        ? buildMultiSeriesData(data, effectiveCount, effectiveSeriesNames)
+        : data,
+    [data, effectiveCount, effectiveSeriesNames],
+  );
+  const resolvedSeries = useMemo(
+    () =>
+      effectiveCount > 1 ? effectiveSeriesNames.slice(0, effectiveCount) : series,
+    [effectiveCount, effectiveSeriesNames, series],
+  );
 
   // 多系列 = 真のカテゴリ → categoricalColor(i)。
   // colorScheme/colors は「ユーザーが明示選択した配色」なので優先し、未指定時はロール基準の色に寄せる。
@@ -975,7 +983,7 @@ export function LineChart({
                 .attr("width", 10)
                 .attr("height", 10)
                 .attr("fill", color)
-                .attr("rx", 2);
+                .attr("rx", SHAPE_RX);
             }
 
             item
@@ -1012,7 +1020,7 @@ export function LineChart({
               .attr("width", 10)
               .attr("height", 10)
               .attr("fill", color)
-              .attr("rx", 2);
+              .attr("rx", SHAPE_RX);
 
             item
               .append("text")
@@ -1132,12 +1140,7 @@ export function LineChart({
         role="img"
         aria-label={`折れ線グラフ: ${resolvedSeries ? resolvedSeries.join(", ") : "系列データ"}`}
       />
-      <ChartTooltip
-        x={tooltipState.x}
-        y={tooltipState.y}
-        content={tooltipState.content}
-        visible={tooltipState.visible}
-      />
+      <ChartTooltip ref={tooltipRef} />
     </div>
   );
 }

@@ -1,10 +1,12 @@
-import { useRef } from "react";
+import { useMemo, useRef } from "react";
 import * as d3 from "d3";
 import { useD3 } from "../lib/useD3";
 import { useResizeObserver } from "../lib/useResizeObserver";
 import { useTooltip } from "../lib/useTooltip";
 import { getInnerDimensions } from "../lib/d3Helpers";
-import { getChartColor, getColorScheme } from "../lib/colorUtils";
+import { getColorScheme } from "../lib/colorUtils";
+import { PRIMARY } from "../lib/chartRoles";
+import { fillFor } from "../lib/chartStyle";
 import { formatNumber } from "../lib/formatters";
 import { CHART_TEXT, CHART_TEXT_MUTED } from "../lib/theme";
 import { cn } from "../lib/cn";
@@ -74,15 +76,17 @@ export function FunnelChart({
   fillGradient = false,
   dataCategory,
 }: FunnelChartProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
+  const { show, hide, containerRef, tooltipRef } = useTooltip();
   const { width: observedWidth } = useResizeObserver(containerRef);
-  const { state: tooltipState, show, hide } = useTooltip();
 
   // Resolve data: explicit prop > dataCategory lookup > default
-  const resolvedData =
-    data ??
-    (dataCategory ? FUNNEL_BY_CATEGORY[dataCategory] : undefined) ??
-    DEFAULT_DATA;
+  const resolvedData = useMemo(
+    () =>
+      data ??
+      (dataCategory ? FUNNEL_BY_CATEGORY[dataCategory] : undefined) ??
+      DEFAULT_DATA,
+    [data, dataCategory],
+  );
 
   const width = propWidth ?? observedWidth;
   const margin = FUNNEL_MARGIN;
@@ -101,12 +105,12 @@ export function FunnelChart({
       // 順序チャート（ファネル）はモノクローム＝単一 hue。段の区別は「不透明度ランプ」で出す。
       // 虹色（段ごと別カテゴリ色）はデータ構造の誤読を招き、ベタ塗り感の主因なので廃す。
       const baseColor =
-        (colorScheme ? getColorScheme(colorScheme)[0] : undefined) ?? getChartColor(0);
+        (colorScheme ? getColorScheme(colorScheme)[0] : undefined) ?? PRIMARY();
       const resolveColor = (perItemColor?: string) => perItemColor ?? baseColor;
       // 段ごとの不透明度ランプ（上=濃→下=淡）。白の値ラベルが読める floor 0.6。
       const stageOpacity = (i: number) => Math.max(0.6, 0.92 - i * 0.08);
 
-      // gradient defs (used when fillGradient=true)
+      // 共通の縦グラデ defs（全 filled shape 統一の塗り）。
       const defsEl = svg.append("defs");
 
       const maxValue = d3.max(resolvedData, (d) => d.value) ?? 1;
@@ -136,28 +140,8 @@ export function FunnelChart({
         const cx = innerWidth / 2;
 
         const fill = resolveColor(d.color);
-
-        // gradient def for this step
-        if (fillGradient) {
-          // 縦方向の淡いトーン（上やや濃→下やや淡）。横方向の光沢感をやめ落ち着かせる。
-          const grad = defsEl
-            .append("linearGradient")
-            .attr("id", `funnel-grad-${i}`)
-            .attr("x1", "0")
-            .attr("y1", "0")
-            .attr("x2", "0")
-            .attr("y2", "1");
-          grad
-            .append("stop")
-            .attr("offset", "0%")
-            .attr("stop-color", fill)
-            .attr("stop-opacity", 0.85);
-          grad
-            .append("stop")
-            .attr("offset", "100%")
-            .attr("stop-color", fill)
-            .attr("stop-opacity", 0.55);
-        }
+        // 塗りは共通の縦グラデ（fillFor）で統一。段の濃淡は attr("opacity") のランプで出す。
+        const fillPaint = fillFor(defsEl, fill, `funnel-fill-${i}`);
 
         let pathD: string;
         if (shape === "trapezoid") {
@@ -175,7 +159,7 @@ export function FunnelChart({
           .append("path")
           .attr("class", "funnel-bar")
           .style("cursor", "pointer")
-          .attr("fill", fillGradient ? `url(#funnel-grad-${i})` : fill)
+          .attr("fill", fillPaint)
           .attr("opacity", stageOpacity(i));
 
         if (animated) {
@@ -308,12 +292,7 @@ export function FunnelChart({
   return (
     <div ref={containerRef} className={cn("relative w-full overflow-visible", className)}>
       <svg ref={svgRef} />
-      <ChartTooltip
-        x={tooltipState.x}
-        y={tooltipState.y}
-        content={tooltipState.content}
-        visible={tooltipState.visible}
-      />
+      <ChartTooltip ref={tooltipRef} />
     </div>
   );
 }

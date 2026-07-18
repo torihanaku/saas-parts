@@ -1,5 +1,5 @@
 import * as d3 from "d3";
-import { useRef } from "react";
+import { useMemo, useRef } from "react";
 import { useD3 } from "../lib/useD3";
 import { useResizeObserver } from "../lib/useResizeObserver";
 import { useTooltip } from "../lib/useTooltip";
@@ -43,11 +43,15 @@ export function BubbleChart({
 }: BubbleChartProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const { width: observedWidth } = useResizeObserver(containerRef);
-  const { state: tooltipState, show, hide } = useTooltip();
+  const { show, hide, tooltipRef } = useTooltip();
 
   const width = propWidth ?? observedWidth;
   const svgHeight = height;
-  const mg = margin ?? DEFAULT_MARGIN;
+  // useMemo で安定化（毎レンダー新規オブジェクトを useD3 deps に載せない）。
+  const mg = useMemo(
+    () => margin ?? DEFAULT_MARGIN,
+    [margin],
+  );
 
   const svgRef = useD3<SVGSVGElement>(
     (svg) => {
@@ -185,12 +189,7 @@ export function BubbleChart({
       className={cn("relative w-full overflow-hidden", className)}
     >
       <svg ref={svgRef} className="block w-full" />
-      <ChartTooltip
-        x={tooltipState.x}
-        y={tooltipState.y}
-        content={tooltipState.content}
-        visible={tooltipState.visible}
-      />
+      <ChartTooltip ref={tooltipRef} />
     </div>
   );
 }

@@ -80,7 +80,7 @@ export function ScatterChart({
 }: ScatterChartProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const { width: observedWidth } = useResizeObserver(containerRef);
-  const { state: tooltipState, show, hide } = useTooltip();
+  const { show, hide, tooltipRef } = useTooltip();
 
   const margin = DEFAULT_MARGIN;
   const width = propWidth ?? observedWidth;
@@ -329,12 +329,7 @@ export function ScatterChart({
       aria-label="散布図チャート"
     >
       <svg ref={svgRef} />
-      <ChartTooltip
-        x={tooltipState.x}
-        y={tooltipState.y}
-        content={tooltipState.content}
-        visible={tooltipState.visible}
-      />
+      <ChartTooltip ref={tooltipRef} />
     </div>
   );
 }

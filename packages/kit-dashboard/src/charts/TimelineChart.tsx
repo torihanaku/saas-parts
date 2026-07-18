@@ -1,10 +1,11 @@
-import { useRef } from "react";
+import { useMemo } from "react";
 import * as d3 from "d3";
 import { useD3 } from "../lib/useD3";
 import { useResizeObserver } from "../lib/useResizeObserver";
 import { useTooltip } from "../lib/useTooltip";
 import { formatDate } from "../lib/formatters";
 import { categoricalColor, semanticColor } from "../lib/chartRoles";
+import { fillFor, SHAPE_RX } from "../lib/chartStyle";
 import {
   CHART_TEXT,
   CHART_TEXT_MUTED,
@@ -73,15 +74,16 @@ export function TimelineChart({
   margin = DEFAULT_TIMELINE_MARGIN,
   className,
 }: TimelineChartProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
+  const { show, hide, containerRef, tooltipRef } = useTooltip();
   const { width: observedWidth } = useResizeObserver(containerRef);
-  const { state: tooltipState, show, hide } = useTooltip();
 
   const width = propWidth ?? observedWidth;
 
-  // Derive unique rows (swim lanes) in insertion order
-  const uniqueRows = Array.from(
-    new Map(data.map((d) => [d.row ?? d.label, true])).keys(),
+  // Derive unique rows (swim lanes) in insertion order.
+  // useMemo で安定化（毎レンダー新規配列を useD3 deps に渡さない＝保険）。
+  const uniqueRows = useMemo(
+    () => Array.from(new Map(data.map((d) => [d.row ?? d.label, true])).keys()),
+    [data],
   );
 
   const height =
@@ -90,23 +92,28 @@ export function TimelineChart({
   const innerWidth = Math.max(0, width - margin.left - margin.right);
   const innerHeight = Math.max(0, height - margin.top - margin.bottom);
 
-  // Time extent
-  const allDates = data.flatMap((d) => [d.start, ...(d.end ? [d.end] : [])]);
-  const timeExtent = d3.extent(allDates) as [Date, Date];
+  // Time extent（padded domain）— data 由来なので useMemo で安定化して
+  // useD3 deps の churn（毎レンダー新規 Date）を防ぐ。
+  const { paddedStart, paddedEnd } = useMemo(() => {
+    const allDates = data.flatMap((d) => [d.start, ...(d.end ? [d.end] : [])]);
+    const timeExtent = d3.extent(allDates) as [Date, Date];
+    const ps = new Date(timeExtent[0]);
+    ps.setDate(ps.getDate() - 3);
+    const pe = new Date(timeExtent[1]);
+    pe.setDate(pe.getDate() + 3);
+    return { paddedStart: ps, paddedEnd: pe };
+  }, [data]);
 
-  // Pad domain slightly
-  const paddedStart = new Date(timeExtent[0]);
-  paddedStart.setDate(paddedStart.getDate() - 3);
-  const paddedEnd = new Date(timeExtent[1]);
-  paddedEnd.setDate(paddedEnd.getDate() + 3);
-
-  const today = new Date();
+  const today = useMemo(() => new Date(), []);
 
   const svgRef = useD3<SVGSVGElement>(
     (svg) => {
       if (data.length === 0 || innerWidth <= 0 || innerHeight <= 0) return;
 
       svg.attr("width", width).attr("height", height);
+
+      // 塗りグラマー統一: 棒は fillFor（共通の縦グラデ）で塗る。defs を1つ用意。
+      const defs = svg.append("defs");
 
       const g = svg
         .append("g")
@@ -184,6 +191,9 @@ export function TimelineChart({
           const barW = Math.max(2, xScale(event.end) - xScale(event.start));
           const y = (yScale(rowKey) ?? 0) + (yScale.bandwidth() - BAR_HEIGHT) / 2;
           const color = event.color ?? groupColor(event.group, i);
+          // 棒の塗りは共通の縦グラデ（fillFor）。hue は色ロール（groupColor=categorical）
+          // か明示 event.color。opacity ランプ（背景 0.25／進捗 1.0）は現状維持。
+          const barFill = fillFor(defs, color);
           const progress = event.progress ?? 0;
 
           const barGroup = g
@@ -198,8 +208,8 @@ export function TimelineChart({
             .attr("y", y)
             .attr("width", barW)
             .attr("height", BAR_HEIGHT)
-            .attr("rx", 3)
-            .attr("fill", color)
+            .attr("rx", SHAPE_RX)
+            .attr("fill", barFill)
             .attr("opacity", 0.25)
             .style("transition", "opacity 0.15s ease");
 
@@ -212,8 +222,8 @@ export function TimelineChart({
               .attr("y", y)
               .attr("width", progressW)
               .attr("height", BAR_HEIGHT)
-              .attr("rx", 3)
-              .attr("fill", color)
+              .attr("rx", SHAPE_RX)
+              .attr("fill", barFill)
               .style("pointer-events", "none");
 
             // Progress % label if bar is wide enough
@@ -238,8 +248,8 @@ export function TimelineChart({
               .attr("y", y)
               .attr("width", barW)
               .attr("height", BAR_HEIGHT)
-              .attr("rx", 3)
-              .attr("fill", color);
+              .attr("rx", SHAPE_RX)
+              .attr("fill", barFill);
           }
 
           // Label inside bar if space, outside if not
@@ -276,7 +286,7 @@ export function TimelineChart({
             .attr("y", y)
             .attr("width", barW)
             .attr("height", BAR_HEIGHT)
-            .attr("rx", 3)
+            .attr("rx", SHAPE_RX)
             .attr("fill", "transparent")
             .on("mouseenter", function (mouseEv: MouseEvent) {
               barGroup
@@ -314,7 +324,8 @@ export function TimelineChart({
               .attr("y", -16)
               .attr("width", 10)
               .attr("height", 10)
-              .attr("rx", 2)
+              .attr("rx", SHAPE_RX)
+              // 凡例スウォッチは小面積の識別アイコン → categorical flat 色のまま。
               .attr("fill", groupColor(grp, gi));
             legendG
               .append("text")
@@ -337,7 +348,7 @@ export function TimelineChart({
 
           const milestoneGroup = g.append("g").attr("class", "milestone-group");
 
-          // Diamond = rotated square via transform
+          // Diamond = rotated square via transform（塗りは共通の縦グラデ）
           milestoneGroup
             .append("rect")
             .attr("x", cx - s)
@@ -345,7 +356,7 @@ export function TimelineChart({
             .attr("width", s * 2)
             .attr("height", s * 2)
             .attr("transform", `rotate(45, ${cx}, ${cy})`)
-            .attr("fill", color)
+            .attr("fill", fillFor(defs, color))
             .style("cursor", "pointer")
             .style("transition", "opacity 0.15s ease")
             .on("mouseenter", function (mouseEv: MouseEvent) {
@@ -424,12 +435,7 @@ export function TimelineChart({
         aria-label="タイムラインチャート"
         role="img"
       />
-      <ChartTooltip
-        x={tooltipState.x}
-        y={tooltipState.y}
-        content={tooltipState.content}
-        visible={tooltipState.visible}
-      />
+      <ChartTooltip ref={tooltipRef} />
     </div>
   );
 }

@@ -3,15 +3,16 @@ import { useRef, useState, useCallback, useEffect } from "react";
 import { useD3 } from "../lib/useD3";
 import { useResizeObserver } from "../lib/useResizeObserver";
 import { useTooltip } from "../lib/useTooltip";
-import { getChartColor } from "../lib/colorUtils";
+import { categoricalColor } from "../lib/chartRoles";
+import { fillFor } from "../lib/chartStyle";
 import { formatNumber } from "../lib/formatters";
 import {
   CHART_TEXT,
   CHART_TEXT_MUTED,
-  CHART_BORDER,
   CHART_SURFACE,
 } from "../lib/theme";
 import { cn } from "../lib/cn";
+import { ChartTooltip } from "../primitives/ChartTooltip";
 import type { PieChartProps, DataPoint, PieLabelMode } from "../lib/types";
 
 function getLabelText(
@@ -71,7 +72,7 @@ export function PieChart({
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const { width, height: containerHeight } = useResizeObserver(containerRef);
-  const { state: tooltipState, show, hide } = useTooltip();
+  const { show, hide, tooltipRef } = useTooltip();
 
   // Track which slice index is clicked (highlighted)
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
@@ -143,6 +144,8 @@ export function PieChart({
         return `translate(${dx},${dy})`;
       }
 
+      const defs = svg.append("defs");
+
       const g = svg
         .attr("width", width)
         .attr("height", svgHeight)
@@ -158,7 +161,7 @@ export function PieChart({
         .data(arcs)
         .join("path")
         .attr("class", "pie-slice")
-        .attr("fill", (d, i) => d.data.color ?? getChartColor(i))
+        .attr("fill", (d, i) => fillFor(defs, d.data.color ?? categoricalColor(i)))
         .attr("fill-opacity", 0.92)
         .attr("stroke", CHART_SURFACE)
         .attr("stroke-width", 1)
@@ -359,27 +362,7 @@ export function PieChart({
             .join(", ")}`}
           style={{ display: "block", width: "100%" }}
         />
-        {tooltipState.visible && (
-          <div
-            style={{
-              position: "absolute",
-              left: tooltipState.x + 10,
-              top: tooltipState.y - 20,
-              background: CHART_SURFACE,
-              color: CHART_TEXT,
-              border: `1px solid ${CHART_BORDER}`,
-              borderRadius: 4,
-              padding: "6px 10px",
-              fontSize: 12,
-              pointerEvents: "none",
-              zIndex: 50,
-              boxShadow: "0 2px 6px rgba(0,0,0,.15)",
-              whiteSpace: "nowrap",
-            }}
-          >
-            {tooltipState.content}
-          </div>
-        )}
+        <ChartTooltip ref={tooltipRef} />
       </div>
 
       {isLegendVisible && (
@@ -397,7 +380,7 @@ export function PieChart({
             >
               <span
                 className="h-2 w-2 flex-shrink-0 rounded-full"
-                style={{ background: d.color ?? getChartColor(i) }}
+                style={{ background: d.color ?? categoricalColor(i) }}
               />
               <span>{d.label}</span>
             </div>

@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useMemo } from "react";
 import * as d3 from "d3";
 import {
   sankey as d3Sankey,
@@ -10,7 +10,8 @@ import {
 import { useD3 } from "../lib/useD3";
 import { useResizeObserver } from "../lib/useResizeObserver";
 import { useTooltip } from "../lib/useTooltip";
-import { getChartColor } from "../lib/colorUtils";
+import { categoricalColor } from "../lib/chartRoles";
+import { fillFor, SHAPE_RX } from "../lib/chartStyle";
 import { formatNumber } from "../lib/formatters";
 import { CHART_TEXT, CHART_TEXT_MUTED } from "../lib/theme";
 import { cn } from "../lib/cn";
@@ -71,17 +72,20 @@ export function SankeyChart({
   margin = DEFAULT_SANKEY_MARGIN,
   className,
 }: SankeyChartProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
+  const { show, hide, containerRef, tooltipRef } = useTooltip();
   const { width: observedWidth } = useResizeObserver(containerRef);
-  const { state: tooltipState, show, hide } = useTooltip();
 
   const width = propWidth ?? observedWidth;
   const innerWidth = Math.max(0, width - margin.left - margin.right);
   const innerHeight = Math.max(0, height - margin.top - margin.bottom);
 
-  // Build id → color map for stable, theme-following node colors
-  const nodeColorMap = new Map<string, string>(
-    nodes.map((n, i) => [n.id, n.color ?? getChartColor(i)]),
+  // Build id → color map for stable, theme-following node colors（真のカテゴリ＝categoricalColor）
+  const nodeColorMap = useMemo(
+    () =>
+      new Map<string, string>(
+        nodes.map((n, i) => [n.id, n.color ?? categoricalColor(i)]),
+      ),
+    [nodes],
   );
 
   const svgRef = useD3<SVGSVGElement>(
@@ -249,10 +253,14 @@ export function SankeyChart({
         .attr("y", (d) => d.y0 ?? 0)
         .attr("width", (d) => (d.x1 ?? 0) - (d.x0 ?? 0))
         .attr("height", (d) => Math.max(1, (d.y1 ?? 0) - (d.y0 ?? 0)))
-        .attr("rx", 3)
-        .attr(
-          "fill",
-          (d) => nodeColorMap.get(d.id) ?? getChartColor(d.origIndex ?? 0),
+        .attr("rx", SHAPE_RX)
+        // ノードは真のカテゴリ＝共通の縦グラデ（fillFor）で塗る。link は flat 例外（下記）。
+        .attr("fill", (d) =>
+          fillFor(
+            defs,
+            nodeColorMap.get(d.id) ?? categoricalColor(d.origIndex ?? 0),
+            `sankey-node-${d.origIndex ?? 0}`,
+          ),
         );
 
       // Node labels: left side if x0 > innerWidth/2, right side otherwise
@@ -306,6 +314,7 @@ export function SankeyChart({
       nodeWidth,
       nodePadding,
       animatedLinks,
+      nodeColorMap,
     ],
   );
 
@@ -321,12 +330,7 @@ export function SankeyChart({
         aria-label="サンキーチャート"
         role="img"
       />
-      <ChartTooltip
-        x={tooltipState.x}
-        y={tooltipState.y}
-        content={tooltipState.content}
-        visible={tooltipState.visible}
-      />
+      <ChartTooltip ref={tooltipRef} />
     </div>
   );
 }

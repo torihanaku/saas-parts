@@ -42,8 +42,13 @@ describe("CandlestickChart", () => {
     // 軸テキストは --muted-foreground を参照する（ダーク追従の担保）
     const axisText = container.querySelector("g text");
     expect(axisText?.getAttribute("fill")).toContain("var(--muted-foreground");
-    // ローソク実体の塗りは var(...) 由来（positive/negative トークン）
+    // ローソク実体は共通の縦グラデ（fillFor）で塗る＝fill は url(#…) 参照。
     const body = container.querySelector("rect.candle-body");
-    expect(body?.getAttribute("fill")).toContain("var(--chart-");
+    expect(body?.getAttribute("fill")).toMatch(/^url\(#/);
+    // グラデの stop-color が positive/negative トークン由来（ダーク追従の担保）。
+    const stopColors = Array.from(container.querySelectorAll("stop")).map((s) =>
+      s.getAttribute("stop-color"),
+    );
+    expect(stopColors.some((c) => c?.includes("var(--chart-"))).toBe(true);
   });
 });

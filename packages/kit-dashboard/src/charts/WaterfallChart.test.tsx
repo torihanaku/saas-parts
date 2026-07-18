@@ -42,8 +42,10 @@ describe("WaterfallChart", () => {
     // 軸テキストは --muted-foreground を参照する（ダーク追従の担保）
     const axisText = container.querySelector("g text");
     expect(axisText?.getAttribute("fill")).toContain("var(--muted-foreground");
-    // バーの塗りも var(...) 由来（增/減=positive/negative）
+    // バーは共通の標準塗り fillFor（url(#…)）。テーマ追従は gradient stop の var(...) が担う。
     const bar = container.querySelector("rect.wf-bar");
-    expect(bar?.getAttribute("fill")).toContain("var(");
+    expect(bar?.getAttribute("fill")).toMatch(/^url\(#/);
+    const stop = container.querySelector("linearGradient stop");
+    expect(stop?.getAttribute("stop-color")).toContain("var(");
   });
 });

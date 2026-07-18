@@ -1,4 +1,3 @@
-import { useRef } from "react";
 import * as d3 from "d3";
 import { useD3 } from "../lib/useD3";
 import { useResizeObserver } from "../lib/useResizeObserver";
@@ -6,6 +5,7 @@ import { useTooltip } from "../lib/useTooltip";
 import { getInnerDimensions } from "../lib/d3Helpers";
 import { formatNumber } from "../lib/formatters";
 import { semanticColor, PRIMARY } from "../lib/chartRoles";
+import { SHAPE_RX, fillFor } from "../lib/chartStyle";
 import {
   CHART_BORDER,
   CHART_TEXT_MUTED,
@@ -119,9 +119,8 @@ export function WaterfallChart({
   animated = true,
   className,
 }: WaterfallChartProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
+  const { show, hide, containerRef, tooltipRef } = useTooltip();
   const { width: observedWidth } = useResizeObserver(containerRef);
-  const { state: tooltipState, show, hide } = useTooltip();
 
   const width = propWidth ?? observedWidth;
   const { innerWidth, innerHeight } = getInnerDimensions(width, height, margin);
@@ -213,7 +212,18 @@ export function WaterfallChart({
       }
 
       // --- Bars ---
-      // ベタ塗り回避: fill は s.color（var(...)＝テーマ追従）のまま、fill-opacity で軽く tint 化。
+      // ベタ塗り回避: 共通の標準塗り fillFor（縦グラデ）。hue は色ロール（意味/主系列/muted）で決める。
+      const barDefs = svg.append("defs");
+      const fillByColor = new Map<string, string>();
+      const segFill = (color: string): string => {
+        let url = fillByColor.get(color);
+        if (!url) {
+          url = fillFor(barDefs, color, `wf-fill-${fillByColor.size}`);
+          fillByColor.set(color, url);
+        }
+        return url;
+      };
+
       const barGroups = g
         .selectAll<SVGRectElement, WaterfallSegment>(".wf-bar")
         .data(segments)
@@ -222,9 +232,8 @@ export function WaterfallChart({
         .style("cursor", "pointer")
         .attr("x", (s) => xScale(s.label) ?? 0)
         .attr("width", xScale.bandwidth())
-        .attr("rx", 2)
-        .attr("fill", (s) => s.color)
-        .attr("fill-opacity", 0.88)
+        .attr("rx", SHAPE_RX)
+        .attr("fill", (s) => segFill(s.color))
         .attr("y", (s) => yScale(s.barStart))
         .attr("height", 0);
 
@@ -355,12 +364,7 @@ export function WaterfallChart({
   return (
     <div ref={containerRef} className={cn("relative w-full overflow-hidden", className)}>
       <svg ref={svgRef} />
-      <ChartTooltip
-        x={tooltipState.x}
-        y={tooltipState.y}
-        content={tooltipState.content}
-        visible={tooltipState.visible}
-      />
+      <ChartTooltip ref={tooltipRef} />
     </div>
   );
 }

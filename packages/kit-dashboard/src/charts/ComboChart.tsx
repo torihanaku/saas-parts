@@ -1,4 +1,3 @@
-import { useRef } from "react";
 import * as d3 from "d3";
 import { useD3 } from "../lib/useD3";
 import { useResizeObserver } from "../lib/useResizeObserver";
@@ -6,6 +5,7 @@ import { useTooltip } from "../lib/useTooltip";
 import { getInnerDimensions } from "../lib/d3Helpers";
 import { getColorScheme } from "../lib/colorUtils";
 import { PRIMARY, categoricalColor, semanticColor } from "../lib/chartRoles";
+import { SHAPE_RX, fillFor } from "../lib/chartStyle";
 import { formatNumber } from "../lib/formatters";
 import {
   CHART_TEXT_MUTED,
@@ -73,9 +73,8 @@ export function ComboChart({
   colorScheme,
   showSecondaryAxis = true,
 }: ComboChartProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
+  const { show, hide, containerRef, tooltipRef } = useTooltip();
   const { width: observedWidth } = useResizeObserver(containerRef);
-  const { state: tooltipState, show, hide } = useTooltip();
 
   const width = propWidth ?? observedWidth;
   const { innerWidth, innerHeight } = getInnerDimensions(width, height, margin);
@@ -95,10 +94,14 @@ export function ComboChart({
 
       svg.attr("width", width).attr("height", height);
 
-      // ベタ塗り回避: 棒は token 色 + fill-opacity で tint 化（テーマ追従を維持しつつ深みを出す）。
-      const barPrimaryFill = colorBarPrimary;
-      const barSecondaryFill = colorBarSecondary;
-      const BAR_FILL_OPACITY = 0.9;
+      // ベタ塗り回避: 棒は共通の標準塗り fillFor（縦グラデ）で塗る。線は flat 例外。
+      const barDefs = svg.append("defs");
+      const barPrimaryFill = fillFor(barDefs, colorBarPrimary, "combo-bar-primary");
+      const barSecondaryFill = fillFor(
+        barDefs,
+        colorBarSecondary,
+        "combo-bar-secondary",
+      );
 
       const g = svg
         .append("g")
@@ -217,9 +220,8 @@ export function ComboChart({
           .style("cursor", "pointer")
           .attr("x", (d) => (xScale(d.label) ?? 0) + (subScale("primary") ?? 0))
           .attr("width", subScale.bandwidth())
-          .attr("rx", 2)
+          .attr("rx", SHAPE_RX)
           .attr("fill", barPrimaryFill)
-          .attr("fill-opacity", BAR_FILL_OPACITY)
           .attr("y", innerHeight)
           .attr("height", 0);
 
@@ -235,9 +237,8 @@ export function ComboChart({
             (d) => (xScale(d.label) ?? 0) + (subScale("secondary") ?? 0),
           )
           .attr("width", subScale.bandwidth())
-          .attr("rx", 2)
+          .attr("rx", SHAPE_RX)
           .attr("fill", barSecondaryFill)
-          .attr("fill-opacity", BAR_FILL_OPACITY)
           .attr("y", innerHeight)
           .attr("height", 0);
 
@@ -292,9 +293,8 @@ export function ComboChart({
           .style("cursor", "pointer")
           .attr("x", (d) => xScale(d.label) ?? 0)
           .attr("width", xScale.bandwidth())
-          .attr("rx", 2)
+          .attr("rx", SHAPE_RX)
           .attr("fill", barPrimaryFill)
-          .attr("fill-opacity", BAR_FILL_OPACITY)
           .attr("y", innerHeight)
           .attr("height", 0);
 
@@ -306,9 +306,8 @@ export function ComboChart({
           .style("cursor", "pointer")
           .attr("x", (d) => xScale(d.label) ?? 0)
           .attr("width", xScale.bandwidth())
-          .attr("rx", 0)
+          .attr("rx", SHAPE_RX)
           .attr("fill", barSecondaryFill)
-          .attr("fill-opacity", BAR_FILL_OPACITY)
           .attr("y", innerHeight)
           .attr("height", 0);
 
@@ -363,9 +362,8 @@ export function ComboChart({
           .style("cursor", "pointer")
           .attr("x", (d) => xScale(d.label) ?? 0)
           .attr("width", xScale.bandwidth())
-          .attr("rx", 2)
+          .attr("rx", SHAPE_RX)
           .attr("fill", barPrimaryFill)
-          .attr("fill-opacity", BAR_FILL_OPACITY)
           .attr("y", innerHeight)
           .attr("height", 0);
 
@@ -538,12 +536,7 @@ export function ComboChart({
           ))}
         </div>
       )}
-      <ChartTooltip
-        x={tooltipState.x}
-        y={tooltipState.y}
-        content={tooltipState.content}
-        visible={tooltipState.visible}
-      />
+      <ChartTooltip ref={tooltipRef} />
     </div>
   );
 }

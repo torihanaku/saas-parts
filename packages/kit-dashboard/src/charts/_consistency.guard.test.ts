@@ -37,4 +37,26 @@ describe("チャート配色の統一ガード", () => {
     }
     expect(offenders).toEqual([]);
   });
+
+  // flicker 再発防止: tooltip は命令的(ref)方式のみ。props版(<ChartTooltip x=…>)や
+  // 旧 state 変数(tooltipState)を使うと setState→再レンダー→useD3再実行→flicker が復活する。
+  it("ChartTooltip は ref 方式のみ（props版/tooltipState を使わない）", () => {
+    const offenders: string[] = [];
+    for (const f of chartFiles) {
+      const src = readFileSync(join(CHARTS_DIR, f), "utf8");
+      if (/<ChartTooltip\s+x=/.test(src) || /\btooltipState\b/.test(src)) offenders.push(f);
+    }
+    expect(offenders).toEqual([]);
+  });
+
+  // 角丸は SHAPE_RX に一本化（rx の数値直書き≥1 を禁止。rx 0 は円形化などで可）。
+  it("filled shape の角丸は SHAPE_RX を使う（rx の数値直書き≥1 を禁止）", () => {
+    const offenders: string[] = [];
+    for (const f of chartFiles) {
+      const src = readFileSync(join(CHARTS_DIR, f), "utf8");
+      const m = src.match(/\.attr\(\s*["']rx["']\s*,\s*[1-9]/g);
+      if (m) offenders.push(`${f}: ${m.join(", ")}`);
+    }
+    expect(offenders).toEqual([]);
+  });
 });

@@ -35,14 +35,17 @@ describe("ComboChart", () => {
     expect(container.querySelectorAll("circle.line-dot")).toHaveLength(3);
   });
 
-  it("themes axis with CSS-variable colors and bars use var() fills (theme-following)", () => {
+  it("themes axis with CSS-variable colors and bars use gradient fills (theme-following)", () => {
     const { container } = render(
       <ComboChart width={600} height={320} animated={false} />,
     );
     const axisText = container.querySelector("g text");
     expect(axisText?.getAttribute("fill")).toContain("var(--muted-foreground");
+    // 棒は共通の標準塗り fillFor（url(#…)）。テーマ追従は gradient stop の var(...) が担う。
     const bar = container.querySelector("rect.bar-single");
-    expect(bar?.getAttribute("fill")).toContain("var(");
+    expect(bar?.getAttribute("fill")).toMatch(/^url\(#/);
+    const stop = container.querySelector("linearGradient stop");
+    expect(stop?.getAttribute("stop-color")).toContain("var(");
   });
 
   it("renders grouped bars when barVariant=grouped with barValue2", () => {
