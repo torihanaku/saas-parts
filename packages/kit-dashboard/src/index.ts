@@ -46,4 +46,9 @@ export { cn } from "./lib/cn";
 export { ChartTooltip, type ChartTooltipProps } from "./primitives/ChartTooltip";
 
 // --- Charts (Phase 1+) ---
-// (移植に伴いここへ追記する)
+export {
+  WaterfallChart,
+  type WaterfallChartProps,
+  type WaterfallItem,
+  type WaterfallItemType,
+} from "./charts/WaterfallChart";

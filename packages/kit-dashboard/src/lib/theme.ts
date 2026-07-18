@@ -83,3 +83,22 @@ export function resolveChartColor(index: number, el?: Element | null): string {
   const n = (((index % PALETTE_SIZE) + PALETTE_SIZE) % PALETTE_SIZE) + 1;
   return resolveVar(`--chart-${n}`, el);
 }
+
+/**
+ * チャートで頻用する意味づけ色（すべて `var(...)` 文字列＝テーマ追従）。
+ * DashMock 時代の `--color-*` 独自トークンはここへ写像する:
+ *   --color-text-primary   → CHART_TEXT
+ *   --color-text-secondary → CHART_TEXT_MUTED
+ *   --color-border         → CHART_BORDER
+ *   --color-background     → CHART_SURFACE
+ */
+export const CHART_TEXT = token("--foreground");
+export const CHART_TEXT_MUTED = token("--muted-foreground");
+export const CHART_BORDER = token("--border");
+export const CHART_SURFACE = token("--card");
+export const CHART_POSITIVE = token("--chart-positive");
+export const CHART_NEGATIVE = token("--chart-negative");
+export const CHART_WARNING = token("--chart-warning");
+
+/** 軸ラベルの既定フォントサイズ（shadcn トークンに無いので固定 px） */
+export const CHART_AXIS_FONT_SIZE = "11px";
