@@ -5,6 +5,7 @@ import { useResizeObserver } from "../lib/useResizeObserver";
 import { useTooltip } from "../lib/useTooltip";
 import { formatNumber } from "../lib/formatters";
 import { semanticColor, PRIMARY } from "../lib/chartRoles";
+import { fillFor, SHAPE_RX, HOVER_OPACITY } from "../lib/chartStyle";
 import {
   CHART_TEXT,
   CHART_TEXT_MUTED,
@@ -176,7 +177,7 @@ interface BulletRowProps {
 }
 
 function BulletRow({ item, barHeight, containerWidth }: BulletRowProps) {
-  const { state: tooltipState, show, hide } = useTooltip();
+  const { show, hide, tooltipRef } = useTooltip();
 
   const svgRef = useD3<SVGSVGElement>(
     (svg) => {
@@ -184,6 +185,8 @@ function BulletRow({ item, barHeight, containerWidth }: BulletRowProps) {
 
       const svgHeight = barHeight + 20;
       svg.attr("width", containerWidth).attr("height", svgHeight);
+
+      const defs = svg.append("defs");
 
       const xScale = d3
         .scaleLinear()
@@ -208,7 +211,7 @@ function BulletRow({ item, barHeight, containerWidth }: BulletRowProps) {
           .attr("y", 0)
           .attr("width", xScale(band.to) - xScale(band.from))
           .attr("height", barHeight)
-          .attr("rx", 2)
+          .attr("rx", SHAPE_RX)
           .attr("fill", band.color)
           // 淡い帯として敷く（元 CSS の pastel hex 相当）: var(...) を薄く。
           .attr("fill-opacity", 0.18);
@@ -219,7 +222,7 @@ function BulletRow({ item, barHeight, containerWidth }: BulletRowProps) {
           .attr("y", 0)
           .attr("width", xScale(band.to) - xScale(band.from))
           .attr("height", barHeight)
-          .attr("rx", 2)
+          .attr("rx", SHAPE_RX)
           .attr("fill", "none")
           .attr("stroke", CHART_BORDER)
           .attr("stroke-opacity", 0.3)
@@ -235,8 +238,9 @@ function BulletRow({ item, barHeight, containerWidth }: BulletRowProps) {
         .attr("y", barHeight * 0.25)
         .attr("width", valueWidth)
         .attr("height", barHeight * 0.5)
-        .attr("rx", 2)
-        .attr("fill", PRIMARY());
+        .attr("rx", SHAPE_RX)
+        // 実測バーは単一指標＝PRIMARY を共通の縦グラデで塗る。
+        .attr("fill", fillFor(defs, PRIMARY()));
 
       // ── Target line — full height, prominent ─────────────────────
       const targetX = xScale(Math.min(item.target, item.max));
@@ -245,7 +249,7 @@ function BulletRow({ item, barHeight, containerWidth }: BulletRowProps) {
         .attr("y", -2)
         .attr("width", 4)
         .attr("height", barHeight + 4)
-        .attr("rx", 2)
+        .attr("rx", SHAPE_RX)
         .attr("fill", CHART_TEXT)
         .attr("pointer-events", "none");
 
@@ -289,7 +293,7 @@ function BulletRow({ item, barHeight, containerWidth }: BulletRowProps) {
       // ── Hover ────────────────────────────────────────────────────
       actualBar
         .on("mouseenter", function (event: MouseEvent) {
-          d3.select(this).attr("opacity", 0.8);
+          d3.select(this).attr("opacity", HOVER_OPACITY);
           show(
             event,
             `${item.label}: ${formatNumber(item.value, 0)}${unit} / 目標 ${formatNumber(item.target, 0)}${unit} (${pct}%)`,
@@ -319,12 +323,7 @@ function BulletRow({ item, barHeight, containerWidth }: BulletRowProps) {
           role="img"
           aria-label={`${item.label}: ${item.value}`}
         />
-        <ChartTooltip
-          x={tooltipState.x}
-          y={tooltipState.y}
-          content={tooltipState.content}
-          visible={tooltipState.visible}
-        />
+        <ChartTooltip ref={tooltipRef} />
       </div>
     </div>
   );

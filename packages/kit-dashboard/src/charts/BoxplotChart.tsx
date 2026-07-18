@@ -5,7 +5,8 @@ import { useResizeObserver } from "../lib/useResizeObserver";
 import { useTooltip } from "../lib/useTooltip";
 import { getInnerDimensions } from "../lib/d3Helpers";
 import { categoricalColor } from "../lib/chartRoles";
-import { themeAxis, themeGrid, tintGradient } from "../lib/d3Theme";
+import { fillFor, SHAPE_RX } from "../lib/chartStyle";
+import { themeAxis, themeGrid } from "../lib/d3Theme";
 import { cn } from "../lib/cn";
 import { ChartTooltip } from "../primitives/ChartTooltip";
 
@@ -62,7 +63,7 @@ export function BoxplotChart({
 }: BoxplotChartProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const { width: observedWidth } = useResizeObserver(containerRef);
-  const { state: tooltipState, show, hide } = useTooltip();
+  const { show, hide, tooltipRef } = useTooltip();
 
   const resolvedData = data ?? DEFAULT_DATA;
   const width = propWidth ?? observedWidth;
@@ -82,17 +83,13 @@ export function BoxplotChart({
         .append("g")
         .attr("transform", `translate(${MARGIN.left},${MARGIN.top})`);
 
-      // 箱のベタ塗り回避: 色ごとに縦 tint グラデを1度だけ生成してキャッシュする。
+      // 箱のベタ塗り回避: 共通の標準塗り(fillFor)を色ごとに1度だけ生成してキャッシュする。
       const defs = svg.append("defs");
       const tintCache = new Map<string, string>();
       const boxTint = (color: string): string => {
         let url = tintCache.get(color);
         if (!url) {
-          url = tintGradient(defs, color, {
-            dir: "v",
-            bottomOpacity: 0.45,
-            topOpacity: 0.72,
-          });
+          url = fillFor(defs, color);
           tintCache.set(color, url);
         }
         return url;
@@ -189,7 +186,7 @@ export function BoxplotChart({
             .style("cursor", "pointer")
             .attr("x", x)
             .attr("width", boxWidth)
-            .attr("rx", 3)
+            .attr("rx", SHAPE_RX)
             .attr("fill", boxTint(seriesColor))
             .attr("stroke", seriesColor)
             .attr("stroke-width", 1.5);
@@ -415,7 +412,7 @@ export function BoxplotChart({
             .style("cursor", "pointer")
             .attr("y", y)
             .attr("height", boxHeight)
-            .attr("rx", 3)
+            .attr("rx", SHAPE_RX)
             .attr("fill", boxTint(seriesColor))
             .attr("stroke", seriesColor)
             .attr("stroke-width", 1.5);
@@ -582,12 +579,7 @@ export function BoxplotChart({
       aria-label="箱ひげ図チャート"
     >
       <svg ref={svgRef} />
-      <ChartTooltip
-        x={tooltipState.x}
-        y={tooltipState.y}
-        content={tooltipState.content}
-        visible={tooltipState.visible}
-      />
+      <ChartTooltip ref={tooltipRef} />
     </div>
   );
 }

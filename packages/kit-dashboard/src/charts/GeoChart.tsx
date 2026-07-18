@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import * as d3 from "d3";
 import * as topojson from "topojson-client";
 import { useD3 } from "../lib/useD3";
@@ -46,9 +46,8 @@ export function GeoChart({
   widgetId,
   onRegionClick,
 }: GeoChartProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
+  const { show, hide, containerRef, tooltipRef } = useTooltip();
   const { width: observedWidth } = useResizeObserver(containerRef);
-  const { state: tooltipState, show, hide } = useTooltip();
   const [geoData, setGeoData] = useState<TopoData | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -210,12 +209,7 @@ export function GeoChart({
           </div>
         </>
       )}
-      <ChartTooltip
-        x={tooltipState.x}
-        y={tooltipState.y}
-        content={tooltipState.content}
-        visible={tooltipState.visible}
-      />
+      <ChartTooltip ref={tooltipRef} />
     </div>
   );
 }

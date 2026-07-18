@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useMemo, useRef } from "react";
 import * as d3 from "d3";
 import { useD3 } from "../lib/useD3";
 import { useResizeObserver } from "../lib/useResizeObserver";
@@ -8,6 +8,7 @@ import { getChartColor, getColorScheme } from "../lib/colorUtils";
 import { formatNumber, formatDateShort } from "../lib/formatters";
 import { CHART_TEXT_MUTED, CHART_NEGATIVE } from "../lib/theme";
 import { themeAxis, themeGrid } from "../lib/d3Theme";
+import { fillFor, SHAPE_RX } from "../lib/chartStyle";
 import { cn } from "../lib/cn";
 import { ChartTooltip } from "../primitives/ChartTooltip";
 import type { AreaChartProps, TimeSeriesPoint } from "../lib/types";
@@ -74,7 +75,7 @@ export function AreaChart({
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const { width: observedWidth } = useResizeObserver(containerRef);
-  const { state: tooltipState, show, hide } = useTooltip();
+  const { show, hide, tooltipRef } = useTooltip();
 
   const width = propWidth ?? observedWidth;
   const { innerWidth, innerHeight } = getInnerDimensions(width, height, margin);
@@ -82,13 +83,14 @@ export function AreaChart({
   // Opacity: 0.7 for standard, 0.6 for stacked variants, unless explicitly provided
   const fillOpacity = fillOpacityProp ?? (variant === "standard" ? 0.7 : 0.6);
 
-  // Inject mock stacked data when variant is stacked/100pct and data is single-series
-  const effectiveData: typeof data = (() => {
+  // Inject mock stacked data when variant is stacked/100pct and data is single-series.
+  // useMemo で安定化（毎レンダー新規配列を useD3 deps に載せない＝親再描画でも再実行を防ぐ）。
+  const effectiveData: typeof data = useMemo(() => {
     if (variant !== "stacked" && variant !== "100pct") return data;
     const keys = Array.from(new Set(data.map((d) => d.series ?? "default")));
     if (keys.length <= 1) return buildStackedMockData(data);
     return data;
-  })();
+  }, [data, variant]);
 
   const svgRef = useD3<SVGSVGElement>(
     (svg) => {
@@ -247,10 +249,15 @@ export function AreaChart({
               .attr("stop-opacity", 0);
           }
 
-          // エリア
+          // エリア（面塗りは共通の縦グラデ = fillFor。fillGradient は透明フェード演出のため別扱い）
           g.append("path")
             .datum(s)
-            .attr("fill", fillGradient ? `url(#area-grad-stacked-${i})` : color)
+            .attr(
+              "fill",
+              fillGradient
+                ? `url(#area-grad-stacked-${i})`
+                : fillFor(defsEl, color, `area-fill-stacked-${i}`),
+            )
             .attr("fill-opacity", fillGradient ? 1 : fillOpacity)
             .attr("d", areaGen);
 
@@ -356,7 +363,7 @@ export function AreaChart({
               .attr("width", 10)
               .attr("height", 10)
               .attr("fill", color)
-              .attr("rx", 2);
+              .attr("rx", SHAPE_RX);
 
             item
               .append("text")
@@ -446,10 +453,15 @@ export function AreaChart({
               .attr("stop-opacity", 0);
           }
 
-          // エリア
+          // エリア（面塗りは共通の縦グラデ = fillFor。fillGradient は透明フェード演出のため別扱い）
           g.append("path")
             .datum(seriesData)
-            .attr("fill", fillGradient ? `url(#area-grad-${i})` : color)
+            .attr(
+              "fill",
+              fillGradient
+                ? `url(#area-grad-${i})`
+                : fillFor(defsEl, color, `area-fill-${i}`),
+            )
             .attr("fill-opacity", fillGradient ? 1 : fillOpacity)
             .attr("d", areaGen);
 
@@ -617,12 +629,7 @@ export function AreaChart({
       className={cn("relative w-full", className)}
     >
       <svg ref={svgRef} />
-      <ChartTooltip
-        x={tooltipState.x}
-        y={tooltipState.y}
-        content={tooltipState.content}
-        visible={tooltipState.visible}
-      />
+      <ChartTooltip ref={tooltipRef} />
     </div>
   );
 }

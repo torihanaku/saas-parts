@@ -58,9 +58,14 @@ describe("SankeyChart", () => {
         links={SANKEY_DEFAULT_LINKS}
       />,
     );
-    // ノード矩形の塗りは getChartColor(i) = var(--chart-N) 由来。
+    // ノード矩形は共通の縦グラデ（fillFor）で塗る＝fill は url(#…) 参照。
     const rect = container.querySelector("g.node rect");
-    expect(rect?.getAttribute("fill")).toContain("var(--chart-");
+    expect(rect?.getAttribute("fill")).toMatch(/^url\(#/);
+    // グラデの stop-color が categoricalColor(i) = var(--chart-N) 由来（ダーク追従）。
+    const stopColors = Array.from(container.querySelectorAll("stop")).map((s) =>
+      s.getAttribute("stop-color"),
+    );
+    expect(stopColors.some((c) => c?.includes("var(--chart-"))).toBe(true);
     // ラベルは --foreground を参照（ダーク追従）。
     const label = container.querySelector("text.node-label");
     expect(label?.getAttribute("fill")).toContain("var(--foreground");

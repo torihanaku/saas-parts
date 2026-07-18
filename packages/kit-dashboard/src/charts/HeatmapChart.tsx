@@ -1,4 +1,3 @@
-import { useRef } from "react";
 import * as d3 from "d3";
 import { useD3 } from "../lib/useD3";
 import { useResizeObserver } from "../lib/useResizeObserver";
@@ -7,7 +6,8 @@ import { getInnerDimensions } from "../lib/d3Helpers";
 import { formatNumber } from "../lib/formatters";
 import { CHART_TEXT, CHART_TEXT_MUTED, CHART_BORDER, CHART_SURFACE } from "../lib/theme";
 import { themeAxis } from "../lib/d3Theme";
-import { getChartColor } from "../lib/colorUtils";
+import { SHAPE_RX } from "../lib/chartStyle";
+import { categoricalColor } from "../lib/chartRoles";
 import { cn } from "../lib/cn";
 import { ChartTooltip } from "../primitives/ChartTooltip";
 
@@ -139,9 +139,8 @@ export function HeatmapChart({
   height = 320,
   className,
 }: HeatmapChartProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
+  const { show, hide, containerRef, tooltipRef } = useTooltip();
   const { width: observedWidth } = useResizeObserver(containerRef);
-  const { state: tooltipState, show, hide } = useTooltip();
 
   const width = propWidth ?? observedWidth;
 
@@ -230,7 +229,9 @@ export function HeatmapChart({
         .attr("y", (d) => yScale(d.row) ?? 0)
         .attr("width", xScale.bandwidth())
         .attr("height", yScale.bandwidth())
-        .attr("rx", 3)
+        .attr("rx", SHAPE_RX)
+        // 値スケール（連続カラーランプ）は flat 例外：fillFor（縦グラデ）は使わず
+        // d3.scaleSequential のロール色をそのまま塗る。
         .attr("fill", (d) => colorScaleFn(d.value))
         .attr("stroke", "none")
         .attr("stroke-width", 2);
@@ -239,7 +240,7 @@ export function HeatmapChart({
         .on("mouseenter", function (event: MouseEvent, d) {
           d3.select(this)
             .raise()
-            .attr("stroke", getChartColor(0))
+            .attr("stroke", categoricalColor(0))
             .attr("stroke-width", 2);
           show(event, `${d.row} ${d.col}: ${formatNumber(d.value, 0)}`);
         })
@@ -367,7 +368,8 @@ export function HeatmapChart({
             .attr("y", dow * STEP)
             .attr("width", CELL)
             .attr("height", CELL)
-            .attr("rx", 2)
+            .attr("rx", SHAPE_RX)
+            // 値ランプ（GitHub 風の階調）も連続カラーランプの flat 例外。
             .attr("fill", isFuture ? CHART_BORDER : calendarColorScale(value, maxVal))
             .style("cursor", "pointer");
 
@@ -403,7 +405,7 @@ export function HeatmapChart({
           .attr("y", legendY)
           .attr("width", CELL)
           .attr("height", CELL)
-          .attr("rx", 2)
+          .attr("rx", SHAPE_RX)
           .attr("fill", color);
       });
       g.append("text")
@@ -429,12 +431,7 @@ export function HeatmapChart({
       ) : (
         <svg ref={calSvgRef} style={{ overflow: "visible" }} />
       )}
-      <ChartTooltip
-        x={tooltipState.x}
-        y={tooltipState.y}
-        content={tooltipState.content}
-        visible={tooltipState.visible}
-      />
+      <ChartTooltip ref={tooltipRef} />
     </div>
   );
 }

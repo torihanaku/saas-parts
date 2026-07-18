@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import * as d3 from "d3";
 import { useD3 } from "../lib/useD3";
 import { useResizeObserver } from "../lib/useResizeObserver";
@@ -13,6 +13,8 @@ import {
   CHART_NEGATIVE,
   CHART_WARNING,
 } from "../lib/theme";
+import { categoricalColor } from "../lib/chartRoles";
+import { SHAPE_RX, fillFor } from "../lib/chartStyle";
 import { themeAxis, themeGrid } from "../lib/d3Theme";
 import { cn } from "../lib/cn";
 import { ChartTooltip } from "../primitives/ChartTooltip";
@@ -96,9 +98,8 @@ export function BarChart({
   animationDuration?: number;
   showZeroLine?: boolean;
 }) {
-  const containerRef = useRef<HTMLDivElement>(null);
+  const { show, hide, containerRef, tooltipRef } = useTooltip();
   const { width: observedWidth } = useResizeObserver(containerRef);
-  const { state: tooltipState, show, hide } = useTooltip();
   // H-1: hidden series state for legend click toggle
   const [hiddenSeries, setHiddenSeries] = useState<Set<string>>(new Set());
 
@@ -108,7 +109,7 @@ export function BarChart({
   // Resolve color scheme
   const schemeColors = getColorScheme(colorScheme, customColor);
   const getColor = (i: number): string =>
-    schemeColors[i % schemeColors.length] ?? getChartColor(i);
+    schemeColors[i % schemeColors.length] ?? categoricalColor(i);
 
   // Conditional formatting helpers
   // Mode 'bar': color each bar by value vs thresholds
@@ -140,13 +141,23 @@ export function BarChart({
   const effectiveVariant = variant ?? (data && !series ? "single" : "grouped");
 
   // Resolve series keys and color helpers
-  const resolvedSeries: BarSeries[] = series ?? [];
-  const seriesKeys = resolvedSeries.map((s) => s.key);
+  const resolvedSeries: BarSeries[] = useMemo(() => series ?? [], [series]);
+  const seriesKeys = useMemo(
+    () => resolvedSeries.map((s) => s.key),
+    [resolvedSeries],
+  );
 
   // Resolve categories from prop or derive from seriesData keys
-  const resolvedCategories: string[] =
-    categories ??
-    (seriesData ? Object.keys(seriesData) : data ? data.map((d) => d.label) : []);
+  const resolvedCategories: string[] = useMemo(
+    () =>
+      categories ??
+      (seriesData
+        ? Object.keys(seriesData)
+        : data
+          ? data.map((d) => d.label)
+          : []),
+    [categories, seriesData, data],
+  );
 
   const svgRef = useD3<SVGSVGElement>(
     (svg) => {
@@ -252,29 +263,14 @@ export function BarChart({
           themeAxis(yAxisG);
           yAxisG.selectAll<SVGTextElement, unknown>("text").style("font-size", `${axisFontSize}px`);
 
-          // --- Gradient defs: 既定で単一hueの縦グラデ（根元やや淡→先端濃）で深みを出す＝ベタ塗り回避。
+          // --- Gradient defs: 共通の標準塗り fillFor（縦グラデ・深み統一＝ベタ塗り回避）。
           //     単一指標の棒は「棒ごと別色（虹色）」にせず単色 getColor(0) に統一（カテゴリ誤読の回避）。 ---
+          const barGradFill: string[] = [];
           {
             const defs = svg.append("defs");
             displayData.forEach((d, i) => {
               const baseColor = d.color ?? getColor(0);
-              const grad = defs
-                .append("linearGradient")
-                .attr("id", `bar-grad-${i}`)
-                .attr("x1", "0")
-                .attr("y1", "1")
-                .attr("x2", "0")
-                .attr("y2", "0");
-              grad
-                .append("stop")
-                .attr("offset", "0%")
-                .attr("stop-color", baseColor)
-                .attr("stop-opacity", 0.78);
-              grad
-                .append("stop")
-                .attr("offset", "100%")
-                .attr("stop-color", baseColor)
-                .attr("stop-opacity", 1);
+              barGradFill[i] = fillFor(defs, baseColor, `bar-grad-${i}`);
             });
           }
 
@@ -286,14 +282,14 @@ export function BarChart({
             .style("cursor", "pointer")
             .attr("x", (d) => xScale(d.label) ?? 0)
             .attr("width", xScale.bandwidth())
-            .attr("rx", 4)
+            .attr("rx", SHAPE_RX)
             .attr("fill", (d, i) => {
               if (conditionalFormat === "highlight-top") {
                 return topValues?.has(d.label) ? getChartColor(0) : CHART_BORDER;
               }
               if (conditionalFormat === "bar")
                 return getThresholdColor(d.value, d.color ?? getColor(0));
-              return d.color ?? `url(#bar-grad-${i})`;
+              return d.color ?? barGradFill[i]!;
             })
             .attr("y", innerHeight)
             .attr("height", 0);
@@ -439,28 +435,13 @@ export function BarChart({
           themeAxis(yAxisG);
           yAxisG.selectAll<SVGTextElement, unknown>("text").style("font-size", `${axisFontSize}px`);
 
-          // --- Gradient defs（既定・横: 左やや淡→右濃）。単一指標は単色 getColor(0) に統一。 ---
+          // --- Gradient defs（共通の標準塗り fillFor）。単一指標は単色 getColor(0) に統一。 ---
+          const barGradHFill: string[] = [];
           {
             const defsH = svg.append("defs");
             displayData.forEach((d, i) => {
               const baseColor = d.color ?? getColor(0);
-              const grad = defsH
-                .append("linearGradient")
-                .attr("id", `bar-grad-h-${i}`)
-                .attr("x1", "0")
-                .attr("y1", "0")
-                .attr("x2", "1")
-                .attr("y2", "0");
-              grad
-                .append("stop")
-                .attr("offset", "0%")
-                .attr("stop-color", baseColor)
-                .attr("stop-opacity", 0.78);
-              grad
-                .append("stop")
-                .attr("offset", "100%")
-                .attr("stop-color", baseColor)
-                .attr("stop-opacity", 1);
+              barGradHFill[i] = fillFor(defsH, baseColor, `bar-grad-h-${i}`);
             });
           }
 
@@ -472,14 +453,14 @@ export function BarChart({
             .style("cursor", "pointer")
             .attr("y", (d) => yScale(d.label) ?? 0)
             .attr("height", yScale.bandwidth())
-            .attr("rx", 4)
+            .attr("rx", SHAPE_RX)
             .attr("fill", (d, i) => {
               if (conditionalFormat === "highlight-top") {
                 return topValues?.has(d.label) ? getChartColor(0) : CHART_BORDER;
               }
               if (conditionalFormat === "bar")
                 return getThresholdColor(d.value, d.color ?? getColor(0));
-              return d.color ?? `url(#bar-grad-h-${i})`;
+              return d.color ?? barGradHFill[i]!;
             })
             .attr("x", 0)
             .attr("width", 0);
@@ -599,6 +580,12 @@ export function BarChart({
       resolvedSeries.forEach((s, i) => {
         seriesColorMap[s.key] = s.color ?? getColor(i);
       });
+      // 共通の標準塗り（縦グラデ）を series key 別に用意。
+      const multiDefs = svg.append("defs");
+      const seriesFillMap: Record<string, string> = {};
+      seriesKeys.forEach((k) => {
+        seriesFillMap[k] = fillFor(multiDefs, seriesColorMap[k]!, `bar-fill-${k}`);
+      });
       const seriesLabelMap: Record<string, string> = {};
       resolvedSeries.forEach((s) => {
         seriesLabelMap[s.key] = s.label;
@@ -688,7 +675,6 @@ export function BarChart({
           // H-1: skip hidden series
           if (hiddenSeries.has(key)) return;
 
-          const color = seriesColorMap[key]!;
           const label = seriesLabelMap[key]!;
 
           const bars = categoryGroups
@@ -697,8 +683,8 @@ export function BarChart({
             .style("cursor", "pointer")
             .attr("x", xInner(key) ?? 0)
             .attr("width", xInner.bandwidth())
-            .attr("rx", 4)
-            .attr("fill", color)
+            .attr("rx", SHAPE_RX)
+            .attr("fill", seriesFillMap[key]!)
             .attr("y", innerHeight)
             .attr("height", 0);
 
@@ -858,7 +844,6 @@ export function BarChart({
         // Render each layer
         stackedData.forEach((layer, layerIndex) => {
           const key = layer.key;
-          const color = seriesColorMap[key]!;
           const label = seriesLabelMap[key]!;
 
           type StackSegment = d3.SeriesPoint<RowDatum>;
@@ -871,8 +856,8 @@ export function BarChart({
             .style("cursor", "pointer")
             .attr("x", (seg) => xScale((seg.data as RowDatum).category as string) ?? 0)
             .attr("width", xScale.bandwidth())
-            .attr("rx", 4)
-            .attr("fill", color)
+            .attr("rx", SHAPE_RX)
+            .attr("fill", seriesFillMap[key]!)
             .attr("y", innerHeight)
             .attr("height", 0);
 
@@ -1049,12 +1034,7 @@ export function BarChart({
           })}
         </div>
       )}
-      <ChartTooltip
-        x={tooltipState.x}
-        y={tooltipState.y}
-        content={tooltipState.content}
-        visible={tooltipState.visible}
-      />
+      <ChartTooltip ref={tooltipRef} />
     </div>
   );
 }

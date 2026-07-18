@@ -5,6 +5,7 @@ import { useResizeObserver } from "../lib/useResizeObserver";
 import { useTooltip } from "../lib/useTooltip";
 import { getInnerDimensions } from "../lib/d3Helpers";
 import { semanticColor } from "../lib/chartRoles";
+import { fillFor, SHAPE_RX, HOVER_OPACITY } from "../lib/chartStyle";
 import { themeAxis, themeGrid } from "../lib/d3Theme";
 import { cn } from "../lib/cn";
 import { ChartTooltip } from "../primitives/ChartTooltip";
@@ -59,9 +60,8 @@ export function CandlestickChart({
   animated = true,
   className,
 }: CandlestickChartProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
+  const { show, hide, containerRef, tooltipRef } = useTooltip();
   const { width: observedWidth } = useResizeObserver(containerRef);
-  const { state: tooltipState, show, hide } = useTooltip();
 
   const width = propWidth ?? observedWidth;
   const { innerWidth, innerHeight } = getInnerDimensions(width, height, MARGIN);
@@ -75,6 +75,11 @@ export function CandlestickChart({
       const g = svg
         .append("g")
         .attr("transform", `translate(${MARGIN.left},${MARGIN.top})`);
+
+      // 共通の縦グラデ defs。実体は陽/陰の semantic 色を fillFor で塗る（1色1グラデを再利用）。
+      const defs = svg.append("defs");
+      const bullFill = fillFor(defs, bullColor, "candle-bull");
+      const bearFill = fillFor(defs, bearColor, "candle-bear");
 
       // --- Height split: main chart vs volume chart ---
       const volumeHeight = Math.floor(innerHeight * VOLUME_RATIO);
@@ -132,7 +137,8 @@ export function CandlestickChart({
       data.forEach((d) => {
         const x = (xScale(d.date) ?? 0) + xScale.bandwidth() / 2;
         const isBull = d.close >= d.open;
-        const color = isBull ? bullColor : bearColor;
+        const color = isBull ? bullColor : bearColor; // 芯線（wick）用の flat ロール色
+        const bodyFill = isBull ? bullFill : bearFill; // 実体用の共通縦グラデ
 
         const bodyTop = yScale(Math.max(d.open, d.close));
         const bodyBottom = yScale(Math.min(d.open, d.close));
@@ -163,8 +169,8 @@ export function CandlestickChart({
           .style("pointer-events", "none")
           .attr("x", x - candleWidth / 2)
           .attr("width", candleWidth)
-          .attr("rx", 1)
-          .attr("fill", color)
+          .attr("rx", SHAPE_RX)
+          .attr("fill", bodyFill)
           .attr("stroke", "none");
 
         if (animated) {
@@ -197,7 +203,7 @@ export function CandlestickChart({
           .on("mouseenter", function (event: MouseEvent) {
             d3.select(this.parentNode as SVGGElement)
               .selectAll<SVGElement, unknown>(".candle-body, .candle-wick")
-              .attr("opacity", 0.75);
+              .attr("opacity", HOVER_OPACITY);
             show(
               event,
               `${d.date}  O: ${d.open}  H: ${d.high}  L: ${d.low}  C: ${d.close}`,
@@ -223,7 +229,7 @@ export function CandlestickChart({
           (d) => (xScale(d.date) ?? 0) + (xScale.bandwidth() - candleWidth) / 2,
         )
         .attr("width", candleWidth)
-        .attr("rx", 1)
+        .attr("rx", SHAPE_RX)
         .attr("fill", (d) => (d.close >= d.open ? bullColor : bearColor))
         .attr("opacity", 0.4)
         .attr("y", volumeOffsetY + volumeHeight) // start collapsed at bottom
@@ -249,12 +255,7 @@ export function CandlestickChart({
   return (
     <div ref={containerRef} className={cn("relative w-full overflow-hidden", className)}>
       <svg ref={svgRef} />
-      <ChartTooltip
-        x={tooltipState.x}
-        y={tooltipState.y}
-        content={tooltipState.content}
-        visible={tooltipState.visible}
-      />
+      <ChartTooltip ref={tooltipRef} />
     </div>
   );
 }

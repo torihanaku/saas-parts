@@ -4,6 +4,7 @@ import { useD3 } from "../lib/useD3";
 import { useResizeObserver } from "../lib/useResizeObserver";
 import { useTooltip } from "../lib/useTooltip";
 import { categoricalColor, sequentialStep } from "../lib/chartRoles";
+import { fillFor, SHAPE_RX } from "../lib/chartStyle";
 import { resolveChartColor, CHART_TEXT, CHART_SURFACE, CHART_BORDER, CHART_TEXT_MUTED } from "../lib/theme";
 import { formatCompact } from "../lib/formatters";
 import { cn } from "../lib/cn";
@@ -49,7 +50,7 @@ export function TreemapChart({
 }: TreemapChartProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const { width: observedWidth } = useResizeObserver(containerRef);
-  const { state: tooltipState, show, hide } = useTooltip();
+  const { show, hide, tooltipRef } = useTooltip();
 
   // Zoom/drill-down state: array of node IDs representing the path drilled into
   const [zoomPath, setZoomPath] = useState<string[]>([]);
@@ -124,6 +125,18 @@ export function TreemapChart({
       const g = svg
         .append("g")
         .attr("transform", `translate(${MARGIN.left},${MARGIN.top})`);
+
+      // 矩形の共通標準塗り(fillFor)を色ごとに1度だけ生成してキャッシュ。値の大小は fill-opacity ランプで表現。
+      const defs = svg.append("defs");
+      const tintCache = new Map<string, string>();
+      const rectTint = (color: string): string => {
+        let url = tintCache.get(color);
+        if (!url) {
+          url = fillFor(defs, color);
+          tintCache.set(color, url);
+        }
+        return url;
+      };
 
       // Build hierarchy using stratify
       let root: d3.HierarchyNode<TreemapNode>;
@@ -222,8 +235,8 @@ export function TreemapChart({
         .append("rect")
         .attr("width", (d) => Math.max(0, d.x1 - d.x0))
         .attr("height", (d) => Math.max(0, d.y1 - d.y0))
-        .attr("rx", 2)
-        .attr("fill", (d) => resolveColor(d).color)
+        .attr("rx", SHAPE_RX)
+        .attr("fill", (d) => rectTint(resolveColor(d).color))
         .attr("fill-opacity", (d) => resolveColor(d).opacity)
         .style("cursor", (d) => (d.children ? "zoom-in" : "pointer"));
 
@@ -370,12 +383,7 @@ export function TreemapChart({
         </div>
       )}
       <svg ref={svgRef} />
-      <ChartTooltip
-        x={tooltipState.x}
-        y={tooltipState.y}
-        content={tooltipState.content}
-        visible={tooltipState.visible}
-      />
+      <ChartTooltip ref={tooltipRef} />
     </div>
   );
 }

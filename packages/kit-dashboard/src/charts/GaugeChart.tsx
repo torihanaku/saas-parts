@@ -5,6 +5,7 @@ import { useResizeObserver } from "../lib/useResizeObserver";
 import { useTooltip } from "../lib/useTooltip";
 import { formatNumber } from "../lib/formatters";
 import { semanticColor, PRIMARY } from "../lib/chartRoles";
+import { fillFor } from "../lib/chartStyle";
 import {
   CHART_TEXT,
   CHART_TEXT_MUTED,
@@ -55,13 +56,6 @@ function valueToAngle(value: number, min: number, max: number): number {
   return START_ANGLE + t * (END_ANGLE - START_ANGLE);
 }
 
-function rangeColor(value: number, ranges: GaugeRange[]): string {
-  for (const r of ranges) {
-    if (value >= r.from && value <= r.to) return r.color;
-  }
-  return PRIMARY();
-}
-
 export function GaugeChart({
   value = 75,
   min = 0,
@@ -81,7 +75,7 @@ export function GaugeChart({
 }: GaugeChartProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const { width: observedWidth } = useResizeObserver(containerRef);
-  const { state: tooltipState, show, hide } = useTooltip();
+  const { show, hide, tooltipRef } = useTooltip();
 
   const width = propWidth ?? observedWidth;
 
@@ -124,6 +118,7 @@ export function GaugeChart({
         .startAngle((d) => d.startAngle)
         .endAngle((d) => d.endAngle);
 
+      const defs = svg.append("defs");
       const g = svg.append("g").attr("transform", `translate(${cx},${cy})`);
 
       // Background track arc
@@ -156,15 +151,16 @@ export function GaugeChart({
         });
       }
 
-      // Determine value arc color
+      // 値アークは単一指標＝PRIMARY() を共通の標準塗り(fillFor)で。ゾーン色(semantic)は
+      // 背景ゾーンが担うので値アーク自体は主系列色に統一する（テキストも同色）。
       const valueAngle = valueToAngle(value, min, max);
-      const fillColor =
-        activeRanges.length > 0 ? rangeColor(value, activeRanges) : PRIMARY();
+      const fillColor = PRIMARY();
+      const valueArcFill = fillFor(defs, fillColor);
 
       // Value arc — animated or static
       const valuePath = g
         .append("path")
-        .attr("fill", fillColor)
+        .attr("fill", valueArcFill)
         .style("cursor", "pointer")
         .on("mouseenter", function (event: MouseEvent) {
           show(event, `${title ?? "値"}: ${formatNumber(value, 0)}${unit ?? ""}`);
@@ -345,12 +341,7 @@ export function GaugeChart({
   return (
     <div ref={containerRef} className={cn("relative w-full overflow-visible", className)}>
       <svg ref={svgRef} />
-      <ChartTooltip
-        x={tooltipState.x}
-        y={tooltipState.y}
-        content={tooltipState.content}
-        visible={tooltipState.visible}
-      />
+      <ChartTooltip ref={tooltipRef} />
     </div>
   );
 }

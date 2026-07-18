@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useMemo } from "react";
 import * as d3 from "d3";
 import { useD3 } from "../lib/useD3";
 import { useResizeObserver } from "../lib/useResizeObserver";
@@ -6,8 +6,9 @@ import { useTooltip } from "../lib/useTooltip";
 import { DEFAULT_MARGIN, getInnerDimensions } from "../lib/d3Helpers";
 import { formatNumber, formatCompact } from "../lib/formatters";
 import { PRIMARY, sequentialStep } from "../lib/chartRoles";
+import { SHAPE_RX, fillFor } from "../lib/chartStyle";
 import { CHART_TEXT_MUTED, CHART_NEGATIVE, CHART_WARNING } from "../lib/theme";
-import { themeAxis, themeGrid, tintGradient } from "../lib/d3Theme";
+import { themeAxis, themeGrid } from "../lib/d3Theme";
 import { cn } from "../lib/cn";
 import { ChartTooltip } from "../primitives/ChartTooltip";
 
@@ -61,12 +62,12 @@ export function HistogramChart({
   margin = DEFAULT_MARGIN,
   className,
 }: HistogramChartProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
+  const { show, hide, containerRef, tooltipRef } = useTooltip();
   const { width: observedWidth } = useResizeObserver(containerRef);
-  const { state: tooltipState, show, hide } = useTooltip();
 
   const width = propWidth ?? observedWidth;
-  const resolvedData = data ?? generateDefaultData();
+  // 既定データは毎レンダー再生成しない（deps 安定化＝flicker/再描画の保険）。
+  const resolvedData = useMemo(() => data ?? generateDefaultData(), [data]);
   const { innerWidth, innerHeight } = getInnerDimensions(width, height, margin);
 
   const svgRef = useD3<SVGSVGElement>(
@@ -153,7 +154,7 @@ export function HistogramChart({
         .sort((a, b) => b.count - a.count)
         .forEach((o, rank) => rankByLabel.set(o.i, rank));
 
-      const barTint = tintGradient(svg.append("defs"), PRIMARY(), { dir: "v" });
+      const barTint = fillFor(svg.append("defs"), PRIMARY());
 
       const bars = g
         .selectAll<SVGRectElement, (typeof barData)[number]>(".hist-bar")
@@ -165,7 +166,7 @@ export function HistogramChart({
         .attr("width", (d) =>
           Math.max(0, xScale(d.bin.x1 ?? 0) - xScale(d.bin.x0 ?? 0) - 2),
         )
-        .attr("rx", 2)
+        .attr("rx", SHAPE_RX)
         .attr("fill", barTint)
         .attr("fill-opacity", (_d, i) =>
           sequentialStep(rankByLabel.get(i) ?? i, barData.length).opacity,
@@ -341,12 +342,7 @@ export function HistogramChart({
       aria-label="ヒストグラムチャート"
     >
       <svg ref={svgRef} />
-      <ChartTooltip
-        x={tooltipState.x}
-        y={tooltipState.y}
-        content={tooltipState.content}
-        visible={tooltipState.visible}
-      />
+      <ChartTooltip ref={tooltipRef} />
     </div>
   );
 }
