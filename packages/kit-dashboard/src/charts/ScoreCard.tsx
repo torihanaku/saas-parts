@@ -1,8 +1,8 @@
 import { useRef } from "react";
 import * as d3 from "d3";
 import { useD3 } from "../lib/useD3";
-import { getTrendColor, getChartColor } from "../lib/colorUtils";
-import { formatPercent, formatCompact } from "../lib/formatters";
+import { getChartColor } from "../lib/colorUtils";
+import { formatCompact } from "../lib/formatters";
 import {
   CHART_TEXT,
   CHART_TEXT_MUTED,
@@ -21,7 +21,7 @@ export function ScoreCard({
   value,
   previousValue,
   comparisonValue,
-  changeLabel = "前月比",
+  changeLabel = "vs 前期",
   unit,
   sparklineData,
   formatter,
@@ -31,8 +31,9 @@ export function ScoreCard({
   thresholdGood,
   thresholdBad,
   valueColor,
-  sparklineUpColor = CHART_POSITIVE,
-  sparklineDownColor = CHART_NEGATIVE,
+  // スパークラインは brand 単色が既定（増減の意味は delta チップの色が担う＝色の氾濫回避）。
+  sparklineUpColor = "var(--chart-1, #4f46e5)",
+  sparklineDownColor = "var(--chart-1, #4f46e5)",
 }: ScoreCardProps) {
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -41,22 +42,27 @@ export function ScoreCard({
       ? ((value - previousValue) / Math.abs(previousValue)) * 100
       : null;
 
-  const trendColorBase =
-    trendValue != null ? getTrendColor(trendValue) : CHART_TEXT_MUTED;
-  // Use configured sparkline colors when trend direction is clear
+  // delta チップの色は増減の意味を運ぶ（増=positive/減=negative/0=muted）。
+  const deltaColor =
+    trendValue != null && trendValue > 0
+      ? CHART_POSITIVE
+      : trendValue != null && trendValue < 0
+        ? CHART_NEGATIVE
+        : CHART_TEXT_MUTED;
+  // スパークラインの色は方向で up/down 色を使う（既定は両方 brand 単色）。
   const trendColor =
     trendValue != null && trendValue > 0
       ? sparklineUpColor
       : trendValue != null && trendValue < 0
         ? sparklineDownColor
-        : trendColorBase;
+        : sparklineUpColor;
 
+  // 符号は矢印が担い、数字は絶対値（formatPercent は符号を再付与するので使わない＝「赤なのに+31%」の是正）。
   const trendLabel =
     trendValue != null
-      ? `${trendValue > 0 ? "↑" : trendValue < 0 ? "↓" : ""}${formatPercent(
-          Math.abs(trendValue),
-          1,
-        )}`
+      ? `${trendValue > 0 ? "↑" : trendValue < 0 ? "↓" : "±"}${Math.abs(
+          trendValue,
+        ).toFixed(1)}%`
       : null;
 
   // Determine display value based on variant
@@ -115,12 +121,12 @@ export function ScoreCard({
         .append("stop")
         .attr("offset", "0%")
         .attr("stop-color", trendColor)
-        .attr("stop-opacity", 0.25);
+        .attr("stop-opacity", 0.14);
       gradient
         .append("stop")
         .attr("offset", "100%")
         .attr("stop-color", trendColor)
-        .attr("stop-opacity", 0.02);
+        .attr("stop-opacity", 0);
 
       const curve = d3.curveCatmullRom.alpha(0.5);
 
@@ -151,9 +157,20 @@ export function ScoreCard({
         .attr("d", line)
         .attr("fill", "none")
         .attr("stroke", trendColor)
-        .attr("stroke-width", 1.5)
+        .attr("stroke-width", 2)
         .attr("stroke-linecap", "round")
         .attr("stroke-linejoin", "round");
+
+      // 最新点のみドット（card 背景で抜く）
+      const lastIdx = sparklineData.length - 1;
+      svg
+        .append("circle")
+        .attr("cx", xScale(lastIdx))
+        .attr("cy", yScale(sparklineData[lastIdx] ?? 0))
+        .attr("r", 2.5)
+        .attr("fill", trendColor)
+        .attr("stroke", "var(--card)")
+        .attr("stroke-width", 1.5);
     },
     [sparklineData, trendColor],
   );
@@ -399,13 +416,14 @@ export function ScoreCard({
   return (
     <div
       className={cn(
-        "flex h-full min-h-0 flex-col overflow-hidden rounded-md border shadow-sm",
-        isCompact ? "px-4 py-3.5" : "px-3.5 py-2.5",
+        "flex h-full min-h-0 flex-col overflow-hidden rounded-lg border",
+        isCompact ? "p-4" : "p-5",
         className,
       )}
       style={{
         background: "var(--card)",
         borderColor: CHART_BORDER,
+        boxShadow: "var(--elev-rest, 0 1px 2px rgba(0,0,0,0.06))",
       }}
       ref={containerRef}
       role="figure"
@@ -413,28 +431,36 @@ export function ScoreCard({
     >
       {statusBarColor && (
         <div
-          className="mb-2.5 h-[3px] shrink-0"
+          className="h-[2px] shrink-0"
           style={{
             background: statusBarColor,
-            borderRadius: "2px 2px 0 0",
-            width: "calc(100% + 28px)",
+            width: "calc(100% + 40px)",
             margin: isCompact
-              ? "-14px -16px 10px -16px"
-              : "-10px -14px 10px -14px",
+              ? "-16px -16px 12px -16px"
+              : "-20px -20px 12px -20px",
           }}
         />
       )}
+      {/* KPIラベル（計器的：小さく淡く tracking） */}
+      <div
+        className="mb-2 truncate text-[11px] font-semibold"
+        style={{ color: CHART_TEXT_MUTED, letterSpacing: "0.06em" }}
+      >
+        {title}
+      </div>
       <div className="flex flex-wrap items-baseline gap-2">
         <span
           className={cn(
-            "font-bold leading-none",
+            "tnum font-semibold leading-none",
             isCompact
-              ? "text-[22px]"
+              ? ""
               : "max-w-full overflow-hidden text-ellipsis whitespace-nowrap",
           )}
           style={{
             color: valueColor ?? CHART_TEXT,
-            ...(isCompact ? {} : { fontSize: "clamp(18px, 3.5vw, 32px)" }),
+            fontFamily: "var(--font-display, inherit)",
+            fontSize: isCompact ? "22px" : "clamp(24px, 3vw, 32px)",
+            letterSpacing: "-0.02em",
           }}
         >
           {displayValue}
@@ -446,8 +472,11 @@ export function ScoreCard({
         )}
         {trendLabel && (
           <span
-            className="text-[13px] font-medium"
-            style={{ color: trendColor }}
+            className="tnum inline-flex shrink-0 items-center rounded-full px-1.5 py-0.5 text-[11px] font-semibold"
+            style={{
+              color: deltaColor,
+              background: `color-mix(in srgb, ${deltaColor} 12%, transparent)`,
+            }}
           >
             {trendLabel}
           </span>
@@ -479,37 +508,38 @@ export function ScoreCard({
         </div>
       )}
 
-      {sparklineData &&
-        sparklineData.length > 0 &&
-        variant === "standard" && (
-          <div className="mt-3 w-full">
+      {/* スパークライン枠は常に高さ 40px を確保（データ無しは薄い破線ベースラインでカード高さを揃える）。 */}
+      {variant === "standard" && (
+        <div className="mt-auto w-full pt-4" style={{ minHeight: 40 }}>
+          {sparklineData && sparklineData.length > 0 ? (
             <svg
               ref={sparklineRef}
               style={{ width: "100%", height: 40, display: "block" }}
             />
-          </div>
-        )}
-
-      {(changeLabel || comparisonDisplay || comparisonValue) && (
-        <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
-          {comparisonDisplay ? (
-            <>
-              <span className="text-[11px]" style={{ color: CHART_TEXT_MUTED }}>
-                {changeLabel}: {comparisonDisplay.prev}
-              </span>
-              <span
-                className="text-[11px] font-semibold"
-                style={{ color: comparisonDisplay.color }}
-              >
-                {comparisonDisplay.diff} ({comparisonDisplay.pct})
-              </span>
-            </>
           ) : (
-            <span className="text-[11px]" style={{ color: CHART_TEXT_MUTED }}>
-              {changeLabel}
-              {comparisonValue ? `: ${comparisonValue}` : ""}
-            </span>
+            <div
+              style={{
+                height: 40,
+                borderBottom: `1px dashed ${CHART_BORDER}`,
+                opacity: 0.5,
+              }}
+            />
           )}
+        </div>
+      )}
+
+      {/* 期間比較（comparisonValue が数値で渡された時のみ）。裸の changeLabel は出さない＝宙ぶらりん解消。 */}
+      {comparisonDisplay && (
+        <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+          <span className="text-[11px]" style={{ color: CHART_TEXT_MUTED }}>
+            {changeLabel}: {comparisonDisplay.prev}
+          </span>
+          <span
+            className="tnum text-[11px] font-semibold"
+            style={{ color: comparisonDisplay.color }}
+          >
+            {comparisonDisplay.diff} ({comparisonDisplay.pct})
+          </span>
         </div>
       )}
     </div>

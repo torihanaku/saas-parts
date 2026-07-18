@@ -11,7 +11,6 @@ import type {
   DashboardConfig,
   DashboardFilter,
   DashboardProps,
-  DashboardWidget,
   FilterState,
 } from "./types";
 
@@ -111,6 +110,13 @@ export function Dashboard({
     {},
   );
 
+  // config prop が変わったら追従する（ワークスペース切替など）。useState 初期値だけだと
+  // 後続の prop 変更を無視してしまうため、明示的に同期する。
+  useEffect(() => {
+    setConfig(configProp);
+    setFilters(initialFilterState(configProp));
+  }, [configProp]);
+
   // 任意の永続化層から初期 config を読み込む（あれば prop を上書き）。
   useEffect(() => {
     let cancelled = false;
@@ -198,21 +204,28 @@ export function Dashboard({
           const Chart = WIDGET_REGISTRY[widget.type];
           const st = widgetStates[widget.id];
           const span = Math.max(1, Math.min(columns, widget.layout?.w ?? columns));
+          // scorecard は自前で枠(border+elev)とタイトルを持つ → 外枠/タイトルを重ねない（二重枠・二重タイトル解消）。
+          const isSelfFramed = widget.type === "scorecard";
           return (
             <div
               key={widget.id}
               data-widget={widget.id}
-              className="rounded-xl border p-3"
-              // 面・境界は shadcn トークン参照でテーマ追従
+              className={cn("min-w-0", !isSelfFramed && "rounded-xl border p-4")}
+              // 面・境界は shadcn トークン参照でテーマ追従＋極薄2層影(--elev-rest)
               style={{
                 gridColumn: `span ${span}`,
-                borderColor: "var(--border)",
-                background: "var(--card)",
+                ...(isSelfFramed
+                  ? {}
+                  : {
+                      borderColor: "var(--border)",
+                      background: "var(--card)",
+                      boxShadow: "var(--elev-rest, 0 1px 2px rgba(0,0,0,0.06))",
+                    }),
               }}
             >
-              {widget.title && (
+              {widget.title && !isSelfFramed && (
                 <div
-                  className="mb-2 text-sm font-medium"
+                  className="mb-3 text-[13px] font-semibold tracking-[0.02em]"
                   style={{ color: "var(--foreground)" }}
                 >
                   {widget.title}

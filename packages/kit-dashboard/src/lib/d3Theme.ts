@@ -19,13 +19,15 @@ export function themeAxis(g: AnySel): void {
   g.selectAll("text")
     .attr("fill", CHART_TEXT_MUTED)
     .attr("font-size", CHART_AXIS_FONT_SIZE);
-  g.selectAll("line").attr("stroke", CHART_BORDER);
-  g.selectAll("path.domain").attr("stroke", CHART_BORDER);
+  // 軸線・目盛り線は主張を落とす（薄く）。
+  g.selectAll("line").attr("stroke", CHART_BORDER).attr("stroke-opacity", 0.4);
+  g.selectAll("path.domain").attr("stroke", CHART_BORDER).attr("stroke-opacity", 0.4);
 }
 
 /** tickSize(-inner) で引いたグリッド用 <g> に適用する（domain は呼び出し側で remove 済み想定でも可）。 */
 export function themeGrid(g: AnySel): void {
-  g.selectAll("line").attr("stroke", CHART_BORDER).attr("stroke-opacity", 0.5);
+  // 極薄の水平グリッド（実線）。チャートを邪魔しない。
+  g.selectAll("line").attr("stroke", CHART_BORDER).attr("stroke-opacity", 0.25);
   g.selectAll("text").attr("fill", CHART_TEXT_MUTED);
   g.select(".domain").remove();
 }

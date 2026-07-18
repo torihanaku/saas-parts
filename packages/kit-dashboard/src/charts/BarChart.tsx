@@ -120,15 +120,6 @@ export function BarChart({
   };
 
   // Returns the bar fill: either a threshold color, a gradient URL, or the default color
-  const resolveBarFill = (
-    value: number,
-    defaultColor: string,
-    gradientId?: string,
-  ): string => {
-    if (conditionalFormat === "bar") return getThresholdColor(value, defaultColor);
-    if (conditionalFormat === "gradient" && gradientId) return `url(#${gradientId})`;
-    return defaultColor;
-  };
 
   // M-1: Y axis tick formatter based on yAxisFormat
   function getYAxisTickFormatter(): (v: d3.NumberValue) => string {
@@ -261,11 +252,12 @@ export function BarChart({
           themeAxis(yAxisG);
           yAxisG.selectAll<SVGTextElement, unknown>("text").style("font-size", `${axisFontSize}px`);
 
-          // --- Gradient defs for 'gradient' mode ---
-          if (conditionalFormat === "gradient") {
+          // --- Gradient defs: 既定で単一hueの縦グラデ（根元やや淡→先端濃）で深みを出す＝ベタ塗り回避。
+          //     単一指標の棒は「棒ごと別色（虹色）」にせず単色 getColor(0) に統一（カテゴリ誤読の回避）。 ---
+          {
             const defs = svg.append("defs");
             displayData.forEach((d, i) => {
-              const baseColor = d.color ?? getColor(i);
+              const baseColor = d.color ?? getColor(0);
               const grad = defs
                 .append("linearGradient")
                 .attr("id", `bar-grad-${i}`)
@@ -277,7 +269,7 @@ export function BarChart({
                 .append("stop")
                 .attr("offset", "0%")
                 .attr("stop-color", baseColor)
-                .attr("stop-opacity", 0.5);
+                .attr("stop-opacity", 0.78);
               grad
                 .append("stop")
                 .attr("offset", "100%")
@@ -294,12 +286,14 @@ export function BarChart({
             .style("cursor", "pointer")
             .attr("x", (d) => xScale(d.label) ?? 0)
             .attr("width", xScale.bandwidth())
-            .attr("rx", 2)
+            .attr("rx", 4)
             .attr("fill", (d, i) => {
               if (conditionalFormat === "highlight-top") {
                 return topValues?.has(d.label) ? getChartColor(0) : CHART_BORDER;
               }
-              return resolveBarFill(d.value, d.color ?? getColor(i), `bar-grad-${i}`);
+              if (conditionalFormat === "bar")
+                return getThresholdColor(d.value, d.color ?? getColor(0));
+              return d.color ?? `url(#bar-grad-${i})`;
             })
             .attr("y", innerHeight)
             .attr("height", 0);
@@ -445,11 +439,11 @@ export function BarChart({
           themeAxis(yAxisG);
           yAxisG.selectAll<SVGTextElement, unknown>("text").style("font-size", `${axisFontSize}px`);
 
-          // --- Gradient defs for 'gradient' mode (horizontal: left=lighter, right=full) ---
-          if (conditionalFormat === "gradient") {
+          // --- Gradient defs（既定・横: 左やや淡→右濃）。単一指標は単色 getColor(0) に統一。 ---
+          {
             const defsH = svg.append("defs");
             displayData.forEach((d, i) => {
-              const baseColor = d.color ?? getColor(i);
+              const baseColor = d.color ?? getColor(0);
               const grad = defsH
                 .append("linearGradient")
                 .attr("id", `bar-grad-h-${i}`)
@@ -461,7 +455,7 @@ export function BarChart({
                 .append("stop")
                 .attr("offset", "0%")
                 .attr("stop-color", baseColor)
-                .attr("stop-opacity", 0.5);
+                .attr("stop-opacity", 0.78);
               grad
                 .append("stop")
                 .attr("offset", "100%")
@@ -478,12 +472,14 @@ export function BarChart({
             .style("cursor", "pointer")
             .attr("y", (d) => yScale(d.label) ?? 0)
             .attr("height", yScale.bandwidth())
-            .attr("rx", 2)
+            .attr("rx", 4)
             .attr("fill", (d, i) => {
               if (conditionalFormat === "highlight-top") {
                 return topValues?.has(d.label) ? getChartColor(0) : CHART_BORDER;
               }
-              return resolveBarFill(d.value, d.color ?? getColor(i), `bar-grad-h-${i}`);
+              if (conditionalFormat === "bar")
+                return getThresholdColor(d.value, d.color ?? getColor(0));
+              return d.color ?? `url(#bar-grad-h-${i})`;
             })
             .attr("x", 0)
             .attr("width", 0);
@@ -701,7 +697,7 @@ export function BarChart({
             .style("cursor", "pointer")
             .attr("x", xInner(key) ?? 0)
             .attr("width", xInner.bandwidth())
-            .attr("rx", 2)
+            .attr("rx", 4)
             .attr("fill", color)
             .attr("y", innerHeight)
             .attr("height", 0);
@@ -875,7 +871,7 @@ export function BarChart({
             .style("cursor", "pointer")
             .attr("x", (seg) => xScale((seg.data as RowDatum).category as string) ?? 0)
             .attr("width", xScale.bandwidth())
-            .attr("rx", 2)
+            .attr("rx", 4)
             .attr("fill", color)
             .attr("y", innerHeight)
             .attr("height", 0);

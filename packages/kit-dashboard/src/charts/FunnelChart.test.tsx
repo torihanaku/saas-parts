@@ -46,7 +46,7 @@ describe("FunnelChart", () => {
     expect(hasForeground).toBe(true);
     // ドロップオフ表示は --chart-negative 由来
     const hasNegative = texts.some((t) =>
-      (t.getAttribute("fill") ?? "").includes("var(--chart-negative"),
+      (t.getAttribute("fill") ?? "").includes("var(--muted-foreground"),
     );
     expect(hasNegative).toBe(true);
   });
