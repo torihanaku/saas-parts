@@ -3,7 +3,7 @@ import * as d3 from "d3";
 import { useD3 } from "../lib/useD3";
 import { useResizeObserver } from "../lib/useResizeObserver";
 import { useTooltip } from "../lib/useTooltip";
-import { getChartColor } from "../lib/colorUtils";
+import { categoricalColor, sequentialStep } from "../lib/chartRoles";
 import { resolveChartColor, CHART_TEXT, CHART_SURFACE, CHART_BORDER, CHART_TEXT_MUTED } from "../lib/theme";
 import { formatCompact } from "../lib/formatters";
 import { cn } from "../lib/cn";
@@ -168,45 +168,50 @@ export function TreemapChart({
         colorIndex.set(d.data.id, i);
       });
 
-      // Resolve fill: color intensity based on value (darker = higher value).
-      // 明暗操作を伴うため実体色 (resolveChartColor) を使う。
-      function resolveColor(d: d3.HierarchyRectangularNode<TreemapNode>): string {
-        if (d.data.color) return d.data.color;
+      // 階層カテゴリ = 葉ごとに categoricalColor（真のカテゴリ色）。ベタ塗り回避のため
+      // 値の大小は「不透明度ランプ（tint）」で表現し、RGB を手で暗くする処理は廃止する。
+      // 返り値は { color(var 文字列), opacity }。呼び出し側は fill=color, fill-opacity=opacity。
+      // ランプは葉を value 降順に順位付けし sequentialStep で 0.92→0.55 の階調。
+      const leavesByValue = leafNodes
+        .filter((n) => n.data.value != null)
+        .sort((a, b) => (b.data.value ?? 0) - (a.data.value ?? 0));
+      const valueRank = new Map<string, number>();
+      leavesByValue.forEach((n, i) => valueRank.set(n.data.id, i));
+
+      function resolveColor(d: d3.HierarchyRectangularNode<TreemapNode>): {
+        color: string;
+        opacity: number;
+      } {
+        if (d.data.color) return { color: d.data.color, opacity: 0.85 };
         if (!d.children) {
           const idx = colorIndex.get(d.data.id) ?? 0;
-          const baseColor = d3.color(resolveChartColor(idx));
-          if (baseColor && d.data.value != null) {
-            // Intensity: 0.4 (low) to 1.0 (high)
-            const intensity = 0.4 + (d.data.value / maxNodeValue) * 0.6;
-            const rgb = baseColor.rgb();
-            // Darken by scaling toward darker shade
-            const darkenedR = Math.round(rgb.r * intensity);
-            const darkenedG = Math.round(rgb.g * intensity);
-            const darkenedB = Math.round(rgb.b * intensity);
-            return `rgb(${darkenedR},${darkenedG},${darkenedB})`;
+          const color = categoricalColor(idx);
+          if (d.data.value != null) {
+            const rank = valueRank.get(d.data.id) ?? 0;
+            const { opacity } = sequentialStep(rank, Math.max(1, leavesByValue.length));
+            return { color, opacity };
           }
-          // 値なし: テーマ追従の var(...) をそのまま塗る
-          return getChartColor(idx);
+          return { color, opacity: 0.85 };
         }
-        // Parent node: use first leaf child color, lightened
+        // 親ノード: 最初の葉の hue を淡く敷く（下地）。
         const firstLeaf = d.leaves()[0];
         const idx = colorIndex.get(firstLeaf?.data.id ?? "") ?? 0;
-        const base = d3.color(resolveChartColor(idx));
-        if (base) {
-          base.opacity = 0.35;
-          return base.formatRgb();
-        }
-        return CHART_SURFACE;
+        return { color: categoricalColor(idx), opacity: 0.28 };
       }
 
-      // Determine text color based on background brightness
-      function getTextColor(bgColor: string): string {
-        const c = d3.color(bgColor);
+      // 背景輝度でテキスト色を決める。tint 塗り(半透明)はカード上で明るく見えるので
+      // 実体 hue の輝度を基準に判定する。暗背景時のみ白抜き（#fff は可読テキストの例外）。
+      function getTextColor(d: d3.HierarchyRectangularNode<TreemapNode>): string {
+        const idx = colorIndex.get(d.data.id) ?? 0;
+        const base = d.data.color ?? resolveChartColor(idx);
+        const c = d3.color(base);
+        const { opacity } = resolveColor(d);
         if (!c) return CHART_TEXT;
         const rgb = c.rgb();
-        // Perceived luminance
         const luminance = (0.299 * rgb.r + 0.587 * rgb.g + 0.114 * rgb.b) / 255;
-        return luminance > 0.5 ? "#1a1a1a" : "#ffffff";
+        // 実効輝度 ≒ hue輝度 と白背景を opacity で線形合成した近似。
+        const effective = luminance * opacity + 1 * (1 - opacity);
+        return effective > 0.6 ? CHART_TEXT : "#ffffff";
       }
 
       // Cell groups
@@ -224,7 +229,8 @@ export function TreemapChart({
         .attr("width", (d) => Math.max(0, d.x1 - d.x0))
         .attr("height", (d) => Math.max(0, d.y1 - d.y0))
         .attr("rx", 2)
-        .attr("fill", (d) => resolveColor(d))
+        .attr("fill", (d) => resolveColor(d).color)
+        .attr("fill-opacity", (d) => resolveColor(d).opacity)
         .style("cursor", (d) => (d.children ? "zoom-in" : "pointer"));
 
       if (animated) {
@@ -245,7 +251,7 @@ export function TreemapChart({
         .attr("x", 6)
         .attr("y", 16)
         .attr("font-size", "13px")
-        .attr("fill", (d) => getTextColor(resolveColor(d)))
+        .attr("fill", (d) => getTextColor(d))
         .text((d) => d.data.label);
 
       // Value labels (always show inside cells when large enough)
@@ -257,14 +263,11 @@ export function TreemapChart({
         .attr("x", 6)
         .attr("y", 32)
         .attr("font-size", "11px")
-        .attr("fill", (d) => {
-          const bg = resolveColor(d);
-          const c = d3.color(bg);
-          if (!c) return "rgba(255,255,255,0.75)";
-          const rgb = c.rgb();
-          const luminance = (0.299 * rgb.r + 0.587 * rgb.g + 0.114 * rgb.b) / 255;
-          return luminance > 0.5 ? "rgba(0,0,0,0.6)" : "rgba(255,255,255,0.75)";
-        })
+        .attr("fill", (d) =>
+          getTextColor(d) === "#ffffff"
+            ? "rgba(255,255,255,0.75)"
+            : "rgba(0,0,0,0.6)",
+        )
         .text((d) => (d.data.value != null ? formatCompact(d.data.value) : ""));
 
       // Interaction
@@ -348,7 +351,7 @@ export function TreemapChart({
                 <button
                   type="button"
                   className="cursor-pointer rounded-[3px] px-1 py-0.5 text-[13px] underline underline-offset-2"
-                  style={{ background: "none", border: "none", color: getChartColor(0) }}
+                  style={{ background: "none", border: "none", color: categoricalColor(0) }}
                   onClick={() => handleZoomOut(item.depth)}
                   title={`${item.label} に戻る`}
                 >

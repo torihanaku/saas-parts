@@ -4,8 +4,8 @@ import { useD3 } from "../lib/useD3";
 import { useResizeObserver } from "../lib/useResizeObserver";
 import { useTooltip } from "../lib/useTooltip";
 import { getInnerDimensions } from "../lib/d3Helpers";
-import { getChartColor } from "../lib/colorUtils";
-import { themeAxis, themeGrid } from "../lib/d3Theme";
+import { categoricalColor } from "../lib/chartRoles";
+import { themeAxis, themeGrid, tintGradient } from "../lib/d3Theme";
 import { cn } from "../lib/cn";
 import { ChartTooltip } from "../primitives/ChartTooltip";
 
@@ -68,7 +68,9 @@ export function BoxplotChart({
   const width = propWidth ?? observedWidth;
   const { innerWidth, innerHeight } = getInnerDimensions(width, height, MARGIN);
 
-  const mainColor = getChartColor(SCHEME_INDEX[colorScheme]);
+  // 単一系列の箱ひげはユーザーが選んだ1つの hue で全カテゴリを統一（虹色にしない）。
+  // colorScheme は明示選択の配色なので categoricalColor でその hue を引く。
+  const mainColor = categoricalColor(SCHEME_INDEX[colorScheme]);
 
   const svgRef = useD3<SVGSVGElement>(
     (svg) => {
@@ -79,6 +81,22 @@ export function BoxplotChart({
       const g = svg
         .append("g")
         .attr("transform", `translate(${MARGIN.left},${MARGIN.top})`);
+
+      // 箱のベタ塗り回避: 色ごとに縦 tint グラデを1度だけ生成してキャッシュする。
+      const defs = svg.append("defs");
+      const tintCache = new Map<string, string>();
+      const boxTint = (color: string): string => {
+        let url = tintCache.get(color);
+        if (!url) {
+          url = tintGradient(defs, color, {
+            dir: "v",
+            bottomOpacity: 0.45,
+            topOpacity: 0.72,
+          });
+          tintCache.set(color, url);
+        }
+        return url;
+      };
 
       // Collect all values including outliers for domain calculation
       const allValues: number[] = [];
@@ -164,7 +182,7 @@ export function BoxplotChart({
             .attr("stroke", seriesColor)
             .attr("stroke-width", 1.5);
 
-          // Box (Q1 to Q3)
+          // Box (Q1 to Q3) — tint グラデで深みを出す（ベタ塗り回避）。
           const box = g
             .append("rect")
             .attr("class", "bp-box")
@@ -172,8 +190,7 @@ export function BoxplotChart({
             .attr("x", x)
             .attr("width", boxWidth)
             .attr("rx", 3)
-            .attr("fill", seriesColor)
-            .attr("fill-opacity", 0.6)
+            .attr("fill", boxTint(seriesColor))
             .attr("stroke", seriesColor)
             .attr("stroke-width", 1.5);
 
@@ -297,7 +314,7 @@ export function BoxplotChart({
             .attr("fill", "transparent")
             .style("cursor", "pointer")
             .on("mouseenter", function (event: MouseEvent) {
-              box.attr("fill-opacity", 0.85);
+              box.attr("opacity", 0.82);
               const lines = [
                 `${d.label}`,
                 `最大: ${d.max}`,
@@ -312,7 +329,7 @@ export function BoxplotChart({
               show(event, lines.join("\n"));
             })
             .on("mouseleave", function () {
-              box.attr("fill-opacity", 0.6);
+              box.attr("opacity", 1);
               hide();
             });
         });
@@ -391,7 +408,7 @@ export function BoxplotChart({
             .attr("stroke", seriesColor)
             .attr("stroke-width", 1.5);
 
-          // Box (Q1 to Q3)
+          // Box (Q1 to Q3) — tint グラデで深みを出す（ベタ塗り回避）。
           const box = g
             .append("rect")
             .attr("class", "bp-box")
@@ -399,8 +416,7 @@ export function BoxplotChart({
             .attr("y", y)
             .attr("height", boxHeight)
             .attr("rx", 3)
-            .attr("fill", seriesColor)
-            .attr("fill-opacity", 0.6)
+            .attr("fill", boxTint(seriesColor))
             .attr("stroke", seriesColor)
             .attr("stroke-width", 1.5);
 
@@ -524,7 +540,7 @@ export function BoxplotChart({
             .attr("fill", "transparent")
             .style("cursor", "pointer")
             .on("mouseenter", function (event: MouseEvent) {
-              box.attr("fill-opacity", 0.85);
+              box.attr("opacity", 0.82);
               const lines = [
                 `${d.label}`,
                 `最大: ${d.max}`,
@@ -539,7 +555,7 @@ export function BoxplotChart({
               show(event, lines.join("\n"));
             })
             .on("mouseleave", function () {
-              box.attr("fill-opacity", 0.6);
+              box.attr("opacity", 1);
               hide();
             });
         });

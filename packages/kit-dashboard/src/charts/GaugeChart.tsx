@@ -4,15 +4,12 @@ import { useD3 } from "../lib/useD3";
 import { useResizeObserver } from "../lib/useResizeObserver";
 import { useTooltip } from "../lib/useTooltip";
 import { formatNumber } from "../lib/formatters";
-import { getChartColor } from "../lib/colorUtils";
+import { semanticColor, PRIMARY } from "../lib/chartRoles";
 import {
   CHART_TEXT,
   CHART_TEXT_MUTED,
   CHART_BORDER,
   CHART_SURFACE,
-  CHART_POSITIVE,
-  CHART_NEGATIVE,
-  CHART_WARNING,
 } from "../lib/theme";
 import { cn } from "../lib/cn";
 import { ChartTooltip } from "../primitives/ChartTooltip";
@@ -44,9 +41,9 @@ export interface GaugeChartProps {
 }
 
 const DEFAULT_RANGES: GaugeRange[] = [
-  { from: 0, to: 60, color: CHART_NEGATIVE, label: "要改善" },
-  { from: 60, to: 80, color: CHART_WARNING, label: "普通" },
-  { from: 80, to: 100, color: CHART_POSITIVE, label: "良好" },
+  { from: 0, to: 60, color: semanticColor("negative"), label: "要改善" },
+  { from: 60, to: 80, color: semanticColor("warning"), label: "普通" },
+  { from: 80, to: 100, color: semanticColor("positive"), label: "良好" },
 ];
 
 // Gauge arc spans -140deg to +140deg (280deg total)
@@ -62,7 +59,7 @@ function rangeColor(value: number, ranges: GaugeRange[]): string {
   for (const r of ranges) {
     if (value >= r.from && value <= r.to) return r.color;
   }
-  return getChartColor(0);
+  return PRIMARY();
 }
 
 export function GaugeChart({
@@ -95,9 +92,9 @@ export function GaugeChart({
           const bad = thresholdBad ?? max * 0.33;
           const good = thresholdGood ?? max * 0.66;
           return [
-            { from: min, to: bad, color: CHART_NEGATIVE, label: "要改善" },
-            { from: bad, to: good, color: CHART_WARNING, label: "普通" },
-            { from: good, to: max, color: CHART_POSITIVE, label: "良好" },
+            { from: min, to: bad, color: semanticColor("negative"), label: "要改善" },
+            { from: bad, to: good, color: semanticColor("warning"), label: "普通" },
+            { from: good, to: max, color: semanticColor("positive"), label: "良好" },
           ];
         })()
       : null;
@@ -162,7 +159,7 @@ export function GaugeChart({
       // Determine value arc color
       const valueAngle = valueToAngle(value, min, max);
       const fillColor =
-        activeRanges.length > 0 ? rangeColor(value, activeRanges) : getChartColor(0);
+        activeRanges.length > 0 ? rangeColor(value, activeRanges) : PRIMARY();
 
       // Value arc — animated or static
       const valuePath = g

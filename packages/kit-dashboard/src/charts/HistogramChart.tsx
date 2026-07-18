@@ -5,9 +5,9 @@ import { useResizeObserver } from "../lib/useResizeObserver";
 import { useTooltip } from "../lib/useTooltip";
 import { DEFAULT_MARGIN, getInnerDimensions } from "../lib/d3Helpers";
 import { formatNumber, formatCompact } from "../lib/formatters";
-import { getChartColor } from "../lib/colorUtils";
+import { PRIMARY, sequentialStep } from "../lib/chartRoles";
 import { CHART_TEXT_MUTED, CHART_NEGATIVE, CHART_WARNING } from "../lib/theme";
-import { themeAxis, themeGrid } from "../lib/d3Theme";
+import { themeAxis, themeGrid, tintGradient } from "../lib/d3Theme";
 import { cn } from "../lib/cn";
 import { ChartTooltip } from "../primitives/ChartTooltip";
 
@@ -141,8 +141,19 @@ export function HistogramChart({
         .call(d3.axisLeft(yScale).tickFormat((d) => formatNumber(d as number, 0)));
       themeAxis(yAxisG);
 
-      // Bars
+      // Bars — 単一分布なので虹色にせず単一 hue（PRIMARY）で統一。
+      // 深みは縦 tint グラデで出し（ベタ塗り回避）、値の大小は sequentialStep の
+      // 不透明度ランプで差別化する（count 降順に濃→淡）。
       const barData = bins.map((bin, i) => ({ bin, count: counts[i]! }));
+
+      // count 降順の順位でランプ index を決める（高い bin ほど濃く）。
+      const rankByLabel = new Map<number, number>();
+      barData
+        .map((d, i) => ({ i, count: d.count }))
+        .sort((a, b) => b.count - a.count)
+        .forEach((o, rank) => rankByLabel.set(o.i, rank));
+
+      const barTint = tintGradient(svg.append("defs"), PRIMARY(), { dir: "v" });
 
       const bars = g
         .selectAll<SVGRectElement, (typeof barData)[number]>(".hist-bar")
@@ -155,7 +166,10 @@ export function HistogramChart({
           Math.max(0, xScale(d.bin.x1 ?? 0) - xScale(d.bin.x0 ?? 0) - 2),
         )
         .attr("rx", 2)
-        .attr("fill", getChartColor(0))
+        .attr("fill", barTint)
+        .attr("fill-opacity", (_d, i) =>
+          sequentialStep(rankByLabel.get(i) ?? i, barData.length).opacity,
+        )
         .attr("y", innerHeight)
         .attr("height", 0);
 
@@ -297,7 +311,7 @@ export function HistogramChart({
         g.append("path")
           .datum(densityData)
           .attr("fill", "none")
-          .attr("stroke", getChartColor(0))
+          .attr("stroke", PRIMARY())
           .attr("stroke-width", 2)
           .attr("stroke-opacity", 0.7)
           .attr("d", line);

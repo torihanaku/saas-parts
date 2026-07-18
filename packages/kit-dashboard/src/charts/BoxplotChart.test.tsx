@@ -51,8 +51,10 @@ describe("BoxplotChart", () => {
     // 軸テキストは --muted-foreground を参照する（ダーク追従の担保）
     const axisText = container.querySelector("g text");
     expect(axisText?.getAttribute("fill")).toContain("var(--muted-foreground");
-    // ボックス塗りも var(--chart-N) 由来
+    // ボックスは tint グラデ塗り（url(#kit-tint…)）。テーマ追従は gradient stop の var(...) が担う。
     const box = container.querySelector("rect.bp-box");
-    expect(box?.getAttribute("fill")).toContain("var(");
+    expect(box?.getAttribute("fill")).toMatch(/^url\(#kit-tint/);
+    const stop = container.querySelector("linearGradient stop");
+    expect(stop?.getAttribute("stop-color")).toContain("var(");
   });
 });

@@ -3,9 +3,10 @@ import { useRef } from "react";
 import { useD3 } from "../lib/useD3";
 import { useResizeObserver } from "../lib/useResizeObserver";
 import { useTooltip } from "../lib/useTooltip";
-import { getChartColor } from "../lib/colorUtils";
+import { PRIMARY } from "../lib/chartRoles";
 import { formatNumber } from "../lib/formatters";
-import { CHART_BORDER, CHART_TEXT_MUTED, CHART_SURFACE } from "../lib/theme";
+import { themeAxis, themeGrid } from "../lib/d3Theme";
+import { CHART_TEXT_MUTED, CHART_SURFACE } from "../lib/theme";
 import { cn } from "../lib/cn";
 import { ChartTooltip } from "../primitives/ChartTooltip";
 
@@ -84,8 +85,9 @@ export function BubbleChart({
         .append("g")
         .attr("transform", `translate(${mg.left},${mg.top})`);
 
-      // グリッド線（X）
-      g.append("g")
+      // グリッド線（X）— 軸/グリッドはテーマトークンで統一（生 stroke を書かない）。
+      const gridXG = g
+        .append("g")
         .attr("class", "grid-x")
         .attr("transform", `translate(0,${innerHeight})`)
         .call(
@@ -93,52 +95,31 @@ export function BubbleChart({
             .axisBottom(xScale)
             .tickSize(-innerHeight)
             .tickFormat(() => ""),
-        )
-        .call((ax) => {
-          ax.select(".domain").remove();
-          ax.selectAll("line")
-            .attr("stroke", CHART_BORDER)
-            .attr("stroke-dasharray", "3,3");
-        });
+        );
+      themeGrid(gridXG);
 
       // グリッド線（Y）
-      g.append("g")
+      const gridYG = g
+        .append("g")
         .attr("class", "grid-y")
         .call(
           d3
             .axisLeft(yScale)
             .tickSize(-innerWidth)
             .tickFormat(() => ""),
-        )
-        .call((ax) => {
-          ax.select(".domain").remove();
-          ax.selectAll("line")
-            .attr("stroke", CHART_BORDER)
-            .attr("stroke-dasharray", "3,3");
-        });
+        );
+      themeGrid(gridYG);
 
       // X軸
-      g.append("g")
+      const xAxisG = g
+        .append("g")
         .attr("transform", `translate(0,${innerHeight})`)
-        .call(d3.axisBottom(xScale).ticks(5))
-        .call((ax) => {
-          ax.select(".domain").attr("stroke", CHART_BORDER);
-          ax.selectAll("text")
-            .style("font-size", "11px")
-            .style("fill", CHART_TEXT_MUTED);
-          ax.selectAll("line").attr("stroke", CHART_BORDER);
-        });
+        .call(d3.axisBottom(xScale).ticks(5));
+      themeAxis(xAxisG);
 
       // Y軸
-      g.append("g")
-        .call(d3.axisLeft(yScale).ticks(5))
-        .call((ax) => {
-          ax.select(".domain").attr("stroke", CHART_BORDER);
-          ax.selectAll("text")
-            .style("font-size", "11px")
-            .style("fill", CHART_TEXT_MUTED);
-          ax.selectAll("line").attr("stroke", CHART_BORDER);
-        });
+      const yAxisG = g.append("g").call(d3.axisLeft(yScale).ticks(5));
+      themeAxis(yAxisG);
 
       // X軸ラベル
       if (xLabel) {
@@ -172,7 +153,8 @@ export function BubbleChart({
         .attr("cx", (d) => xScale(d.x))
         .attr("cy", (d) => yScale(d.y))
         .attr("r", 0)
-        .attr("fill", (d, i) => d.color ?? getChartColor(i))
+        // 単一系列の点は虹色にせず PRIMARY 単色。差はサイズ（size）で表現する。
+        .attr("fill", (d) => d.color ?? PRIMARY())
         .attr("fill-opacity", 0.7)
         .attr("stroke", CHART_SURFACE)
         .attr("stroke-width", 1.5)

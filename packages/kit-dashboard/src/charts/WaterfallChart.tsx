@@ -5,12 +5,10 @@ import { useResizeObserver } from "../lib/useResizeObserver";
 import { useTooltip } from "../lib/useTooltip";
 import { getInnerDimensions } from "../lib/d3Helpers";
 import { formatNumber } from "../lib/formatters";
-import { getChartColor } from "../lib/colorUtils";
+import { semanticColor, PRIMARY } from "../lib/chartRoles";
 import {
   CHART_BORDER,
   CHART_TEXT_MUTED,
-  CHART_POSITIVE,
-  CHART_NEGATIVE,
   CHART_WARNING,
 } from "../lib/theme";
 import { themeAxis, themeGrid } from "../lib/d3Theme";
@@ -81,10 +79,10 @@ function computeSegments(data: WaterfallItem[]): WaterfallSegment[] {
         resolvedType,
         barStart: 0,
         barEnd: displayValue,
-        // subtotal: muted, total: 主系列色
+        // subtotal: muted, total: 主系列色（PRIMARY = chart-1）
         color:
           item.color ??
-          (item.type === "subtotal" ? CHART_TEXT_MUTED : getChartColor(0)),
+          (item.type === "subtotal" ? CHART_TEXT_MUTED : PRIMARY()),
       });
       runningTotal = displayValue;
     } else {
@@ -102,7 +100,7 @@ function computeSegments(data: WaterfallItem[]): WaterfallSegment[] {
         barEnd,
         color:
           item.color ??
-          (resolvedType === "increase" ? CHART_POSITIVE : CHART_NEGATIVE),
+          semanticColor(resolvedType === "increase" ? "positive" : "negative"),
       });
     }
   }
@@ -215,6 +213,7 @@ export function WaterfallChart({
       }
 
       // --- Bars ---
+      // ベタ塗り回避: fill は s.color（var(...)＝テーマ追従）のまま、fill-opacity で軽く tint 化。
       const barGroups = g
         .selectAll<SVGRectElement, WaterfallSegment>(".wf-bar")
         .data(segments)
@@ -225,6 +224,7 @@ export function WaterfallChart({
         .attr("width", xScale.bandwidth())
         .attr("rx", 2)
         .attr("fill", (s) => s.color)
+        .attr("fill-opacity", 0.88)
         .attr("y", (s) => yScale(s.barStart))
         .attr("height", 0);
 

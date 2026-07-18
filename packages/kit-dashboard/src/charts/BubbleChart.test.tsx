@@ -35,13 +35,13 @@ describe("BubbleChart", () => {
     const { container } = render(
       <BubbleChart width={600} height={320} data={SAMPLE} />,
     );
-    // 軸テキストは --muted-foreground を参照する（ダーク追従の担保）
+    // 軸テキストは --muted-foreground を参照する（themeAxis が attr("fill") で当てる）
     const texts = Array.from(container.querySelectorAll("text"));
     const themed = texts.some((t) =>
-      (t.getAttribute("style") ?? "").includes("var(--muted-foreground"),
+      (t.getAttribute("fill") ?? "").includes("var(--muted-foreground"),
     );
     expect(themed).toBe(true);
-    // バブルの塗りも var(...) 由来（テーマ追従のパレット）
+    // 単一系列のバブルは PRIMARY 単色（var(--chart-1)）＝テーマ追従
     const bubble = container.querySelector("circle.bubble");
     expect(bubble?.getAttribute("fill") ?? "").toContain("var(");
   });

@@ -31,3 +31,30 @@ export function themeGrid(g: AnySel): void {
   g.selectAll("text").attr("fill", CHART_TEXT_MUTED);
   g.select(".domain").remove();
 }
+
+let _gradSeq = 0;
+/**
+ * 縦方向の tint グラデーション（下=やや淡→上=濃）を defs に生成し `url(#id)` を返す。
+ * ベタ塗りソリッドを避けて棒・面・矩形に「深み」を与えるための共通ヘルパ。
+ * @param defs svg.append("defs") 済みの selection
+ * @param color 基色（var(--chart-N) 等の文字列）
+ * @param opts.dir "v"（縦・既定）| "h"（横）。bottomOpacity/topOpacity で濃淡を調整。
+ */
+export function tintGradient(
+  defs: AnySel,
+  color: string,
+  opts: { dir?: "v" | "h"; bottomOpacity?: number; topOpacity?: number; id?: string } = {},
+): string {
+  const { dir = "v", bottomOpacity = 0.78, topOpacity = 1, id } = opts;
+  const gid = id ?? `kit-tint-${_gradSeq++}`;
+  const g = defs
+    .append("linearGradient")
+    .attr("id", gid)
+    .attr("x1", dir === "h" ? "0" : "0")
+    .attr("y1", dir === "h" ? "0" : "1")
+    .attr("x2", dir === "h" ? "1" : "0")
+    .attr("y2", "0");
+  g.append("stop").attr("offset", "0%").attr("stop-color", color).attr("stop-opacity", bottomOpacity);
+  g.append("stop").attr("offset", "100%").attr("stop-color", color).attr("stop-opacity", topOpacity);
+  return `url(#${gid})`;
+}

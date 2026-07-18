@@ -4,7 +4,8 @@ import { useD3 } from "../lib/useD3";
 import { useResizeObserver } from "../lib/useResizeObserver";
 import { useTooltip } from "../lib/useTooltip";
 import { DEFAULT_MARGIN, getInnerDimensions } from "../lib/d3Helpers";
-import { getChartColor, getColorScheme } from "../lib/colorUtils";
+import { getColorScheme } from "../lib/colorUtils";
+import { PRIMARY, categoricalColor } from "../lib/chartRoles";
 import { CHART_TEXT_MUTED } from "../lib/theme";
 import { themeAxis, themeGrid } from "../lib/d3Theme";
 import { cn } from "../lib/cn";
@@ -30,8 +31,8 @@ export interface ScatterChartProps {
   className?: string;
 }
 
-// 系列別の配色はテーマパレット（--chart-1..）に循環マッピング
-const SERIES_COLORS = [0, 1, 2, 3, 4].map((i) => getChartColor(i));
+// 多系列 = 真のカテゴリ → categoricalColor で --chart-1.. に循環マッピング
+const SERIES_COLORS = [0, 1, 2, 3, 4].map((i) => categoricalColor(i));
 
 const DEFAULT_DATA: ScatterPoint[] = [
   { x: 120, y: 85, label: "エンタープライズ", series: "A" },
@@ -96,7 +97,12 @@ export function ScatterChart({
     .scaleOrdinal<string>()
     .domain(seriesKeys)
     .range(SERIES_COLORS);
-  const singleColor = getColorScheme(colorScheme)[0]!;
+  // 単一系列の点 = PRIMARY(chart-1)。既定("blue")は主系列色に寄せ、
+  // 明示的な配色スキーム(green/orange/…)を選んだ時だけそのスキーム色を使う。
+  const singleColor =
+    colorScheme && colorScheme !== "blue"
+      ? getColorScheme(colorScheme)[0]!
+      : PRIMARY();
 
   const svgRef = useD3<SVGSVGElement>(
     (svg) => {

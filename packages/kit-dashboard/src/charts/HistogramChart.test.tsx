@@ -42,9 +42,11 @@ describe("HistogramChart", () => {
         data={SAMPLE}
       />,
     );
-    // バーの塗りは var(--chart-1) 系
+    // 単一分布の棒は縦 tint グラデ塗り（url(#kit-tint…)）。テーマ追従は gradient stop の var(...) が担う。
     const bar = container.querySelector("rect.hist-bar");
-    expect(bar?.getAttribute("fill")).toContain("var(--chart");
+    expect(bar?.getAttribute("fill")).toMatch(/^url\(#kit-tint/);
+    const stop = container.querySelector("linearGradient stop");
+    expect(stop?.getAttribute("stop-color")).toContain("var(");
     // 軸テキストは --muted-foreground を参照（themeAxis 適用）
     const axisText = container.querySelector("g text");
     expect(axisText?.getAttribute("fill")).toContain("var(--muted-foreground");

@@ -4,7 +4,7 @@ import { useD3 } from "../lib/useD3";
 import { useResizeObserver } from "../lib/useResizeObserver";
 import { useTooltip } from "../lib/useTooltip";
 import { getInnerDimensions } from "../lib/d3Helpers";
-import { CHART_POSITIVE, CHART_NEGATIVE } from "../lib/theme";
+import { semanticColor } from "../lib/chartRoles";
 import { themeAxis, themeGrid } from "../lib/d3Theme";
 import { cn } from "../lib/cn";
 import { ChartTooltip } from "../primitives/ChartTooltip";
@@ -21,9 +21,9 @@ export interface CandlestickChartProps {
   data?: CandlestickData[];
   width?: number;
   height?: number;
-  /** candle when close >= open（既定: CHART_POSITIVE = 上昇） */
+  /** candle when close >= open（既定: semanticColor("positive") = 上昇） */
   bullColor?: string;
-  /** candle when close < open（既定: CHART_NEGATIVE = 下落） */
+  /** candle when close < open（既定: semanticColor("negative") = 下落） */
   bearColor?: string;
   animated?: boolean;
   className?: string;
@@ -54,8 +54,8 @@ export function CandlestickChart({
   data = DEFAULT_DATA,
   width: propWidth,
   height = 320,
-  bullColor = CHART_POSITIVE,
-  bearColor = CHART_NEGATIVE,
+  bullColor = semanticColor("positive"),
+  bearColor = semanticColor("negative"),
   animated = true,
   className,
 }: CandlestickChartProps) {

@@ -4,12 +4,11 @@ import { useD3 } from "../lib/useD3";
 import { useResizeObserver } from "../lib/useResizeObserver";
 import { useTooltip } from "../lib/useTooltip";
 import { formatDate } from "../lib/formatters";
-import { getChartColor } from "../lib/colorUtils";
+import { categoricalColor, semanticColor } from "../lib/chartRoles";
 import {
   CHART_TEXT,
   CHART_TEXT_MUTED,
   CHART_BORDER,
-  CHART_NEGATIVE,
 } from "../lib/theme";
 import { themeAxis } from "../lib/d3Theme";
 import { cn } from "../lib/cn";
@@ -56,10 +55,11 @@ const GROUP_ORDER: Record<string, number> = {
 };
 
 function groupColor(group: string | undefined, fallbackIndex: number): string {
+  // グループ = 真のカテゴリ → categoricalColor（テーマパレット循環）
   if (group && GROUP_ORDER[group] !== undefined) {
-    return getChartColor(GROUP_ORDER[group]!);
+    return categoricalColor(GROUP_ORDER[group]!);
   }
-  return getChartColor(fallbackIndex);
+  return categoricalColor(fallbackIndex);
 }
 
 export function TimelineChart({
@@ -381,7 +381,7 @@ export function TimelineChart({
           .attr("x2", todayX)
           .attr("y1", -10)
           .attr("y2", innerHeight)
-          .attr("stroke", CHART_NEGATIVE)
+          .attr("stroke", semanticColor("negative"))
           .attr("stroke-width", 2)
           .attr("stroke-dasharray", "5 4");
 
@@ -392,7 +392,7 @@ export function TimelineChart({
           .attr("text-anchor", "middle")
           .attr("font-size", "11px")
           .attr("font-weight", 600)
-          .attr("fill", CHART_NEGATIVE)
+          .attr("fill", semanticColor("negative"))
           .text("今日");
       }
     },
