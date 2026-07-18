@@ -1,6 +1,8 @@
 # saas-parts — AI向け利用ガイド
 
-SaaS開発用の共有部品monorepo（全112パッケージ＝汎用部品96＋機能キット10＋テンプレート6）。実運用SaaSから抽出・脱結合した実戦コード。全部品はテスト付き・自己完結（パッケージ間import無し・process.env読み取り無し・依存はすべて注入式）。約3,443テストgreen。
+SaaS開発用の共有部品monorepo（全113パッケージ＝汎用部品96＋機能キット11＋テンプレート6）。実運用SaaSから抽出・脱結合した実戦コード。全部品はテスト付き・自己完結（パッケージ間import無し・process.env読み取り無し・依存はすべて注入式）。約3,568テストgreen。
+
+> UIキット層について: 原則「見た目コンポーネントは共有しない（ブランド固有ルックを持ち込まない）」。例外は **@torihanaku/kit-dashboard** のみ＝色を CSS変数参照にして"テーマ非依存"化することで、特定ルックを押し付けずに視覚部品を配れる唯一の層。
 
 ## 使い方（コンテクスト消費を最小にする手順）
 
@@ -118,6 +120,7 @@ SaaS開発用の共有部品monorepo（全112パッケージ＝汎用部品96＋
 - **@torihanaku/kit-integration-manager** — 外部SaaS統合マネージャー（接続管理/fire-and-wait同期/正規化レジストリ/マルチ発行/ヘルス。IntegrationProvider契約+Nango実装注入式）（runtime: any, deps: なし）
 - **@torihanaku/kit-ai-workforce** — 「AI社員」チーム編成・稼働の中核（状態機械＋SSE／BM25で**得意分野タスクマッチング**／キャラCRUD／ロールモデル／テンプレート／チームコンポーザー／**タスク割当→評価→スキル自動昇格→CV記録の成長ループ**。docs/に製品コンセプト本2冊同梱）（runtime: node+React, deps: react(client)）
 - **@torihanaku/kit-devops-metrics** — DORA4指標＋デプロイ運用（健全性/タイムライン/オーケストレーション/昇格制御。GitProvider・store・通知を注入、DORA計算式verbatim）（runtime: node/bun, deps: react(client)）
+- **@torihanaku/kit-dashboard** — ダッシュボード/チャートUIキット。**recharts で描けない高度チャート中心の全24チャート**（Sankey/地図/ピボット/ウォーターフォール/箱ひげ/キャンドル/ツリーマップ/ファネル/ゲージ/バレット/ヒートマップ/ヒストグラム＋Bar/Line/Area/Pie/Combo/Scatter/Bubble/Table/ScoreCard/Timeline/WordCloud）＋外殻（フィルタ7種/DateRange/FilterBar/DashboardGrid/Section/TextBox/ReportHeader/Dropdown/Badge）。**色をハードコードせず shadcn の CSS変数（--chart-1..8/--foreground 等）を参照**するので取り込み先のテーマ/ダークに自動追従（＝"見た目は共有しない"規約と衝突しない唯一のUIキット層）。フィルタは全て value+onChange の制御コンポーネント（store非依存）。取り込み時は `import "@torihanaku/kit-dashboard/theme.css"`。（runtime: browser+React, deps: react/d3必須・d3-sankey/topojson-client は該当チャート使用時のみoptional・grid の D&D は react-grid-layout を gridComponent に注入）
 
 ### 業務機能（そのまま小さなSaaSになる粒度・バッチ5）
 - **@torihanaku/hiring** — 採用機能一式（求人票CRUD・応募者トラッキング・公開応募・GDPR削除）（runtime: node, deps: なし）
