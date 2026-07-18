@@ -1,0 +1,60 @@
+/*
+ * @torihanaku/kit-dashboard — テーマ変数のデフォルト定義
+ *
+ * このキットのチャートは色をハードコードせず、下記の CSS 変数を参照します
+ * （SVG の fill/stroke に `var(--chart-1)` 形式で直接埋め込むため、ダークモード
+ * 切替時に React 再描画なしで色が追従します）。
+ *
+ * 取り込み先が shadcn/ui のテーマを持っている場合、--foreground / --border /
+ * --card / --muted-foreground / --popover / --chart-1..5 は既に定義済みのはず。
+ * このファイルはそれらの「フォールバック」＋キット固有の追加変数（--chart-6..8,
+ * --chart-positive/negative）を供給します。ホスト側の globals.css を
+ * このファイルより後に読み込めば、ホストの値が優先されます。
+ */
+
+:root {
+  /* シーケンシャル・パレット（shadcn は 1..5。6..8 はキットの追加分） */
+  --chart-1: #4285f4;
+  --chart-2: #ea4335;
+  --chart-3: #fbbc04;
+  --chart-4: #34a853;
+  --chart-5: #fa7b17;
+  --chart-6: #f53ba0;
+  --chart-7: #a142f4;
+  --chart-8: #24c1e0;
+
+  /* トレンド（増減）色 */
+  --chart-positive: #34a853;
+  --chart-negative: #ea4335;
+  --chart-warning: #fbbc04;
+
+  /* shadcn トークンのフォールバック（ホスト未定義時のみ有効化される想定） */
+  --foreground: #202124;
+  --muted-foreground: #5f6368;
+  --border: #e0e0e0;
+  --card: #ffffff;
+  --popover: #ffffff;
+  --popover-foreground: #202124;
+}
+
+.dark {
+  --chart-1: #8ab4f8;
+  --chart-2: #f28b82;
+  --chart-3: #fdd663;
+  --chart-4: #81c995;
+  --chart-5: #fcad70;
+  --chart-6: #ff8bcb;
+  --chart-7: #c58af9;
+  --chart-8: #78d9ec;
+
+  --chart-positive: #81c995;
+  --chart-negative: #f28b82;
+  --chart-warning: #fdd663;
+
+  --foreground: #e8eaed;
+  --muted-foreground: #9aa0a6;
+  --border: #3c4043;
+  --card: #202124;
+  --popover: #2d2e30;
+  --popover-foreground: #e8eaed;
+}
