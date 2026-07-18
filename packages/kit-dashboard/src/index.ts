@@ -105,3 +105,33 @@ export {
   type BubbleMapChartProps,
   type BubbleMapPoint,
 } from "./charts/BubbleMapChart";
+
+// --- Charts (Phase 2: 基本チャート) ---
+// Bar/Line/Area/Pie/ScoreCard/Bubble/Table の props 型は ./lib/types から公開済み
+// （`export type *` 済み）なのでコンポーネントのみ re-export（重複 export を回避）。
+export { BarChart } from "./charts/BarChart";
+export { LineChart } from "./charts/LineChart";
+export { AreaChart } from "./charts/AreaChart";
+export { PieChart } from "./charts/PieChart";
+export { ScoreCard } from "./charts/ScoreCard";
+export { BubbleChart } from "./charts/BubbleChart";
+export { TableChart } from "./charts/TableChart";
+// 以下は ./lib/types に無い固有型なので明示 export
+export {
+  ComboChart,
+  type ComboChartProps,
+  type ComboDataPoint,
+} from "./charts/ComboChart";
+export {
+  ScatterChart,
+  type ScatterChartProps,
+  type ScatterPoint,
+} from "./charts/ScatterChart";
+export {
+  TimelineChart,
+  type TimelineChartProps,
+  type TimelineEvent,
+  type TimelineMode,
+  TIMELINE_DEFAULT_DATA,
+} from "./charts/TimelineChart";
+export { WordCloudChart, type WordCloudProps } from "./charts/WordCloudChart";
