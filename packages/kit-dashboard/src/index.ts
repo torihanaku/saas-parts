@@ -135,3 +135,37 @@ export {
   TIMELINE_DEFAULT_DATA,
 } from "./charts/TimelineChart";
 export { WordCloudChart, type WordCloudProps } from "./charts/WordCloudChart";
+
+// --- Filters (Phase 3: すべて store 非依存の制御コンポーネント) ---
+export {
+  FilterDropdownWidget,
+  type FilterDropdownWidgetProps,
+} from "./filters/FilterDropdownWidget";
+export {
+  FilterCheckboxWidget,
+  type FilterCheckboxWidgetProps,
+} from "./filters/FilterCheckboxWidget";
+export { FilterListWidget, type FilterListWidgetProps } from "./filters/FilterListWidget";
+export { FilterSliderWidget, type FilterSliderWidgetProps } from "./filters/FilterSliderWidget";
+export { FilterInputWidget, type FilterInputWidgetProps } from "./filters/FilterInputWidget";
+// DateRange は DateRangePicker を正典として公開（FilterDateWidget 側は再exportしない）
+export { FilterDateWidget, type FilterDateWidgetProps } from "./filters/FilterDateWidget";
+export { FilterResetWidget, type FilterResetWidgetProps } from "./filters/FilterResetWidget";
+export {
+  DateRangePicker,
+  type DateRangePickerProps,
+  type DateRange,
+} from "./filters/DateRangePicker";
+export { FilterBar, type FilterBarProps, type FilterBarFilter } from "./filters/FilterBar";
+
+// --- Shell (Phase 3) ---
+export { ReportHeaderWidget, type ReportHeaderWidgetProps } from "./shell/ReportHeaderWidget";
+export { SectionHeader, type SectionHeaderProps } from "./shell/SectionHeader";
+export { TextBox, type TextBoxProps } from "./shell/TextBox";
+
+// --- Layout (Phase 3) ---
+export { DashboardGrid, type DashboardGridProps } from "./layout/DashboardGrid";
+
+// --- Primitives (Phase 3) ---
+export { Dropdown, type DropdownProps, type DropdownOption } from "./primitives/Dropdown";
+export { Badge, type BadgeProps, type BadgeVariant } from "./primitives/Badge";
