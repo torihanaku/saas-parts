@@ -7,9 +7,9 @@ import { cn } from "../lib/cn";
 export type PivotCellMode = "number" | "heatmap" | "bar";
 
 export interface PivotTableProps {
-  data: Record<string, Record<string, number>>;
-  rows: string[];
-  cols: string[];
+  data?: Record<string, Record<string, number>>;
+  rows?: string[];
+  cols?: string[];
   rowLabel?: string;
   cellMode?: PivotCellMode;
   showTotals?: boolean;
@@ -36,9 +36,9 @@ const TH_SORTABLE =
   "hover:bg-[color:var(--card)] hover:text-[color:var(--foreground)]";
 
 export function PivotTable({
-  data,
-  rows,
-  cols,
+  data = PIVOT_DEFAULT_DATA,
+  rows = PIVOT_DEFAULT_ROWS,
+  cols = PIVOT_DEFAULT_COLS,
   rowLabel = "",
   cellMode = "number",
   showTotals = false,

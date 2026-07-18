@@ -31,8 +31,8 @@ export interface SankeyLink {
 export type SankeyLinkColorMode = "gray" | "source" | "target";
 
 export interface SankeyChartProps {
-  nodes: SankeyNode[];
-  links: SankeyLink[];
+  nodes?: SankeyNode[];
+  links?: SankeyLink[];
   linkColorMode?: SankeyLinkColorMode;
   nodeWidth?: number;
   nodePadding?: number;
@@ -60,8 +60,8 @@ type InternalLink = D3SankeyLink<InternalNode, object>;
 const DEFAULT_SANKEY_MARGIN = { top: 10, right: 150, bottom: 10, left: 150 };
 
 export function SankeyChart({
-  nodes,
-  links,
+  nodes = SANKEY_DEFAULT_NODES,
+  links = SANKEY_DEFAULT_LINKS,
   linkColorMode = "gray",
   nodeWidth = 15,
   nodePadding = 12,
