@@ -40,8 +40,16 @@ function getLabelText(
 
 const EXPLODE_OFFSET = 10;
 
+// ゼロ設定でも描画できる既定データ（他チャートと同様）
+const DEFAULT_PIE_DATA: DataPoint[] = [
+  { label: "オーガニック", value: 50 },
+  { label: "有料広告", value: 25 },
+  { label: "SNS", value: 15 },
+  { label: "直接", value: 10 },
+];
+
 export function PieChart({
-  data,
+  data = DEFAULT_PIE_DATA,
   innerRadius = 0,
   showLegend = true,
   showLabels = false,

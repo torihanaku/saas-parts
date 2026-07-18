@@ -20,6 +20,16 @@ import type { LineChartProps, TimeSeriesPoint } from "../lib/types";
 const DEFAULT_SERIES_NAMES = ["系列A", "系列B", "系列C", "系列D"];
 const SERIES_OFFSETS = [0, 150, -80, 200];
 
+// ゼロ設定でも描画できる既定データ（他チャートと同様）
+const DEFAULT_LINE_DATA: TimeSeriesPoint[] = [
+  { date: new Date(2026, 0, 1), value: 120 },
+  { date: new Date(2026, 1, 1), value: 180 },
+  { date: new Date(2026, 2, 1), value: 150 },
+  { date: new Date(2026, 3, 1), value: 240 },
+  { date: new Date(2026, 4, 1), value: 210 },
+  { date: new Date(2026, 5, 1), value: 300 },
+];
+
 function buildMultiSeriesData(
   base: TimeSeriesPoint[],
   count: number,
@@ -44,7 +54,7 @@ function buildMultiSeriesData(
 }
 
 export function LineChart({
-  data,
+  data = DEFAULT_LINE_DATA,
   series,
   width: propWidth,
   height = 300,

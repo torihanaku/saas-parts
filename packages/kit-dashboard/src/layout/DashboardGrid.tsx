@@ -1,5 +1,4 @@
-import { createRequire } from "node:module";
-import type { CSSProperties, ReactNode } from "react";
+import type { ComponentType, CSSProperties, ReactNode } from "react";
 import { cn } from "../lib/cn";
 
 export interface DashboardGridProps {
@@ -10,9 +9,8 @@ export interface DashboardGridProps {
   children?: ReactNode;
   className?: string;
   /**
-   * react-grid-layout に渡すレイアウト。指定があり react-grid-layout が
-   * インストール済みなら D&D/リサイズ可能なグリッドで描画する。
-   * 未指定 or 未インストールなら素の CSS グリッドにフォールバックする。
+   * react-grid-layout に渡すレイアウト。`gridComponent` を注入し `layout` を指定すると
+   * D&D/リサイズ可能なグリッドで描画する。未注入なら素の CSS グリッドにフォールバックする。
    */
   layout?: Array<{
     i: string;
@@ -25,29 +23,19 @@ export interface DashboardGridProps {
   rowHeight?: number;
   width?: number;
   onLayoutChange?: (layout: DashboardGridProps["layout"]) => void;
+  /**
+   * D&D グリッドを使う場合に react-grid-layout の GridLayout コンポーネントを注入する。
+   * （キットは react-grid-layout を import しない＝ブラウザ/バンドラ安全・依存を強制しない。
+   *  例: `import GridLayout from "react-grid-layout"; <DashboardGrid gridComponent={GridLayout} layout={...} />`）
+   */
+  gridComponent?: ComponentType<Record<string, unknown>>;
 }
 
 /**
- * react-grid-layout の薄いラッパ。`react-grid-layout` は optional peerDep なので、
- * 未インストール環境では静的 import で壊さず素の CSS グリッドに退避する。
+ * ダッシュボードのグリッド枠。既定は依存ゼロの CSS グリッド。
+ * D&D/リサイズが必要なら消費側が `gridComponent`（react-grid-layout）を注入する
+ * （キット自身は Node/optional 依存を持ち込まないのでブラウザでも安全）。
  */
-function loadGridLayout(): React.ComponentType<Record<string, unknown>> | null {
-  try {
-    // optional peerDep。存在すれば default export の GridLayout を返す。
-    // ESM パッケージなので createRequire で同期解決する（未インストールなら catch）。
-    const req = createRequire(import.meta.url);
-    const mod = req("react-grid-layout") as {
-      default?: React.ComponentType<Record<string, unknown>>;
-    };
-    return (
-      mod.default ??
-      (mod as unknown as React.ComponentType<Record<string, unknown>>)
-    );
-  } catch {
-    return null;
-  }
-}
-
 export function DashboardGrid({
   columns = 12,
   gap = 16,
@@ -57,9 +45,8 @@ export function DashboardGrid({
   rowHeight = 60,
   width,
   onLayoutChange,
+  gridComponent: GridLayout,
 }: DashboardGridProps) {
-  const GridLayout = layout ? loadGridLayout() : null;
-
   if (GridLayout && layout) {
     return (
       <div className={cn("relative w-full", className)}>

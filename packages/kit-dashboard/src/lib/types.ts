@@ -61,7 +61,7 @@ export interface ReferenceLine {
 
 // LineChart
 export interface LineChartProps extends BaseChartProps {
-  data: TimeSeriesPoint[]
+  data?: TimeSeriesPoint[]
   series?: string[]
   smooth?: boolean
   showDots?: boolean
@@ -90,7 +90,7 @@ export type PieLabelMode = 'none' | 'percent' | 'value' | 'label' | 'label+perce
 export type LegendPosition = 'right' | 'bottom' | 'none'
 
 export interface PieChartProps extends BaseChartProps {
-  data: DataPoint[]
+  data?: DataPoint[]
   innerRadius?: number
   showLegend?: boolean
   showLabels?: boolean
