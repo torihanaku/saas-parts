@@ -169,3 +169,19 @@ export { DashboardGrid, type DashboardGridProps } from "./layout/DashboardGrid";
 // --- Primitives (Phase 3) ---
 export { Dropdown, type DropdownProps, type DropdownOption } from "./primitives/Dropdown";
 export { Badge, type BadgeProps, type BadgeVariant } from "./primitives/Badge";
+
+// --- Dashboard orchestrator (宣言的 config + 注入 dataProvider で一枚を描画) ---
+export { Dashboard } from "./dashboard/Dashboard";
+export { WIDGET_REGISTRY, type WidgetType } from "./dashboard/registry";
+export type {
+  DashboardConfig,
+  DashboardWidget,
+  DashboardFilter,
+  DashboardFilterType,
+  WidgetLayout,
+  FilterState,
+  DataProvider,
+  DataProviderContext,
+  DashboardStore,
+  DashboardProps,
+} from "./dashboard/types";
