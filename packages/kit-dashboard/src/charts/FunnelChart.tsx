@@ -1,4 +1,4 @@
-import { useMemo, useRef } from "react";
+import { useMemo } from "react";
 import * as d3 from "d3";
 import { useD3 } from "../lib/useD3";
 import { useResizeObserver } from "../lib/useResizeObserver";
