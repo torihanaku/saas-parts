@@ -140,12 +140,6 @@ export function TreemapChart({
 
       root.sum((d) => d.value ?? 0);
 
-      // Compute max value for color intensity
-      const maxNodeValue = Math.max(
-        ...currentData.filter((n) => n.value != null).map((n) => n.value!),
-        1,
-      );
-
       // Apply treemap layout
       const treemapLayout = d3
         .treemap<TreemapNode>()
