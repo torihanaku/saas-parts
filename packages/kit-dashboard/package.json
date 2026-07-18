@@ -1,0 +1,34 @@
+{
+  "name": "@torihanaku/kit-dashboard",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "テーマ非依存のダッシュボード/チャートUIキット（D3チャート＋外殻。色はshadcnのCSS変数を参照し取り込み先のテーマ/ダークに自動追従）",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./theme.css": "./theme.css"
+  },
+  "files": [
+    "src",
+    "theme.css"
+  ],
+  "peerDependencies": {
+    "react": ">=18",
+    "d3": ">=7",
+    "d3-sankey": ">=0.12",
+    "topojson-client": ">=3",
+    "react-grid-layout": ">=1.4"
+  },
+  "peerDependenciesMeta": {
+    "d3-sankey": {
+      "optional": true
+    },
+    "topojson-client": {
+      "optional": true
+    },
+    "react-grid-layout": {
+      "optional": true
+    }
+  }
+}
