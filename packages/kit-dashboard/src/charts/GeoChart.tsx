@@ -5,7 +5,7 @@ import { useD3 } from "../lib/useD3";
 import { useResizeObserver } from "../lib/useResizeObserver";
 import { useTooltip } from "../lib/useTooltip";
 import { formatNumber } from "../lib/formatters";
-import { resolveChartColor, CHART_SURFACE, CHART_BORDER } from "../lib/theme";
+import { resolveChartColor, resolveVar, CHART_SURFACE, CHART_BORDER } from "../lib/theme";
 import { cn } from "../lib/cn";
 import { ChartTooltip } from "../primitives/ChartTooltip";
 
@@ -80,7 +80,7 @@ export function GeoChart({
 
       // 陸地の基調(CHART_SURFACE) → 値の色(チャート色) へ補間する
       // 選択階調。テーマトークンから実体を解決して d3 補間に渡す。
-      const surfaceColor = resolveSurface(containerRef.current);
+      const surfaceColor = resolveVar("--card", containerRef.current);
       const valueColor = resolveChartColor(colorIndex, containerRef.current);
       const colorScale = d3
         .scaleSequential(d3.interpolateRgb(surfaceColor, valueColor))
@@ -218,15 +218,4 @@ export function GeoChart({
       />
     </div>
   );
-}
-
-/** CHART_SURFACE の実体色を解決（d3 補間に渡すため）。 */
-function resolveSurface(el: Element | null): string {
-  if (typeof window === "undefined" || typeof getComputedStyle === "undefined") {
-    return "#ffffff";
-  }
-  const target = el ?? (typeof document !== "undefined" ? document.documentElement : null);
-  if (!target) return "#ffffff";
-  const val = getComputedStyle(target).getPropertyValue("--card").trim();
-  return val || "#ffffff";
 }

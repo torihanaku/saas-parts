@@ -4,14 +4,11 @@ import { useD3 } from "../lib/useD3";
 import { useResizeObserver } from "../lib/useResizeObserver";
 import { useTooltip } from "../lib/useTooltip";
 import { formatNumber } from "../lib/formatters";
-import { getChartColor } from "../lib/colorUtils";
+import { semanticColor, PRIMARY } from "../lib/chartRoles";
 import {
   CHART_TEXT,
   CHART_TEXT_MUTED,
   CHART_BORDER,
-  CHART_POSITIVE,
-  CHART_NEGATIVE,
-  CHART_WARNING,
 } from "../lib/theme";
 import { cn } from "../lib/cn";
 import { ChartTooltip } from "../primitives/ChartTooltip";
@@ -47,9 +44,9 @@ export interface BulletChartProps {
 // ----------------------------------------------------------------
 function makeBands(poor: number, ok: number, max: number): BulletRange[] {
   return [
-    { from: 0, to: poor, color: CHART_NEGATIVE, label: "要改善" },
-    { from: poor, to: ok, color: CHART_WARNING, label: "普通" },
-    { from: ok, to: max, color: CHART_POSITIVE, label: "良好" },
+    { from: 0, to: poor, color: semanticColor("negative"), label: "要改善" },
+    { from: poor, to: ok, color: semanticColor("warning"), label: "普通" },
+    { from: ok, to: max, color: semanticColor("positive"), label: "良好" },
   ];
 }
 
@@ -200,9 +197,9 @@ function BulletRow({ item, barHeight, containerWidth }: BulletRowProps) {
         item.ranges
           ? item.ranges.map((r) => ({ from: r.from, to: r.to, color: r.color, label: r.label }))
           : [
-              { from: 0, to: item.max * 0.33, color: CHART_NEGATIVE },
-              { from: item.max * 0.33, to: item.max * 0.66, color: CHART_WARNING },
-              { from: item.max * 0.66, to: item.max, color: CHART_POSITIVE },
+              { from: 0, to: item.max * 0.33, color: semanticColor("negative") },
+              { from: item.max * 0.33, to: item.max * 0.66, color: semanticColor("warning") },
+              { from: item.max * 0.66, to: item.max, color: semanticColor("positive") },
             ];
 
       for (const band of bands) {
@@ -239,7 +236,7 @@ function BulletRow({ item, barHeight, containerWidth }: BulletRowProps) {
         .attr("width", valueWidth)
         .attr("height", barHeight * 0.5)
         .attr("rx", 2)
-        .attr("fill", getChartColor(0));
+        .attr("fill", PRIMARY());
 
       // ── Target line — full height, prominent ─────────────────────
       const targetX = xScale(Math.min(item.target, item.max));
@@ -283,7 +280,9 @@ function BulletRow({ item, barHeight, containerWidth }: BulletRowProps) {
         .attr("font-size", "10px")
         .attr(
           "fill",
-          pct >= 100 ? CHART_POSITIVE : pct >= 75 ? CHART_WARNING : CHART_NEGATIVE,
+          semanticColor(
+            pct >= 100 ? "positive" : pct >= 75 ? "warning" : "negative",
+          ),
         )
         .text(achieveText);
 

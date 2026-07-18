@@ -4,14 +4,15 @@ import * as topojson from "topojson-client";
 import { useD3 } from "../lib/useD3";
 import { useResizeObserver } from "../lib/useResizeObserver";
 import { useTooltip } from "../lib/useTooltip";
-import { getChartColor } from "../lib/colorUtils";
 import { formatNumber } from "../lib/formatters";
 import {
   resolveChartColor,
+  resolveVar,
   CHART_SURFACE,
   CHART_BORDER,
   CHART_TEXT_MUTED,
 } from "../lib/theme";
+import { PRIMARY } from "../lib/chartRoles";
 import { cn } from "../lib/cn";
 import { ChartTooltip } from "../primitives/ChartTooltip";
 
@@ -137,7 +138,7 @@ export function BubbleMapChart({
         ? d3
             .scaleSequential(
               d3.interpolateRgb(
-                resolveSurface(containerRef.current),
+                resolveVar("--card", containerRef.current),
                 resolveChartColor(colorIndex, containerRef.current),
               ),
             )
@@ -163,8 +164,10 @@ export function BubbleMapChart({
           return projected ? projected[1] : -9999;
         })
         .attr("r", 0)
-        .attr("fill", (d, i) =>
-          colorScale ? colorScale(d.value) : (d.color ?? getChartColor(i)),
+        // 単一指標のバブル: 値着色(colorScale)か、明示 d.color(真のカテゴリ)、
+        // 既定は主系列色 PRIMARY() で単一トーンに統一（虹色 getChartColor(i) を廃止）。
+        .attr("fill", (d) =>
+          colorScale ? colorScale(d.value) : (d.color ?? PRIMARY()),
         )
         .attr("fill-opacity", 0)
         .attr("stroke", CHART_BORDER)
@@ -292,16 +295,4 @@ export function BubbleMapChart({
       />
     </div>
   );
-}
-
-/** CHART_SURFACE の実体色を解決（d3 補間に渡すため）。 */
-function resolveSurface(el: Element | null): string {
-  if (typeof window === "undefined" || typeof getComputedStyle === "undefined") {
-    return "#ffffff";
-  }
-  const target =
-    el ?? (typeof document !== "undefined" ? document.documentElement : null);
-  if (!target) return "#ffffff";
-  const val = getComputedStyle(target).getPropertyValue("--card").trim();
-  return val || "#ffffff";
 }

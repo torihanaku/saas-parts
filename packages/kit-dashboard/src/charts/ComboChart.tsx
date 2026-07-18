@@ -4,12 +4,12 @@ import { useD3 } from "../lib/useD3";
 import { useResizeObserver } from "../lib/useResizeObserver";
 import { useTooltip } from "../lib/useTooltip";
 import { getInnerDimensions } from "../lib/d3Helpers";
-import { getColorScheme, getChartColor } from "../lib/colorUtils";
+import { getColorScheme } from "../lib/colorUtils";
+import { PRIMARY, categoricalColor, semanticColor } from "../lib/chartRoles";
 import { formatNumber } from "../lib/formatters";
 import {
   CHART_TEXT_MUTED,
   CHART_SURFACE,
-  CHART_NEGATIVE,
 } from "../lib/theme";
 import { themeAxis, themeGrid } from "../lib/d3Theme";
 import { cn } from "../lib/cn";
@@ -51,10 +51,10 @@ const DEFAULT_DATA: ComboDataPoint[] = [
 
 const DEFAULT_MARGIN = { top: 20, right: 60, bottom: 40, left: 50 };
 
-// 主系列バー=chart-1、副系列バー=chart-3、ライン=negative（元 Google Red 相当）
-const DEFAULT_COLOR_BAR_PRIMARY = getChartColor(0);
-const DEFAULT_COLOR_BAR_SECONDARY = getChartColor(2);
-const DEFAULT_COLOR_LINE = CHART_NEGATIVE;
+// 主系列バー(単一指標)=PRIMARY(chart-1)、副系列バー=categoricalColor(2)、ライン=semantic negative
+const DEFAULT_COLOR_BAR_PRIMARY = PRIMARY();
+const DEFAULT_COLOR_BAR_SECONDARY = categoricalColor(2);
+const DEFAULT_COLOR_LINE = semanticColor("negative");
 
 export function ComboChart({
   data = DEFAULT_DATA,
@@ -94,6 +94,11 @@ export function ComboChart({
       if (!data.length || innerWidth <= 0 || innerHeight <= 0) return;
 
       svg.attr("width", width).attr("height", height);
+
+      // ベタ塗り回避: 棒は token 色 + fill-opacity で tint 化（テーマ追従を維持しつつ深みを出す）。
+      const barPrimaryFill = colorBarPrimary;
+      const barSecondaryFill = colorBarSecondary;
+      const BAR_FILL_OPACITY = 0.9;
 
       const g = svg
         .append("g")
@@ -213,7 +218,8 @@ export function ComboChart({
           .attr("x", (d) => (xScale(d.label) ?? 0) + (subScale("primary") ?? 0))
           .attr("width", subScale.bandwidth())
           .attr("rx", 2)
-          .attr("fill", colorBarPrimary)
+          .attr("fill", barPrimaryFill)
+          .attr("fill-opacity", BAR_FILL_OPACITY)
           .attr("y", innerHeight)
           .attr("height", 0);
 
@@ -230,7 +236,8 @@ export function ComboChart({
           )
           .attr("width", subScale.bandwidth())
           .attr("rx", 2)
-          .attr("fill", colorBarSecondary)
+          .attr("fill", barSecondaryFill)
+          .attr("fill-opacity", BAR_FILL_OPACITY)
           .attr("y", innerHeight)
           .attr("height", 0);
 
@@ -286,7 +293,8 @@ export function ComboChart({
           .attr("x", (d) => xScale(d.label) ?? 0)
           .attr("width", xScale.bandwidth())
           .attr("rx", 2)
-          .attr("fill", colorBarPrimary)
+          .attr("fill", barPrimaryFill)
+          .attr("fill-opacity", BAR_FILL_OPACITY)
           .attr("y", innerHeight)
           .attr("height", 0);
 
@@ -299,7 +307,8 @@ export function ComboChart({
           .attr("x", (d) => xScale(d.label) ?? 0)
           .attr("width", xScale.bandwidth())
           .attr("rx", 0)
-          .attr("fill", colorBarSecondary)
+          .attr("fill", barSecondaryFill)
+          .attr("fill-opacity", BAR_FILL_OPACITY)
           .attr("y", innerHeight)
           .attr("height", 0);
 
@@ -355,7 +364,8 @@ export function ComboChart({
           .attr("x", (d) => xScale(d.label) ?? 0)
           .attr("width", xScale.bandwidth())
           .attr("rx", 2)
-          .attr("fill", colorBarPrimary)
+          .attr("fill", barPrimaryFill)
+          .attr("fill-opacity", BAR_FILL_OPACITY)
           .attr("y", innerHeight)
           .attr("height", 0);
 

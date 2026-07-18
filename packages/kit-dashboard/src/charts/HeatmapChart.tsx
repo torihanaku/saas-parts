@@ -5,7 +5,8 @@ import { useResizeObserver } from "../lib/useResizeObserver";
 import { useTooltip } from "../lib/useTooltip";
 import { getInnerDimensions } from "../lib/d3Helpers";
 import { formatNumber } from "../lib/formatters";
-import { CHART_TEXT_MUTED, CHART_BORDER } from "../lib/theme";
+import { CHART_TEXT, CHART_TEXT_MUTED, CHART_BORDER, CHART_SURFACE } from "../lib/theme";
+import { themeAxis } from "../lib/d3Theme";
 import { getChartColor } from "../lib/colorUtils";
 import { cn } from "../lib/cn";
 import { ChartTooltip } from "../primitives/ChartTooltip";
@@ -81,20 +82,25 @@ function getInterpolator(scheme: string | undefined) {
   return d3.interpolateBlues;
 }
 
-// GitHub-style discrete green scale for calendar mode
+// GitHub-style discrete green scale for calendar mode.
+// 値ランプ(1〜4段)は「順序の階調」として妥当なので端点はこのまま維持する
+// （d3.interpolate* 同様のシーケンシャル・ランプ扱い）。空(0)セルだけは
+// テーマ追従の面色 CHART_SURFACE に寄せる（ハードコード #ebedf0 を撤去）。
+const CAL_RAMP = ["#9be9a8", "#40c463", "#30a14e", "#216e39"] as const;
 function calendarColorScale(value: number, maxVal: number): string {
-  if (value === 0) return "#ebedf0";
+  if (value === 0) return CHART_SURFACE;
   const ratio = value / maxVal;
-  if (ratio < 0.25) return "#9be9a8";
-  if (ratio < 0.5) return "#40c463";
-  if (ratio < 0.75) return "#30a14e";
-  return "#216e39";
+  if (ratio < 0.25) return CAL_RAMP[0];
+  if (ratio < 0.5) return CAL_RAMP[1];
+  if (ratio < 0.75) return CAL_RAMP[2];
+  return CAL_RAMP[3];
 }
 
-// Luminance-based contrast: returns white text for dark backgrounds, dark for light
+// Luminance-based contrast: returns white text for dark backgrounds, dark for light.
+// 明るいセルには主テキスト色(CHART_TEXT)、暗いセルには白抜き(#fff は塗り上可読テキストの例外)。
 function contrastColor(hexColor: string): string {
   const c = d3.color(hexColor);
-  if (!c) return "#202124";
+  if (!c) return CHART_TEXT;
   const rgb = c.rgb();
   const toLinear = (v: number) => {
     const s = v / 255;
@@ -102,7 +108,7 @@ function contrastColor(hexColor: string): string {
   };
   const L =
     0.2126 * toLinear(rgb.r) + 0.7152 * toLinear(rgb.g) + 0.0722 * toLinear(rgb.b);
-  return L > 0.179 ? "#202124" : "#ffffff";
+  return L > 0.179 ? CHART_TEXT : "#ffffff";
 }
 
 const MONTH_LABELS = [
@@ -196,24 +202,22 @@ export function HeatmapChart({
         .scaleSequential(getInterpolator(colorScheme))
         .domain([minVal, maxVal]);
 
-      // X axis (bottom)
-      g.append("g")
+      // X axis (bottom) — 軸の着色は themeAxis に統一（オフセットのみ後付け）。
+      const xAxisG = g
+        .append("g")
         .attr("transform", `translate(0,${gridInnerH})`)
         .call(d3.axisBottom(xScale).tickSize(0))
-        .call((axis) => axis.select(".domain").remove())
-        .selectAll("text")
-        .attr("font-size", "11px")
-        .attr("fill", CHART_TEXT_MUTED)
-        .attr("dy", "1.2em");
+        .call((axis) => axis.select(".domain").remove());
+      themeAxis(xAxisG);
+      xAxisG.selectAll("text").attr("dy", "1.2em");
 
       // Y axis (left)
-      g.append("g")
+      const yAxisG = g
+        .append("g")
         .call(d3.axisLeft(yScale).tickSize(0))
-        .call((axis) => axis.select(".domain").remove())
-        .selectAll("text")
-        .attr("font-size", "11px")
-        .attr("fill", CHART_TEXT_MUTED)
-        .attr("dx", "-0.5em");
+        .call((axis) => axis.select(".domain").remove());
+      themeAxis(yAxisG);
+      yAxisG.selectAll("text").attr("dx", "-0.5em");
 
       // Cells
       const cells = g
@@ -383,7 +387,8 @@ export function HeatmapChart({
       // Legend (bottom right)
       const legendX = (numWeeks - 6) * STEP;
       const legendY = 7 * STEP + 4;
-      const legendColors = ["#ebedf0", "#9be9a8", "#40c463", "#30a14e", "#216e39"];
+      // 凡例: 空セル(CHART_SURFACE)＋値ランプ4段（calendarColorScale と同一階調）。
+      const legendColors = [CHART_SURFACE, ...CAL_RAMP];
       g.append("text")
         .attr("x", legendX - 6)
         .attr("y", legendY + CELL / 2)

@@ -4,7 +4,8 @@ import { useD3 } from "../lib/useD3";
 import { useResizeObserver } from "../lib/useResizeObserver";
 import { useTooltip } from "../lib/useTooltip";
 import { DEFAULT_MARGIN, getInnerDimensions } from "../lib/d3Helpers";
-import { getChartColor, getColorScheme } from "../lib/colorUtils";
+import { getColorScheme } from "../lib/colorUtils";
+import { categoricalColor, semanticColor } from "../lib/chartRoles";
 import { formatNumber, formatDateShort } from "../lib/formatters";
 import {
   CHART_TEXT_MUTED,
@@ -145,12 +146,13 @@ export function LineChart({
   const resolvedSeries =
     effectiveCount > 1 ? effectiveSeriesNames.slice(0, effectiveCount) : series;
 
-  // Resolve color scheme — colorScheme overrides colorsProp
+  // 多系列 = 真のカテゴリ → categoricalColor(i)。
+  // colorScheme/colors は「ユーザーが明示選択した配色」なので優先し、未指定時はロール基準の色に寄せる。
   const schemeColors = getColorScheme(colorScheme, customColor);
   const getColor = (i: number): string =>
     colorScheme
-      ? (schemeColors[i % schemeColors.length] ?? getChartColor(i))
-      : (colorsProp?.[i] ?? getChartColor(i));
+      ? (schemeColors[i % schemeColors.length] ?? categoricalColor(i))
+      : (colorsProp?.[i] ?? categoricalColor(i));
 
   const svgRef = useD3<SVGSVGElement>(
     (svg) => {
@@ -360,14 +362,16 @@ export function LineChart({
           g.append("path")
             .datum(highlightPoints)
             .attr("class", "highlight-area-green")
-            .attr("fill", "rgba(52,168,83,0.15)")
+            .attr("fill", semanticColor("positive"))
+            .attr("fill-opacity", 0.15)
             .attr("stroke", "none")
             .attr("d", greenArea);
 
           g.append("path")
             .datum(highlightPoints)
             .attr("class", "highlight-area-red")
-            .attr("fill", "rgba(234,67,53,0.15)")
+            .attr("fill", semanticColor("negative"))
+            .attr("fill-opacity", 0.15)
             .attr("stroke", "none")
             .attr("d", redArea);
         }
@@ -550,7 +554,7 @@ export function LineChart({
           // Standard / zero mode: use normalized data (nulls already converted to 0 if needed)
           const seriesPoints = seriesRaw as TimeSeriesPoint[];
 
-          // smooth-area: render filled area below the line
+          // smooth-area: render filled area below the line（Area と同じ縦グラデ 0.18→0）
           if (isSmoothArea) {
             const areaGen = d3
               .area<TimeSeriesPoint>()
@@ -559,11 +563,32 @@ export function LineChart({
               .y1((d) => yScale(d.value))
               .curve(curveType);
 
+            const grad = svg
+              .select("defs")
+              .empty()
+              ? svg.append("defs")
+              : svg.select<SVGDefsElement>("defs");
+            const gradId = `line-area-grad-${i}`;
+            const lg = grad
+              .append("linearGradient")
+              .attr("id", gradId)
+              .attr("x1", "0")
+              .attr("y1", "0")
+              .attr("x2", "0")
+              .attr("y2", "1");
+            lg.append("stop")
+              .attr("offset", "0%")
+              .attr("stop-color", color)
+              .attr("stop-opacity", 0.18);
+            lg.append("stop")
+              .attr("offset", "100%")
+              .attr("stop-color", color)
+              .attr("stop-opacity", 0);
+
             g.append("path")
               .datum(seriesPoints)
               .attr("class", "chart-area")
-              .attr("fill", color)
-              .attr("fill-opacity", 0.15)
+              .attr("fill", `url(#${gradId})`)
               .attr("stroke", "none")
               .attr("d", areaGen);
           }

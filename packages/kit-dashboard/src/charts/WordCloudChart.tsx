@@ -1,5 +1,6 @@
 import { useRef, useEffect, useState, useCallback } from "react";
 import { getColorScheme } from "../lib/colorUtils";
+import { categoricalColor } from "../lib/chartRoles";
 import { cn } from "../lib/cn";
 
 export interface WordCloudProps {
@@ -112,8 +113,13 @@ export function WordCloudChart({
     ? data.map((d) => ({ text: d.word, value: d.count }))
     : getWordData(dataCategory);
 
-  // テーマ追従の配色（named scheme はブランドパレット、未指定はグローバル var(...) パレット）
-  const colors = getColorScheme(colorScheme);
+  // 語＝真のカテゴリなので categoricalColor(i) の var(...) パレットで色付けする
+  // （テーマ/ダークモード追従）。ユーザーが明示的に named brand scheme を指定した場合のみ
+  // getColorScheme に委譲する（"blue" は既定値なのでテーマ配色を優先）。
+  const NAMED_SCHEMES = new Set(["green", "orange", "purple", "red", "custom"]);
+  const colors = NAMED_SCHEMES.has(colorScheme)
+    ? getColorScheme(colorScheme)
+    : [0, 1, 2, 3, 4, 5, 6, 7].map((i) => categoricalColor(i));
   const { width, height } = dimensions;
   const placed = layoutWords(words, width, height, colors);
 
