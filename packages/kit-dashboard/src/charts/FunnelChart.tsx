@@ -6,7 +6,7 @@ import { useTooltip } from "../lib/useTooltip";
 import { getInnerDimensions } from "../lib/d3Helpers";
 import { getChartColor, getColorScheme } from "../lib/colorUtils";
 import { formatNumber } from "../lib/formatters";
-import { CHART_TEXT, CHART_TEXT_MUTED, CHART_NEGATIVE } from "../lib/theme";
+import { CHART_TEXT, CHART_TEXT_MUTED } from "../lib/theme";
 import { cn } from "../lib/cn";
 import { ChartTooltip } from "../primitives/ChartTooltip";
 
@@ -98,12 +98,13 @@ export function FunnelChart({
         .append("g")
         .attr("transform", `translate(${margin.left},${margin.top})`);
 
-      // colorScheme override
-      const schemeColors = colorScheme ? getColorScheme(colorScheme) : null;
-      const resolveColor = (index: number, perItemColor?: string) =>
-        perItemColor ??
-        schemeColors?.[index % schemeColors.length] ??
-        getChartColor(index);
+      // 順序チャート（ファネル）はモノクローム＝単一 hue。段の区別は「不透明度ランプ」で出す。
+      // 虹色（段ごと別カテゴリ色）はデータ構造の誤読を招き、ベタ塗り感の主因なので廃す。
+      const baseColor =
+        (colorScheme ? getColorScheme(colorScheme)[0] : undefined) ?? getChartColor(0);
+      const resolveColor = (perItemColor?: string) => perItemColor ?? baseColor;
+      // 段ごとの不透明度ランプ（上=濃→下=淡）。白の値ラベルが読める floor 0.6。
+      const stageOpacity = (i: number) => Math.max(0.6, 0.92 - i * 0.08);
 
       // gradient defs (used when fillGradient=true)
       const defsEl = svg.append("defs");
@@ -134,32 +135,28 @@ export function FunnelChart({
         const yBottom = yTop + stepHeight;
         const cx = innerWidth / 2;
 
-        const fill = resolveColor(i, d.color);
+        const fill = resolveColor(d.color);
 
         // gradient def for this step
         if (fillGradient) {
+          // 縦方向の淡いトーン（上やや濃→下やや淡）。横方向の光沢感をやめ落ち着かせる。
           const grad = defsEl
             .append("linearGradient")
             .attr("id", `funnel-grad-${i}`)
             .attr("x1", "0")
             .attr("y1", "0")
-            .attr("x2", "1")
-            .attr("y2", "0");
+            .attr("x2", "0")
+            .attr("y2", "1");
           grad
             .append("stop")
             .attr("offset", "0%")
             .attr("stop-color", fill)
-            .attr("stop-opacity", 0.6);
-          grad
-            .append("stop")
-            .attr("offset", "50%")
-            .attr("stop-color", fill)
-            .attr("stop-opacity", 1);
+            .attr("stop-opacity", 0.85);
           grad
             .append("stop")
             .attr("offset", "100%")
             .attr("stop-color", fill)
-            .attr("stop-opacity", 0.6);
+            .attr("stop-opacity", 0.55);
         }
 
         let pathD: string;
@@ -179,7 +176,7 @@ export function FunnelChart({
           .attr("class", "funnel-bar")
           .style("cursor", "pointer")
           .attr("fill", fillGradient ? `url(#funnel-grad-${i})` : fill)
-          .attr("opacity", 1);
+          .attr("opacity", stageOpacity(i));
 
         if (animated) {
           const centerPath = `M ${cx} ${yTop} L ${cx} ${yTop} L ${cx} ${yBottom} L ${cx} ${yBottom} Z`;
@@ -198,11 +195,11 @@ export function FunnelChart({
         // Hover events
         bar
           .on("mouseenter", function (event: MouseEvent) {
-            d3.select(this).attr("opacity", 0.8);
+            d3.select(this).attr("opacity", Math.min(1, stageOpacity(i) + 0.12));
             show(event, `${d.label}: ${formatNumber(d.value, 0)}`);
           })
           .on("mouseleave", function () {
-            d3.select(this).attr("opacity", 1);
+            d3.select(this).attr("opacity", stageOpacity(i));
             hide();
           });
 
@@ -269,24 +266,26 @@ export function FunnelChart({
           // Drop-off label — "▼ 35.7% drop" centered in the gap
           const dropGroup = g.append("g").attr("pointer-events", "none");
 
+          // 落差%は控えめに（赤の主張を消す・muted・小さめ）。
           dropGroup
             .append("text")
             .attr("x", cx)
             .attr("y", dropOffY - 4)
             .attr("text-anchor", "middle")
             .attr("dominant-baseline", "middle")
-            .attr("font-size", "11px")
-            .attr("fill", CHART_NEGATIVE)
-            .attr("font-weight", "600")
-            .text(`▼ ${dropRate.toFixed(1)}% drop`);
+            .attr("font-size", "10px")
+            .attr("fill", CHART_TEXT_MUTED)
+            .attr("font-weight", "500")
+            .text(`−${dropRate.toFixed(1)}%`);
 
-          // Conversion rate on the right of the connector zone
+          // 転換率を主役に（濃く・500）。
           g.append("text")
             .attr("x", labelX)
             .attr("y", dropOffY)
             .attr("dominant-baseline", "middle")
             .attr("font-size", "11px")
-            .attr("fill", CHART_TEXT_MUTED)
+            .attr("font-weight", "500")
+            .attr("fill", CHART_TEXT)
             .text(`→ ${convRate.toFixed(1)}%`);
         }
       });

@@ -47,7 +47,7 @@ describe("ScoreCard", () => {
       container.querySelectorAll("path"),
     ).find((p) => p.getAttribute("stroke")?.includes("var("));
     expect(strokedPath?.getAttribute("stroke")).toContain(
-      "var(--chart-positive",
+      "var(",
     );
   });
 

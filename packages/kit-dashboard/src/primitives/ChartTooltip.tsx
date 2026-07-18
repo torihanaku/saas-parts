@@ -18,7 +18,7 @@ export function ChartTooltip({ x, y, content, visible, className }: ChartTooltip
     <div
       className={cn(
         "pointer-events-none absolute z-[100] -translate-x-1/2 -translate-y-full",
-        "-mt-2 whitespace-nowrap rounded-md border px-3 py-2 text-xs shadow-md",
+        "-mt-2 whitespace-nowrap rounded-lg border px-2.5 py-1.5 text-xs [font-variant-numeric:tabular-nums]",
         "transition-opacity duration-150",
         className,
       )}
@@ -29,6 +29,7 @@ export function ChartTooltip({ x, y, content, visible, className }: ChartTooltip
         background: "var(--popover, #ffffff)",
         color: "var(--popover-foreground, #202124)",
         borderColor: "var(--border, #e0e0e0)",
+        boxShadow: "0 8px 24px -6px rgba(0,0,0,0.18)",
       }}
     >
       {content}

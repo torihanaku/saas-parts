@@ -181,6 +181,7 @@ export function AreaChart({
             .call(
               d3
                 .axisLeft(yScale)
+                .ticks(4)
                 .tickSize(-innerWidth)
                 .tickFormat(() => ""),
             );
@@ -198,7 +199,7 @@ export function AreaChart({
 
         // Y軸
         const yAxisG = g.append("g").call(
-          d3.axisLeft(yScale).tickFormat((d) =>
+          d3.axisLeft(yScale).ticks(4).tickFormat((d) =>
             variant === "100pct"
               ? `${Math.round((d as number) * 100)}%`
               : formatNumber(d as number, 0),
@@ -238,7 +239,7 @@ export function AreaChart({
               .append("stop")
               .attr("offset", "0%")
               .attr("stop-color", color)
-              .attr("stop-opacity", fillOpacity * 4);
+              .attr("stop-opacity", 0.18);
             grad
               .append("stop")
               .attr("offset", "100%")
@@ -383,6 +384,7 @@ export function AreaChart({
             .call(
               d3
                 .axisLeft(yScale)
+                .ticks(4)
                 .tickSize(-innerWidth)
                 .tickFormat(() => ""),
             );
@@ -401,7 +403,7 @@ export function AreaChart({
         // Y軸
         const yAxisG = g
           .append("g")
-          .call(d3.axisLeft(yScale).tickFormat((d) => formatNumber(d as number, 0)));
+          .call(d3.axisLeft(yScale).ticks(4).tickFormat((d) => formatNumber(d as number, 0)));
         themeAxis(yAxisG);
 
         // area / line generator
@@ -436,7 +438,7 @@ export function AreaChart({
               .append("stop")
               .attr("offset", "0%")
               .attr("stop-color", color)
-              .attr("stop-opacity", fillOpacity * 4);
+              .attr("stop-opacity", 0.18);
             grad
               .append("stop")
               .attr("offset", "100%")

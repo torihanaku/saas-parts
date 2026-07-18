@@ -51,9 +51,11 @@ describe("BarChart", () => {
     // 軸テキストは --muted-foreground を参照する（ダーク追従の担保）
     const axisText = container.querySelector("g text");
     expect(axisText?.getAttribute("fill")).toContain("var(--muted-foreground");
-    // バーの塗りも var(...) 由来
+    // 単一系列の棒は既定で縦グラデ塗り（url(#bar-grad…)）。テーマ追従は gradient stop の var(...) が担う。
     const bar = container.querySelector("rect.bar");
-    expect(bar?.getAttribute("fill")).toContain("var(");
+    expect(bar?.getAttribute("fill")).toMatch(/^url\(#bar-grad/);
+    const stop = container.querySelector("linearGradient stop");
+    expect(stop?.getAttribute("stop-color")).toContain("var(");
   });
 
   it("renders grouped multi-series bars (one rect per series per category)", () => {

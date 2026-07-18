@@ -193,10 +193,10 @@ export function SankeyChart({
         })
         .attr(
           "stroke-opacity",
-          linkColorMode === "gray" && !animatedLinks ? 0.3 : 0.45,
+          linkColorMode === "gray" && !animatedLinks ? 0.22 : 0.35,
         )
         .on("mouseenter", function (event: MouseEvent, d) {
-          d3.select(this).attr("stroke-opacity", 0.7);
+          d3.select(this).attr("stroke-opacity", 0.55);
           const srcNode = d.source as InternalNode;
           const tgtNode = d.target as InternalNode;
           const val = formatNumber(d.value as number, 0);
@@ -205,7 +205,7 @@ export function SankeyChart({
         .on("mouseleave", function () {
           d3.select(this).attr(
             "stroke-opacity",
-            linkColorMode === "gray" && !animatedLinks ? 0.3 : 0.45,
+            linkColorMode === "gray" && !animatedLinks ? 0.22 : 0.35,
           );
           hide();
         });
@@ -249,7 +249,7 @@ export function SankeyChart({
         .attr("y", (d) => d.y0 ?? 0)
         .attr("width", (d) => (d.x1 ?? 0) - (d.x0 ?? 0))
         .attr("height", (d) => Math.max(1, (d.y1 ?? 0) - (d.y0 ?? 0)))
-        .attr("rx", 2)
+        .attr("rx", 3)
         .attr(
           "fill",
           (d) => nodeColorMap.get(d.id) ?? getChartColor(d.origIndex ?? 0),

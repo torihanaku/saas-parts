@@ -114,23 +114,26 @@ export function PieChart({
       const centerX = width / 2;
       const centerY = svgHeight / 2;
       const outerRadius = Math.min(width, svgHeight) / 2 - 20;
-      const ir = innerRadius > 0 ? innerRadius : 0;
+      // 既定でドーナツ化（洗練＋中心に合計を置ける）。innerRadius 明示時はそれを優先。
+      const ir = innerRadius > 0 ? innerRadius : outerRadius * 0.62;
 
       if (outerRadius <= 0) return;
 
       const pieGen = d3
         .pie<DataPoint>()
         .value((d) => d.value)
+        .padAngle(0.015)
         .sort(null);
       const arcs = pieGen(displayData);
 
       const total = d3.sum(displayData, (dp) => dp.value);
 
-      // Arc generators
+      // Arc generators（細いギャップ＋角丸で高級感）
       const arcGen = d3
         .arc<d3.PieArcDatum<DataPoint>>()
         .innerRadius(ir)
-        .outerRadius(outerRadius);
+        .outerRadius(outerRadius)
+        .cornerRadius(2);
 
       // Exploded arc — moves slice outward by EXPLODE_OFFSET
       function getExplodedTransform(d: d3.PieArcDatum<DataPoint>): string {
@@ -156,8 +159,9 @@ export function PieChart({
         .join("path")
         .attr("class", "pie-slice")
         .attr("fill", (d, i) => d.data.color ?? getChartColor(i))
+        .attr("fill-opacity", 0.92)
         .attr("stroke", CHART_SURFACE)
-        .attr("stroke-width", 2)
+        .attr("stroke-width", 1)
         .style("cursor", "pointer")
         // Apply explode to already-selected slices
         .attr("transform", (_, i) =>
