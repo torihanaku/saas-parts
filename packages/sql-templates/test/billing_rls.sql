@@ -129,6 +129,29 @@ BEGIN
   RAISE NOTICE 'AC-10, AC-12, AC-59 passed';
 END $$;
 
+-- 5b) AC-63: 適用後、authenticated / anon は 5 表で INSERT・UPDATE・DELETE・TRUNCATE・
+--     TRIGGER・REFERENCES を持たない（MAINTAIN は PG17 以上にだけある権限なので、その時だけ確かめる）
+DO $$
+DECLARE
+  bad text;
+  privs text[] := ARRAY['INSERT', 'UPDATE', 'DELETE', 'TRUNCATE', 'TRIGGER', 'REFERENCES'];
+BEGIN
+  IF current_setting('server_version_num')::int >= 170000 THEN
+    privs := array_append(privs, 'MAINTAIN');
+  END IF;
+  SELECT string_agg(r || ':' || t || ':' || p, ', ')
+    INTO bad
+    FROM unnest(ARRAY['authenticated', 'anon']) AS r,
+         unnest(ARRAY['tenant_product_subscriptions', 'tenant_product_entitlements',
+                      'email_deliveries', 'products', 'product_plans']) AS t,
+         unnest(privs) AS p
+   WHERE has_table_privilege(r, 'billing_test.' || t, p);
+  IF bad IS NOT NULL THEN
+    RAISE EXCEPTION 'AC-63: privileges still granted after apply: %', bad;
+  END IF;
+  RAISE NOTICE 'AC-63 passed (checked: %)', array_to_string(privs, ',');
+END $$;
+
 -- 6) シード（オーナー = テーブルオーナーなので RLS を通らない）
 INSERT INTO billing_test.tenants (id) VALUES
   ('11111111-1111-1111-1111-111111111111'),
@@ -273,13 +296,129 @@ BEGIN
   END IF;
 END $$;
 
+-- 7b) AC-62: 全テナント共通のカタログ表（products / product_plans）への攻撃。
+--     ホストが GRANT ALL を戻した後でも authenticated は書き換えられないこと。
+--     書き込みは「エラーで拒否」か「0 行」なら可。最終状態はオーナーで読み直して判定する。
+INSERT INTO billing_test.product_plans (product_key, plan_key, name, monthly_price_jpy, status) VALUES
+  ('app', 'pro', 'Pro', 1000, 'active');
+
+CREATE FUNCTION billing_test.catalog_attacks(phase text) RETURNS void
+  LANGUAGE plpgsql AS $$
+DECLARE
+  n int;
+  succeeded boolean;
+BEGIN
+  -- products を UPDATE（全テナントの表示名・状態を書き換える）
+  BEGIN
+    UPDATE billing_test.products SET name = 'pwned', status = 'deprecated' WHERE key = 'app';
+    GET DIAGNOSTICS n = ROW_COUNT;
+    IF n <> 0 THEN
+      RAISE EXCEPTION 'AC-62 [%]: authenticated UPDATE of products affected % rows (expected 0 or error)', phase, n;
+    END IF;
+  EXCEPTION WHEN insufficient_privilege THEN
+    NULL;
+  END;
+
+  -- products を DELETE
+  BEGIN
+    DELETE FROM billing_test.products WHERE key = 'app2';
+    GET DIAGNOSTICS n = ROW_COUNT;
+    IF n <> 0 THEN
+      RAISE EXCEPTION 'AC-62 [%]: authenticated DELETE of products affected % rows (expected 0 or error)', phase, n;
+    END IF;
+  EXCEPTION WHEN insufficient_privilege THEN
+    NULL;
+  END;
+
+  -- products に INSERT（成功したらサブトランザクションごと戻して失敗にする）
+  succeeded := false;
+  BEGIN
+    INSERT INTO billing_test.products (key, name, short_name, default_subdomain, default_path, status)
+      VALUES ('evil', 'Evil', 'Evil', 'evil', '/evil', 'active');
+    succeeded := true;
+    RAISE EXCEPTION 'ac62-probe-rollback';
+  EXCEPTION WHEN OTHERS THEN
+    NULL;
+  END;
+  IF succeeded THEN
+    RAISE EXCEPTION 'AC-62 [%]: authenticated INSERT into products succeeded (expected error)', phase;
+  END IF;
+
+  -- product_plans を UPDATE（価格を 0 円・Stripe 価格 ID を差し替える）
+  BEGIN
+    UPDATE billing_test.product_plans SET monthly_price_jpy = 0, stripe_price_id = 'price_evil'
+     WHERE product_key = 'app' AND plan_key = 'pro';
+    GET DIAGNOSTICS n = ROW_COUNT;
+    IF n <> 0 THEN
+      RAISE EXCEPTION 'AC-62 [%]: authenticated UPDATE of product_plans affected % rows (expected 0 or error)', phase, n;
+    END IF;
+  EXCEPTION WHEN insufficient_privilege THEN
+    NULL;
+  END;
+
+  -- product_plans を DELETE
+  BEGIN
+    DELETE FROM billing_test.product_plans WHERE product_key = 'app';
+    GET DIAGNOSTICS n = ROW_COUNT;
+    IF n <> 0 THEN
+      RAISE EXCEPTION 'AC-62 [%]: authenticated DELETE of product_plans affected % rows (expected 0 or error)', phase, n;
+    END IF;
+  EXCEPTION WHEN insufficient_privilege THEN
+    NULL;
+  END;
+
+  -- product_plans に INSERT（enterprise を 0 円で作る）
+  succeeded := false;
+  BEGIN
+    INSERT INTO billing_test.product_plans (product_key, plan_key, name, monthly_price_jpy, status)
+      VALUES ('app', 'enterprise', 'Free Enterprise', 0, 'active');
+    succeeded := true;
+    RAISE EXCEPTION 'ac62-probe-rollback';
+  EXCEPTION WHEN OTHERS THEN
+    NULL;
+  END;
+  IF succeeded THEN
+    RAISE EXCEPTION 'AC-62 [%]: authenticated INSERT into product_plans succeeded (expected error)', phase;
+  END IF;
+END $$;
+
+CREATE FUNCTION billing_test.assert_catalog_state(phase text) RETURNS void
+  LANGUAGE plpgsql AS $$
+DECLARE
+  nm text;
+  st text;
+  price int;
+  spid text;
+  n int;
+BEGIN
+  SELECT name, status INTO nm, st FROM billing_test.products WHERE key = 'app';
+  IF nm IS DISTINCT FROM 'App' OR st IS DISTINCT FROM 'active' THEN
+    RAISE EXCEPTION 'AC-62 [%]: products app became name=%, status=% (expected App/active)', phase, nm, st;
+  END IF;
+  SELECT count(*) INTO n FROM billing_test.products WHERE key IN ('app', 'app2', 'evil');
+  IF n <> 2 THEN
+    RAISE EXCEPTION 'AC-62 [%]: products has % of app/app2/evil rows (expected 2: app, app2)', phase, n;
+  END IF;
+  SELECT monthly_price_jpy, stripe_price_id INTO price, spid
+    FROM billing_test.product_plans WHERE product_key = 'app' AND plan_key = 'pro';
+  IF price IS DISTINCT FROM 1000 OR spid IS NOT NULL THEN
+    RAISE EXCEPTION 'AC-62 [%]: product_plans app/pro became price=%, stripe_price_id=% (expected 1000/NULL)', phase, price, spid;
+  END IF;
+  SELECT count(*) INTO n FROM billing_test.product_plans WHERE product_key = 'app';
+  IF n <> 1 THEN
+    RAISE EXCEPTION 'AC-62 [%]: product_plans has % rows for app (expected 1)', phase, n;
+  END IF;
+END $$;
+
 -- 8a) テンプレートの REVOKE が効いた状態（Supabase 既定 + 新テンプレート）で攻撃
 SET LOCAL ROLE authenticated;
 SELECT set_config('request.jwt.claims',
   '{"role":"authenticated","tenant_id":"11111111-1111-1111-1111-111111111111"}', true);
 SELECT billing_test.tenant_a_attacks('as-applied');
+SELECT billing_test.catalog_attacks('as-applied');
 RESET ROLE;
 SELECT billing_test.assert_owner_state('as-applied');
+SELECT billing_test.assert_catalog_state('as-applied');
 
 -- 8b) ホスト側が GRANT ALL で権限を戻しても、ポリシーだけで書き込みが止まること（多層防御）
 GRANT ALL ON ALL TABLES IN SCHEMA billing_test TO anon, authenticated, service_role;
@@ -287,8 +426,63 @@ SET LOCAL ROLE authenticated;
 SELECT set_config('request.jwt.claims',
   '{"role":"authenticated","tenant_id":"11111111-1111-1111-1111-111111111111"}', true);
 SELECT billing_test.tenant_a_attacks('after-grant-all');
+SELECT billing_test.catalog_attacks('after-grant-all');
 RESET ROLE;
 SELECT billing_test.assert_owner_state('after-grant-all');
+SELECT billing_test.assert_catalog_state('after-grant-all');
+
+-- 8c) AC-62: GRANT ALL を戻した後でも、authenticated は 5 表どれも TRUNCATE できない
+--     （TRUNCATE には RLS が効かない）。外部キーで TRUNCATE が弾かれると「拒否」と区別できないので、
+--     セーブポイントの中でオーナーとして 5 表を参照する外部キーを外してから 1 表ずつ試し、最後に戻す。
+SAVEPOINT ac62_truncate;
+DO $$
+DECLARE
+  c record;
+BEGIN
+  FOR c IN
+    SELECT con.conname, con.conrelid::regclass AS rel
+      FROM pg_constraint con
+     WHERE con.contype = 'f'
+       AND con.confrelid IN ('billing_test.tenant_product_subscriptions'::regclass,
+                             'billing_test.tenant_product_entitlements'::regclass,
+                             'billing_test.email_deliveries'::regclass,
+                             'billing_test.products'::regclass,
+                             'billing_test.product_plans'::regclass)
+  LOOP
+    EXECUTE format('ALTER TABLE %s DROP CONSTRAINT %I', c.rel, c.conname);
+  END LOOP;
+END $$;
+SET LOCAL ROLE authenticated;
+SELECT set_config('request.jwt.claims',
+  '{"role":"authenticated","tenant_id":"11111111-1111-1111-1111-111111111111"}', true);
+DO $$
+DECLARE
+  t text;
+  succeeded boolean;
+  ok text;
+BEGIN
+  FOREACH t IN ARRAY ARRAY['tenant_product_subscriptions', 'tenant_product_entitlements',
+                           'email_deliveries', 'products', 'product_plans'] LOOP
+    succeeded := false;
+    BEGIN
+      EXECUTE format('TRUNCATE billing_test.%I', t);
+      succeeded := true;
+      RAISE EXCEPTION 'ac62-probe-rollback';
+    EXCEPTION WHEN OTHERS THEN
+      NULL;
+    END;
+    IF succeeded THEN
+      ok := concat_ws(', ', ok, t);
+    END IF;
+  END LOOP;
+  IF ok IS NOT NULL THEN
+    RAISE EXCEPTION 'AC-62 [after-grant-all]: authenticated TRUNCATE succeeded on: %', ok;
+  END IF;
+  RAISE NOTICE 'AC-62 TRUNCATE check passed';
+END $$;
+RESET ROLE;
+ROLLBACK TO SAVEPOINT ac62_truncate;
+RELEASE SAVEPOINT ac62_truncate;
 
 -- 9) AC-05: service_role は書ける（回帰）
 SET LOCAL ROLE service_role;
@@ -313,7 +507,7 @@ BEGIN
        WHERE tenant_id = '11111111-1111-1111-1111-111111111111') IS DISTINCT FROM 'pro' THEN
     RAISE EXCEPTION 'AC-05: service_role UPDATE did not persist';
   END IF;
-  RAISE NOTICE 'billing RLS test (AC-01..AC-12, AC-59) PASSED';
+  RAISE NOTICE 'billing RLS test (AC-01..AC-12, AC-59, AC-62, AC-63) PASSED';
 END $$;
 
 SELECT set_config('request.jwt.claims', '', true);

@@ -7,6 +7,7 @@
  */
 import { describe, it, expect, vi } from "vitest";
 import { createTokenService, timingSafeEqualStr, type SessionStore } from "./token";
+import { createAuthService } from "./auth";
 
 const TEST_SECRET = "test-session-secret-at-least-32-characters-long";
 
@@ -242,4 +243,48 @@ describe("config validation", () => {
   it("throws when secret is empty", () => {
     expect(() => createTokenService({ secret: "" })).toThrow();
   });
+});
+
+describe("createSessionCookie rejects identities containing ':' (AC-61)", () => {
+  const COLON_IDENTITIES = ["admin:@evil.example", "alice@acme.com:x", "admin:99999999999999"];
+
+  /** createSessionCookie を呼び、throw したか・何を返したかを記録する（throw / null のどちらも「拒否」と見なす）。 */
+  async function attempt(create: (id: string) => Promise<string | null>, identity: string) {
+    try {
+      return { threw: false as const, token: await create(identity) };
+    } catch {
+      return { threw: true as const, token: null };
+    }
+  }
+
+  for (const identity of COLON_IDENTITIES) {
+    it(`AC-61: createSessionCookie('${identity}') is rejected (throws or returns null), no SessionStore`, async () => {
+      const r = await attempt((id) => createSessionCookie(id), identity);
+      expect(r.threw || r.token === null).toBe(true);
+    });
+
+    it(`AC-61: createSessionCookie('${identity}') is rejected even when a SessionStore is configured`, async () => {
+      const store: SessionStore = {
+        createSession: vi.fn().mockResolvedValue(false), // insert failure → would fall back to email-in-token
+        getSession: vi.fn().mockResolvedValue(null),
+      };
+      const withStore = createTokenService({ secret: TEST_SECRET, sessionStore: store });
+      const r = await attempt((id) => withStore.createSessionCookie(id), identity);
+      expect(r.threw || r.token === null).toBe(true);
+    });
+
+    it(`AC-61: identity '${identity}' never yields a session whose email is 'admin'`, async () => {
+      const auth = createAuthService({ secret: TEST_SECRET });
+      const r = await attempt((id) => auth.createSessionCookie(id), identity);
+      if (r.token) {
+        // 万一トークンが出ても、埋め込まれた identity が 'admin' に化けてはいけない
+        const opaque = r.token.substring(0, r.token.lastIndexOf("."));
+        const data = auth.decrypt(opaque) ?? "";
+        expect(data.split(":")[1]).not.toBe("admin");
+        const req = new Request("http://localhost/api/test", { headers: { Cookie: `session=${r.token}` } });
+        expect(await auth.getSessionEmail(req)).not.toBe("admin");
+      }
+      expect(r.threw || r.token === null).toBe(true);
+    });
+  }
 });

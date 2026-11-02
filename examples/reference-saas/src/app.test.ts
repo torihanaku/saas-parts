@@ -132,4 +132,30 @@ describe("reference-saas — 部品配線の結合テスト", () => {
     const res = await app.handle(req("POST", "/login", { body: { email: "not-an-email" } }));
     expect(res.status).toBe(400);
   });
+
+  for (const evilEmail of ["admin:@evil.example", "alice@acme.com:x"]) {
+    it(`AC-60: ':' を含む email '${evilEmail}' は /login で 400/403・Set-Cookie 無し、/widgets は tenant-admin に届かない`, async () => {
+      const app = createApp();
+      // tenant-admin に既存データを置いておく（漏れたら本文に出る）
+      const alice = await login(app, "alice@acme.com");
+      await app.handle(req("POST", "/widgets", { cookie: alice, body: { name: "acme-secret" } }));
+
+      const loginRes = await app.handle(req("POST", "/login", { body: { email: evilEmail } }));
+      expect([400, 403]).toContain(loginRes.status);
+      const setCookie = loginRes.headers.get("set-cookie");
+      expect(setCookie).toBeNull();
+
+      // 続く /widgets: 発行された Cookie（あれば）を使っても tenant-admin に届かない
+      const cookie = setCookie ? setCookie.split(";")[0]! : undefined;
+      const getRes = await app.handle(req("GET", "/widgets", { cookie }));
+      expect([401, 403]).toContain(getRes.status);
+      expect(await getRes.text()).not.toContain("tenant-admin");
+
+      const postRes = await app.handle(req("POST", "/widgets", { cookie, body: { name: "colon-wrote-into-admin" } }));
+      expect([401, 403]).toContain(postRes.status);
+      expect(await postRes.text()).not.toContain("tenant-admin");
+      expect(app.auditStore.rows.filter((r) => r.tenant_id === "tenant-admin")).toHaveLength(0);
+      expect(app.auditStore.rows.some((r) => JSON.stringify(r.changes).includes("colon-wrote-into-admin"))).toBe(false);
+    });
+  }
 });
