@@ -90,9 +90,12 @@ consent_registry (007・tenant_id/user_id は FK なしの疎結合)
   - **service_role**: `<t>_service`（`FOR ALL ... USING (TRUE) WITH CHECK (TRUE)`）で全行を読み書きする。Stripe webhook での契約・権利の更新、メール webhook での配信ログの取り込みはこのキーで行う
   - `products` / `product_plans` は全テナント共通のカタログ。RLS を有効にし、読み取りは全ロール（`<t>_read`・`FOR SELECT USING (TRUE)`。実際に読めるかは `SELECT` 権限次第）、書き込みは service_role（`<t>_service`）とテーブルオーナーだけ。`syncProductsToDb()` などの同期は service_role かテーブルオーナーで行う
   - 5 表とも `BEFORE TRUNCATE` トリガー（`<t>_deny_truncate` → 関数 `deny_truncate_unless_owner()`）で、テーブルオーナー（とそのメンバー・スーパーユーザー）以外の `TRUNCATE` を `42501` で拒否する。`TRUNCATE` には RLS が効かないため。service_role も拒否される
+    - 仕組み: 関数は実行したロール（`current_user`）がテーブルオーナーのロールのメンバーかを `pg_catalog.pg_has_role` と `pg_catalog.pg_class.relowner` で判定する。関数に `SET search_path = pg_catalog, pg_temp` を付け、カタログ名も `pg_catalog.` で完全修飾しているので、呼び出し側が一時表 `pg_temp.pg_class` を作ってオーナーを偽装しても判定は変わらない（`test/billing_rls.sql` の AC-65 で確認）
+    - 前提（これが崩れると止まらない）: トリガーが有効のまま残っていること（無効化・削除はテーブルオーナーにしかできない）／呼び出し側がスーパーユーザーでも、テーブルオーナーのロールのメンバーでもないこと／`session_replication_role = replica` に切り替えられないこと（切り替えると通常のトリガーは発火しない。既定ではスーパーユーザーだけが設定でき、PG15 以上で `GRANT SET ON PARAMETER session_replication_role` を与えると一般ロールも設定できてしまう）／関数 `deny_truncate_unless_owner()` をオーナー以外が書き換えられないこと
   - ホスト側で `GRANT ALL` を戻した場合に止まるもの・止まらないもの（authenticated について `test/billing_rls.sql` の AC-62 で確認。anon も書き込み系ポリシーが無いので同じ）:
-    - 止まる: authenticated/anon の `INSERT`/`UPDATE`/`DELETE`（5 表とも書き込み系ポリシーが無いので RLS で拒否か 0 行）と `TRUNCATE`（トリガーで拒否）
+    - 止まる: authenticated/anon の `INSERT`/`UPDATE`/`DELETE`（5 表とも書き込み系ポリシーが無いので RLS で拒否か 0 行）と `TRUNCATE`（上の `BEFORE TRUNCATE` トリガーで拒否。上記の前提が保たれている場合に限る。AC-62・AC-65 で確認）
     - 止まらない: `TRIGGER`/`REFERENCES`/`MAINTAIN` 権限は戻ってしまう（ポリシーでは止められない）。`GRANT ALL` を戻したらテンプレートを流し直して `REVOKE` をかけ直すこと
+    - 止まらない（特に危険）: `TRIGGER` 権限が戻ると、authenticated/anon が契約・権利表に自作の `BEFORE UPDATE`/`BEFORE INSERT` トリガーを付けられる。そのトリガーは service_role の更新（Stripe webhook など）の中で動くので、書き込まれる `plan_key`・`status`・`limit_value` を書き換えて課金なしの上位プラン化（課金昇格）に繋がりうる。テンプレートを流し直せば `REVOKE` で `TRIGGER` 権限は外れるが、**既に付けられたトリガーは消えない**ので、`SELECT tgrelid::regclass, tgname FROM pg_trigger WHERE NOT tgisinternal;` で見覚えの無いトリガーが無いか確かめ、あれば `DROP TRIGGER` すること
 - 003/008 の前提: `current_tenant_id()` 関数と、ロール `authenticated` / `service_role` が存在すること（Supabase には最初からある。素の Postgres では先に `CREATE ROLE`）。`anon` は任意（無ければ REVOKE を飛ばす）。ENABLE だけでポリシー未定義だとテーブルオーナーがバイパスしてテナント分離が効かないため、ポリシーは必ず明示している
 - 003 と 008 は何度流しても通る（旧ポリシーを `DROP POLICY IF EXISTS` してから作り直す）。`psql -v ON_ERROR_STOP=1 -f ...` での再適用を想定している
 - 004 / 005 のポリシーは `TO service_role` にロールを明示（`USING (true)` を PUBLIC に開くと anon/authenticated が webhook イベントや監査ログの PII を横断参照できてしまうため）。005 の audit_logs を anon/authenticated から読ませたい場合は tenant_id 列を足して 008 形式の読み取りポリシー（`FOR SELECT TO authenticated`）にする

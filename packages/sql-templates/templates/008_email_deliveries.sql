@@ -42,11 +42,15 @@ END $$;
 -- TRUNCATE には RLS が効かないので、テーブルオーナー（とそのメンバー・スーパーユーザー）以外の
 -- TRUNCATE をトリガーで拒否する（GRANT ALL を戻されても配信ログを消させない）。
 -- 003 と同じ関数。CREATE OR REPLACE なので 008 単独でも・何度流しても通る。
+-- search_path を固定し pg_catalog を完全修飾する: 呼び出し側が pg_temp に一時表 pg_class を
+-- 作ってオーナーを偽装しても、判定は本物のカタログを見る（AC-65）。
 CREATE OR REPLACE FUNCTION deny_truncate_unless_owner() RETURNS trigger
-  LANGUAGE plpgsql AS $$
+  LANGUAGE plpgsql
+  SET search_path = pg_catalog, pg_temp
+AS $$
 BEGIN
-  IF NOT pg_has_role(current_user,
-                     (SELECT relowner FROM pg_class WHERE oid = TG_RELID), 'MEMBER') THEN
+  IF NOT pg_catalog.pg_has_role(current_user,
+                     (SELECT c.relowner FROM pg_catalog.pg_class c WHERE c.oid = TG_RELID), 'MEMBER') THEN
     RAISE EXCEPTION 'TRUNCATE on % is not allowed for role %', TG_TABLE_NAME, current_user
       USING ERRCODE = 'insufficient_privilege';
   END IF;
