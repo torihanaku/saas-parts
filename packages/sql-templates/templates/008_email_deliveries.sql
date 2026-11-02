@@ -5,7 +5,8 @@
 -- Rows are written by the email webhook ingestion path (sendgrid / ses) —
 -- this migration only declares the schema and indexes the monitor needs.
 -- Prerequisite: tenants テーブル（元実装は teams(id) を参照 — README 参照）と、
---               RLS 用の current_tenant_id() 関数が存在すること。
+--               RLS 用の current_tenant_id() 関数、ロール authenticated / service_role
+--               が存在すること（anon は任意）。
 
 CREATE TABLE IF NOT EXISTS email_deliveries (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -19,13 +20,28 @@ CREATE TABLE IF NOT EXISTS email_deliveries (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+-- 書き込み権限（多層防御）: 配信ログを書くのは webhook 取り込み（service_role）だけ。
+-- Supabase 既定の GRANT ALL から anon/authenticated の書き込みを外す。
+REVOKE INSERT, UPDATE, DELETE, TRUNCATE ON email_deliveries FROM authenticated;
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'anon') THEN
+    EXECUTE 'REVOKE INSERT, UPDATE, DELETE, TRUNCATE ON email_deliveries FROM anon';
+  END IF;
+END $$;
+
 ALTER TABLE email_deliveries ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY email_deliveries_tenant ON email_deliveries
-  FOR ALL TO authenticated
-  USING (tenant_id = (SELECT current_tenant_id()))
-  WITH CHECK (tenant_id = (SELECT current_tenant_id()));
+-- authenticated は自テナントの行を読むだけ（FOR ALL だと配信ログを偽造・削除でき、
+-- bounce 率監視を欺ける。SA-0001）。旧版のポリシーも含めて DROP IF EXISTS してから作るので、
+-- ON_ERROR_STOP=1 で何度流しても通る。
+DROP POLICY IF EXISTS email_deliveries_tenant ON email_deliveries;
+DROP POLICY IF EXISTS email_deliveries_tenant_select ON email_deliveries;
+CREATE POLICY email_deliveries_tenant_select ON email_deliveries
+  FOR SELECT TO authenticated
+  USING (tenant_id = (SELECT current_tenant_id()));
 
+DROP POLICY IF EXISTS email_deliveries_service ON email_deliveries;
 CREATE POLICY email_deliveries_service ON email_deliveries
   FOR ALL TO service_role USING (TRUE) WITH CHECK (TRUE);
 

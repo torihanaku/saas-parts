@@ -53,21 +53,42 @@ CREATE TABLE IF NOT EXISTS tenant_product_entitlements (
   PRIMARY KEY (tenant_id, product_key, entitlement_key)
 );
 
+-- 書き込み権限（多層防御）
+-- 課金・権利・プロダクト定義はテナント利用者に書かせない。書き込むのは Stripe webhook /
+-- 起動時の syncProductsToDb() など service_role（またはテーブルオーナー）だけ。
+-- Supabase は新しい表に anon/authenticated へ GRANT ALL を付けるため、ここで明示的に外す。
+-- ポリシー（下記 FOR SELECT）と二重で止める: どちらか一方が戻されても書き込めない。
+REVOKE INSERT, UPDATE, DELETE, TRUNCATE
+  ON tenant_product_subscriptions, tenant_product_entitlements, products, product_plans
+  FROM authenticated;
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'anon') THEN
+    EXECUTE 'REVOKE INSERT, UPDATE, DELETE, TRUNCATE
+               ON tenant_product_subscriptions, tenant_product_entitlements, products, product_plans
+               FROM anon';
+  END IF;
+END $$;
+
 -- Row Level Security
 -- ⚠ ENABLE だけでポリシー未定義だと「非オーナーロールは全拒否 / テーブルオーナーは
 --    バイパスして全アクセス」になり、テナント分離が DB 層で一切効かない。課金・権限は
---    最も機微なテーブルなので、008 と同じ形式で tenant 分離ポリシー＋service_role を明示する。
+--    最も機微なテーブルなので、tenant 分離ポリシー＋service_role を明示する。
+-- authenticated は自テナントの行を **読むだけ**（FOR SELECT）。FOR ALL にすると
+-- 利用者が自テナントの plan_key / status / limit_value を書き換えて課金を回避できる（SA-0001）。
 -- 前提: JWT クレーム等から現在の tenant_id を返す current_tenant_id() 関数が存在すること
---       （008 のリネームガイド参照。例: (auth.jwt() ->> 'tenant_id')::uuid を返す STABLE 関数）。
+--       （README のリネームガイド参照。例: (auth.jwt() ->> 'tenant_id')::uuid を返す STABLE 関数）。
+--       ロール authenticated / service_role が存在すること（anon は任意）。
 ALTER TABLE tenant_product_subscriptions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE tenant_product_entitlements ENABLE ROW LEVEL SECURITY;
 
 -- tenant_product_subscriptions
+-- 旧版の FOR ALL ポリシー（<t>_tenant）を消してから読み取り専用で作り直す（再適用可）
 DROP POLICY IF EXISTS tenant_product_subscriptions_tenant ON tenant_product_subscriptions;
-CREATE POLICY tenant_product_subscriptions_tenant ON tenant_product_subscriptions
-  FOR ALL TO authenticated
-  USING      (tenant_id = (SELECT current_tenant_id()))
-  WITH CHECK (tenant_id = (SELECT current_tenant_id()));
+DROP POLICY IF EXISTS tenant_product_subscriptions_tenant_select ON tenant_product_subscriptions;
+CREATE POLICY tenant_product_subscriptions_tenant_select ON tenant_product_subscriptions
+  FOR SELECT TO authenticated
+  USING (tenant_id = (SELECT current_tenant_id()));
 
 DROP POLICY IF EXISTS tenant_product_subscriptions_service ON tenant_product_subscriptions;
 CREATE POLICY tenant_product_subscriptions_service ON tenant_product_subscriptions
@@ -75,10 +96,10 @@ CREATE POLICY tenant_product_subscriptions_service ON tenant_product_subscriptio
 
 -- tenant_product_entitlements
 DROP POLICY IF EXISTS tenant_product_entitlements_tenant ON tenant_product_entitlements;
-CREATE POLICY tenant_product_entitlements_tenant ON tenant_product_entitlements
-  FOR ALL TO authenticated
-  USING      (tenant_id = (SELECT current_tenant_id()))
-  WITH CHECK (tenant_id = (SELECT current_tenant_id()));
+DROP POLICY IF EXISTS tenant_product_entitlements_tenant_select ON tenant_product_entitlements;
+CREATE POLICY tenant_product_entitlements_tenant_select ON tenant_product_entitlements
+  FOR SELECT TO authenticated
+  USING (tenant_id = (SELECT current_tenant_id()));
 
 DROP POLICY IF EXISTS tenant_product_entitlements_service ON tenant_product_entitlements;
 CREATE POLICY tenant_product_entitlements_service ON tenant_product_entitlements
