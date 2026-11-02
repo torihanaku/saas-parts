@@ -23,7 +23,7 @@ const store: AgencyAccessStore = {
 const requireClientAccess = createRequireClientAccess<Request>({
   store,
   getSessionEmail: (req) => mySession(req),
-  getTenantId: (req) => myTenantResolver.getTenantId(req), // @torihanaku/tenant-resolver と組み合わせ可
+  getTenantId: (req) => myTenantResolver.getTenantId(req), // member 行の tenant_id が NULL のときだけ呼ばれる
   logAudit: (req, evt) => auditLogger.write(req, evt),      // 省略可（403 時のみ呼ばれる）
 });
 
@@ -42,12 +42,25 @@ const { healed, staleIds } = healMemberStatuses(membersFromDb);
 ### 3層アクセス制御の評価順
 
 1. セッション email 無し → 401
-2. 自身の tenant_id === clientId → pass（direct role / client_viewer 共通）
+1.5. 所属テナント（userTenantId）を決める:
+   - member 行があり tenant_id が入っている → その tenant_id
+   - member 行があり tenant_id が NULL → `getTenantId(req)` の結果（null もあり得る）
+   - **member 行が無い（未登録の email）→ null。`getTenantId` は呼ばない**
+2. 自身の tenant_id === clientId → pass（direct role / client_viewer 共通。userTenantId が null なら不成立）
 3. agency role 評価:
    - `agency_admin`: 所属テナントが `type='agency'` かつ `managed_clients` に clientId → pass
    - `agency_member`: 自分の `assigned_clients` に clientId → pass
    - `client_viewer`: 手順 2 以外では常に拒否
 4. それ以外 → 403 + 監査ログ（action: `access_denied`, risk_level: `medium`, 試行 clientId 含む）
+
+`createGetAgencyContext` も同じ規則で `userTenantId` を決める（member 行が無ければ `userTenantId: null`・`agencyTenant: null`、`getTenantId` は呼ばない）。
+
+## 破壊的変更（2026-11-02 / SA-0003）
+
+- **member 行の無い利用者は、どの clientId に対しても 403 になる。** 以前は member 行が無いと `getTenantId(req)` の結果を所属テナントとみなしていたため、resolver が既定テナントへフォールバックする構成では、未登録の第三者が運営者のテナント（clientId）を通過できた。
+- **システムオーナー（tenant-resolver の `adminEmail`）も例外ではない。** member 行が無ければ `requireClientAccess` では 403 になる（2026-11-02 ユーザー承認済み）。オーナーにアクセスさせたい場合は、オーナーの member 行（tenant_id 入り）を `team_members` に作る。
+- `getAgencyContext` は member 行が無いと `userTenantId: null`・`agencyTenant: null` を返す（以前は `getTenantId` の結果で埋めていた）。
+- `getTenantId` が呼ばれるのは「member 行があり、その tenant_id が NULL」のときだけになった。tenant-resolver 側で `fallbackUnmappedToDefaultTenant: true` を指定していても、member 行の無い利用者はここで通らない。
 
 ## 依存
 
@@ -58,7 +71,7 @@ const { healed, staleIds } = healMemberStatuses(membersFromDb);
 | 注入先 | 元実装 |
 |---|---|
 | `store: AgencyAccessStore` | Supabase REST（dashboard_team_members / tenants） |
-| `getSessionEmail(req)` / `getTenantId(req)` | `server/lib/auth.ts` |
+| `getSessionEmail(req)` / `getTenantId(req)` | `server/lib/auth.ts`（`getTenantId` は member 行の tenant_id が NULL のときだけ呼ばれる） |
 | `logAudit(req, evt)` | `server/lib/audit.ts` の `logAudit`（任意。未注入なら監査記録なし） |
 
 ## 想定ランタイム
