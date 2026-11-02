@@ -75,7 +75,8 @@ export function createApp(opts: AppOptions = {}) {
     // 2) ログイン（デモ: パスワード無し。email でセッションを発行）
     if (method === "POST" && pathname === "/login") {
       const body = (await req.json().catch(() => ({}))) as { email?: unknown };
-      if (typeof body.email !== "string" || !body.email.includes("@")) {
+      // ':' はセッショントークンの区切り文字。含む email は分解時に別 identity に化けるので拒否する。
+      if (typeof body.email !== "string" || !body.email.includes("@") || body.email.includes(":")) {
         return json({ error: "valid email required" }, { status: 400 });
       }
       const token = await tokens.createSessionCookie(body.email);

@@ -199,6 +199,12 @@ export function createTokenService(config: TokenConfig) {
   async function createSessionCookie(email?: string): Promise<string> {
     const expires = Date.now() + sessionTtlMs;
     const identity = email || fallbackIdentity;
+    // The token payload is ':'-delimited (`auth:{identity}:{expires}`) and is
+    // split on ':' downstream. An identity containing ':' would be truncated on
+    // parse (e.g. "admin:@evil.example" → "admin"), so reject it at the entry.
+    if (identity.includes(":")) {
+      throw new Error("auth-session: session identity must not contain ':'");
+    }
 
     if (email && sessionStore) {
       const sessionId = randomUUID();
