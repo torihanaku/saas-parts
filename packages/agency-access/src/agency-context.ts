@@ -18,7 +18,10 @@ export interface AgencyContext {
 
 export interface AgencyContextDeps<TReq = Request> {
   store: AgencyAccessStore;
-  /** member 行に tenant_id が無いときのフォールバック解決 (元: getTenantId)。 */
+  /**
+   * member 行の tenant_id が NULL のときだけ呼ぶフォールバック解決 (元: getTenantId)。
+   * member 行が無いときは呼ばず userTenantId=null (SA-0003)。
+   */
   getTenantId: (req: TReq) => Promise<string | null>;
 }
 
@@ -30,7 +33,8 @@ export function createGetAgencyContext<TReq = Request>(
   return async function getAgencyContext(req: TReq, email: string): Promise<AgencyContext> {
     const member = await store.findMemberByEmail(email);
     const role = (member?.role ?? "member") as TeamMemberRole;
-    const userTenantId = member?.tenant_id ?? (await getTenantId(req));
+    // member 行が無ければ所属テナントは無い。getTenantId は呼ばない (SA-0003)。
+    const userTenantId = member ? (member.tenant_id ?? (await getTenantId(req))) : null;
 
     let agencyTenant: TenantRow | null = null;
     if (userTenantId) {
