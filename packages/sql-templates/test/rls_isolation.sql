@@ -88,4 +88,5 @@ BEGIN
 END $$;
 
 RESET ROLE;
+\ir billing_rls.sql
 ROLLBACK;

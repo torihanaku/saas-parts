@@ -83,6 +83,50 @@ describe("reference-saas — 部品配線の結合テスト", () => {
     expect(last).toBe(429);
   });
 
+  // 監査 V2 #1 (SA-0003) の再現手順を反転: 未登録の email は admin テナントを読み書きできない
+  it("AC-47: 未登録の mallory@evil.example は POST /widgets で 403（admin テナントに書けない）", async () => {
+    const app = createApp();
+    const alice = await login(app, "alice@acme.com");
+    expect((await app.handle(req("POST", "/widgets", { cookie: alice, body: { name: "acme-secret" } }))).status).toBe(201);
+
+    const mallory = await login(app, "mallory@evil.example");
+    const res = await app.handle(req("POST", "/widgets", { cookie: mallory, body: { name: "mallory-wrote-into-admin" } }));
+    expect(res.status).toBe(403);
+    const text = await res.text();
+    expect(text).not.toContain("tenant-admin");
+    expect(text).not.toContain("mallory-wrote-into-admin");
+    // 書き込みも監査行も、どのテナントにも残っていない
+    expect(app.auditStore.rows.filter((r) => r.tenant_id === "tenant-admin")).toHaveLength(0);
+    expect(app.auditStore.rows.some((r) => JSON.stringify(r.changes).includes("mallory-wrote-into-admin"))).toBe(false);
+  });
+
+  it("AC-48: 未登録の eve@other.example は GET /widgets で 403（他テナントのデータが本文に無い）", async () => {
+    const app = createApp();
+    const alice = await login(app, "alice@acme.com");
+    await app.handle(req("POST", "/widgets", { cookie: alice, body: { name: "acme-secret" } }));
+    const mallory = await login(app, "mallory@evil.example");
+    await app.handle(req("POST", "/widgets", { cookie: mallory, body: { name: "mallory-wrote-into-admin" } }));
+
+    const eve = await login(app, "eve@other.example");
+    const res = await app.handle(req("GET", "/widgets", { cookie: eve }));
+    expect(res.status).toBe(403);
+    const text = await res.text();
+    expect(text).not.toContain("tenant-admin");
+    expect(text).not.toContain("mallory-wrote-into-admin");
+    expect(text).not.toContain("acme-secret");
+  });
+
+  it("AC-49: 登録済みの alice の GET /widgets は tenant='tenant-acme'", async () => {
+    const app = createApp();
+    const alice = await login(app, "alice@acme.com");
+    await app.handle(req("POST", "/widgets", { cookie: alice, body: { name: "acme-secret" } }));
+    const res = await app.handle(req("GET", "/widgets", { cookie: alice }));
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.tenant).toBe("tenant-acme");
+    expect(body.widgets.map((w: { name: string }) => w.name)).toContain("acme-secret");
+  });
+
   it("不正な email のログインは 400", async () => {
     const app = createApp();
     const res = await app.handle(req("POST", "/login", { body: { email: "not-an-email" } }));

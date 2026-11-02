@@ -56,7 +56,8 @@ describe("getAgencyContext", () => {
     expect(mockGetTenantId).not.toHaveBeenCalled();
   });
 
-  it("defaults role to 'member' and falls back to getTenantId when no member row", async () => {
+  // 2026-11-02 意図した書き換え (SA-0003): 旧「member が null でも getTenantId を使う」→ AC-46
+  it("AC-46: member 行が無ければ userTenantId=null・getTenantId は 0 回", async () => {
     mockFindMemberByEmail.mockResolvedValue(null);
     mockGetTenantId.mockResolvedValue("fallback-tenant");
     mockFindTenantById.mockResolvedValue({
@@ -68,9 +69,11 @@ describe("getAgencyContext", () => {
 
     const ctx = await getAgencyContext(req, "unknown@example.com");
     expect(ctx.role).toBe("member");
-    expect(ctx.userTenantId).toBe("fallback-tenant");
+    expect(ctx.userTenantId).toBeNull();
     expect(ctx.member).toBeNull();
-    expect(ctx.agencyTenant?.type).toBe("direct");
+    expect(ctx.agencyTenant).toBeNull();
+    expect(mockGetTenantId).toHaveBeenCalledTimes(0);
+    expect(mockFindTenantById).not.toHaveBeenCalled();
   });
 
   it("returns null agencyTenant when tenant cannot be resolved", async () => {
