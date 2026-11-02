@@ -21,14 +21,42 @@ CREATE TABLE IF NOT EXISTS email_deliveries (
 );
 
 -- 書き込み権限（多層防御）: 配信ログを書くのは webhook 取り込み（service_role）だけ。
--- Supabase 既定の GRANT ALL から anon/authenticated の書き込みを外す。
-REVOKE INSERT, UPDATE, DELETE, TRUNCATE ON email_deliveries FROM authenticated;
+-- Supabase 既定の GRANT ALL から anon/authenticated の SELECT 以外の全権限
+-- （INSERT/UPDATE/DELETE/TRUNCATE/TRIGGER/REFERENCES、PG17 以上なら MAINTAIN も）を外す。
+-- anon はロールがある時だけ外す。
 DO $$
+DECLARE
+  privs text := 'INSERT, UPDATE, DELETE, TRUNCATE, TRIGGER, REFERENCES';
+  r text;
 BEGIN
-  IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'anon') THEN
-    EXECUTE 'REVOKE INSERT, UPDATE, DELETE, TRUNCATE ON email_deliveries FROM anon';
+  IF current_setting('server_version_num')::int >= 170000 THEN
+    privs := privs || ', MAINTAIN';
   END IF;
+  FOREACH r IN ARRAY ARRAY['authenticated', 'anon'] LOOP
+    IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = r) THEN
+      EXECUTE format('REVOKE %s ON email_deliveries FROM %I', privs, r);
+    END IF;
+  END LOOP;
 END $$;
+
+-- TRUNCATE には RLS が効かないので、テーブルオーナー（とそのメンバー・スーパーユーザー）以外の
+-- TRUNCATE をトリガーで拒否する（GRANT ALL を戻されても配信ログを消させない）。
+-- 003 と同じ関数。CREATE OR REPLACE なので 008 単独でも・何度流しても通る。
+CREATE OR REPLACE FUNCTION deny_truncate_unless_owner() RETURNS trigger
+  LANGUAGE plpgsql AS $$
+BEGIN
+  IF NOT pg_has_role(current_user,
+                     (SELECT relowner FROM pg_class WHERE oid = TG_RELID), 'MEMBER') THEN
+    RAISE EXCEPTION 'TRUNCATE on % is not allowed for role %', TG_TABLE_NAME, current_user
+      USING ERRCODE = 'insufficient_privilege';
+  END IF;
+  RETURN NULL;
+END $$;
+
+DROP TRIGGER IF EXISTS email_deliveries_deny_truncate ON email_deliveries;
+CREATE TRIGGER email_deliveries_deny_truncate
+  BEFORE TRUNCATE ON email_deliveries
+  FOR EACH STATEMENT EXECUTE FUNCTION deny_truncate_unless_owner();
 
 ALTER TABLE email_deliveries ENABLE ROW LEVEL SECURITY;
 
