@@ -484,6 +484,103 @@ RESET ROLE;
 ROLLBACK TO SAVEPOINT ac62_truncate;
 RELEASE SAVEPOINT ac62_truncate;
 
+-- 8d) AC-65: TRUNCATE 拒否トリガーの判定を pg_temp のシャドーで偽装できないこと（V-12）。
+--     一時スキーマはリレーション名の解決で pg_catalog より先に探される（search_path に
+--     pg_temp を明示しても同じ）。authenticated が一時表 pg_class(oid, relowner) を作り、
+--     5 表のオーナーを自分だと見せかけても、5 表どれも TRUNCATE できないこと。
+--     関数（pg_has_role）は pg_temp からは解決されないので、偽の pg_has_role は作らない。
+--     8c と同じく、セーブポイントの中で外部キーを外してから 1 表ずつ試し、最後に戻す。
+--     対照: 偽装を片付けた後、オーナーは 5 表とも TRUNCATE できること。
+SAVEPOINT ac65_truncate;
+DO $$
+DECLARE
+  c record;
+BEGIN
+  FOR c IN
+    SELECT con.conname, con.conrelid::regclass AS rel
+      FROM pg_constraint con
+     WHERE con.contype = 'f'
+       AND con.confrelid IN ('billing_test.tenant_product_subscriptions'::regclass,
+                             'billing_test.tenant_product_entitlements'::regclass,
+                             'billing_test.email_deliveries'::regclass,
+                             'billing_test.products'::regclass,
+                             'billing_test.product_plans'::regclass)
+  LOOP
+    EXECUTE format('ALTER TABLE %s DROP CONSTRAINT %I', c.rel, c.conname);
+  END LOOP;
+END $$;
+SET LOCAL ROLE authenticated;
+SELECT set_config('request.jwt.claims',
+  '{"role":"authenticated","tenant_id":"11111111-1111-1111-1111-111111111111"}', true);
+-- 攻撃者がセッションで選べる search_path（pg_temp を pg_catalog より前に明示。
+-- pg_catalog を書かないと暗黙に先頭へ入り、シャドーより先に本物が解決される）
+SET LOCAL search_path = pg_temp, pg_catalog, billing_test, public;
+CREATE TEMP TABLE pg_class (oid oid, relowner oid);
+INSERT INTO pg_temp.pg_class (oid, relowner)
+SELECT t.oid, (SELECT r.oid FROM pg_catalog.pg_roles r WHERE r.rolname = 'authenticated')
+  FROM unnest(ARRAY['billing_test.tenant_product_subscriptions'::regclass,
+                    'billing_test.tenant_product_entitlements'::regclass,
+                    'billing_test.email_deliveries'::regclass,
+                    'billing_test.products'::regclass,
+                    'billing_test.product_plans'::regclass]) AS t(oid);
+DO $$
+DECLARE
+  t text;
+  succeeded boolean;
+  ok text;
+BEGIN
+  -- 偽装が効く状態であることの前提確認（シャドーが実際に解決されている）
+  IF (SELECT count(*) FROM pg_class) <> 5 THEN
+    RAISE EXCEPTION 'AC-65 [setup]: temp pg_class shadow is not resolved (unqualified pg_class has % rows)',
+      (SELECT count(*) FROM pg_class);
+  END IF;
+  FOREACH t IN ARRAY ARRAY['tenant_product_subscriptions', 'tenant_product_entitlements',
+                           'email_deliveries', 'products', 'product_plans'] LOOP
+    succeeded := false;
+    BEGIN
+      EXECUTE format('TRUNCATE billing_test.%I', t);
+      succeeded := true;
+      RAISE EXCEPTION 'ac65-probe-rollback';
+    EXCEPTION WHEN OTHERS THEN
+      NULL;
+    END;
+    IF succeeded THEN
+      ok := concat_ws(', ', ok, t);
+    END IF;
+  END LOOP;
+  IF ok IS NOT NULL THEN
+    RAISE EXCEPTION 'AC-65 [pg_temp shadow]: authenticated TRUNCATE succeeded on: %', ok;
+  END IF;
+  RAISE NOTICE 'AC-65 shadow TRUNCATE check passed';
+END $$;
+RESET ROLE;
+DROP TABLE pg_temp.pg_class;
+SET LOCAL search_path = billing_test, public;
+-- 対照: オーナーは 5 表とも TRUNCATE できる（拒否トリガーが全員を止めているのではない）
+DO $$
+DECLARE
+  t text;
+  failed text;
+BEGIN
+  FOREACH t IN ARRAY ARRAY['tenant_product_subscriptions', 'tenant_product_entitlements',
+                           'email_deliveries', 'products', 'product_plans'] LOOP
+    BEGIN
+      EXECUTE format('TRUNCATE billing_test.%I', t);
+      RAISE EXCEPTION 'ac65-owner-probe-rollback';
+    EXCEPTION WHEN OTHERS THEN
+      IF SQLERRM <> 'ac65-owner-probe-rollback' THEN
+        failed := concat_ws(', ', failed, t || ' (' || SQLERRM || ')');
+      END IF;
+    END;
+  END LOOP;
+  IF failed IS NOT NULL THEN
+    RAISE EXCEPTION 'AC-65 [owner control]: owner TRUNCATE failed on: %', failed;
+  END IF;
+  RAISE NOTICE 'AC-65 owner TRUNCATE control passed';
+END $$;
+ROLLBACK TO SAVEPOINT ac65_truncate;
+RELEASE SAVEPOINT ac65_truncate;
+
 -- 9) AC-05: service_role は書ける（回帰）
 SET LOCAL ROLE service_role;
 SELECT set_config('request.jwt.claims', '{"role":"service_role"}', true);
@@ -507,7 +604,7 @@ BEGIN
        WHERE tenant_id = '11111111-1111-1111-1111-111111111111') IS DISTINCT FROM 'pro' THEN
     RAISE EXCEPTION 'AC-05: service_role UPDATE did not persist';
   END IF;
-  RAISE NOTICE 'billing RLS test (AC-01..AC-12, AC-59, AC-62, AC-63) PASSED';
+  RAISE NOTICE 'billing RLS test (AC-01..AC-12, AC-59, AC-62, AC-63, AC-65) PASSED';
 END $$;
 
 SELECT set_config('request.jwt.claims', '', true);
