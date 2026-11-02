@@ -27,10 +27,15 @@ const token = await auth.createSessionCookie("user@example.com");
 res.headers.set("Set-Cookie", auth.formatSessionCookie(token));
 
 // リクエスト認証（標準 Request を受ける。フレームワーク非依存）
+// checkAuth は getSessionEmail と同じ判定（セッションストアも参照）。失効・ストア障害は false
 if (!(await auth.checkAuth(req))) return new Response("Unauthorized", { status: 401 });
 const email = await auth.getSessionEmail(req);
 
-// RBAC（403 Response か null を返す）
+// 現在のユーザー（未認証・失効・ストア障害・身元の無いトークンでは null。admin にはならない）
+const me = await auth.getCurrentUserRole(req); // { email, role } | null
+if (!me) return new Response("Unauthorized", { status: 401 });
+
+// RBAC（未認証は 401、権限不足は 403、通過なら null）
 const denied = await auth.requireRole(req, "editor"); // admin は自動で通過（階層あり）
 if (denied) return denied;
 const notSuper = await auth.requireSuperAdmin(req);
@@ -45,6 +50,48 @@ const tokens = createTokenService({ secret: mySessionSecret });
 const t = tokens.signToken("auth:user@example.com:1999999999999");
 tokens.verifyToken(t); // タイミングセーフ比較
 ```
+
+## 認証できないときの挙動（fail-closed）
+次のどれでも「未認証」として扱い、**管理者（admin）にはしない**:
+- Cookie も Bearer も無い
+- サーバー側セッションが失効している（`sessionStore.getSession` が `null`、または `expiresAt` が過去）
+- セッションストアが例外を投げた（障害）
+- 署名は正しいが身元（email）を持たないトークン（レガシー `auth:{expires}`、ストアの無いサービスに来た `session:{uuid}:{expires}`）
+
+| API | 未認証のとき |
+|---|---|
+| `getSessionEmail(req)` | `null` |
+| `getCurrentUserRole(req)` | `null`（戻り値の型は `Promise<{ email: string; role: Role } \| null>`） |
+| `requireRole(req, ...roles)` | `401` `{ "error": "認証が必要です" }`（権限不足は従来どおり `403`） |
+| `checkAuth(req)` | `false`（`Boolean(await getSessionEmail(req))` と同じ。呼ぶたびにストアを1回読む） |
+
+`"admin"` センチネル（`isBypassRequest` が true のリクエスト、引数なしの `createSessionCookie()` = fallbackIdentity）は従来どおり `{ email: "admin", role: "admin" }` になる。**`"admin"` という email を外部の ID プロバイダ（`bearerResolver` 等）から返さないこと**（返すと管理者として扱われる）。
+
+### audit-log に渡すとき
+`@torihanaku/audit-log` の `AuditContext.getCurrentUserRole` は `Promise<{ email; role }>`（null 不可）を要求する。そのまま渡すと型エラーになるので、未認証を明示的に扱うラッパーを挟む:
+
+```ts
+import { createAuditLogger } from "@torihanaku/audit-log";
+
+const audit = createAuditLogger({
+  store, // AuditStore（audit-log の README 参照）
+  context: {
+    async getCurrentUserRole(req) {
+      const me = await auth.getCurrentUserRole(req);
+      // 未認証を admin にしない。記録したくなければ例外にしてもよい
+      return me ?? { email: "anonymous", role: "anonymous" };
+    },
+    getTenantId,
+  },
+});
+```
+
+## 破壊的変更（SA-0002 修正）
+以前のバージョンからの移行時に確認すること:
+1. **`getCurrentUserRole` の戻り値に `null` が入る。** 以前は未認証でも `{ email: "admin", role: "admin" }` を返していた（＝未ログインが管理者扱い）。分割代入 `const { role } = await auth.getCurrentUserRole(req)` は null チェックが必要。audit-log の `AuditContext` に直接渡していた場合は上のラッパーに置き換える。
+2. **`requireRole` は未認証で `401` を返す。** 以前は未認証のリクエストが admin として素通りしていた。
+3. **`checkAuth` はセッションストアを見る。** 以前はトークンの署名と期限だけで true を返していたため、失効済みセッションも通っていた。今は呼ぶたびに `sessionStore.getSession` を1回呼び、ストアが落ちていると `false` を返す。
+4. 「未認証なら admin」に戻すオプトインは用意しない。
 
 トークン形式（移植元と完全互換）:
 - 署名付きトークン: `encrypt(data) + "." + HMAC-SHA256(encrypt(data))先頭32hex`

@@ -172,19 +172,15 @@ export function createAuthService(config: AuthConfig) {
     return auth.startsWith("Bearer ") ? auth.slice(7) : null;
   }
 
-  /** Check if request is authenticated via session cookie, Bearer token, or bypass. */
+  /**
+   * Check if request is authenticated via session cookie, Bearer token, or bypass.
+   *
+   * Fail-closed: this resolves the identity exactly like {@link getSessionEmail}
+   * (including the session-store lookup), so a revoked / expired-in-store session,
+   * a store outage, or a token without any identity all return false.
+   */
   async function checkAuth(req: Request): Promise<boolean> {
-    const token = extractSessionToken(req);
-    if (token) {
-      const { expires } = parseTokenParts(token);
-      if (Date.now() <= expires) return true;
-    }
-    const bearer = extractBearerToken(req);
-    if (bearer) {
-      const email = await verifyBearerToken(bearer);
-      return email !== null;
-    }
-    return false;
+    return Boolean(await getSessionEmail(req));
   }
 
   /** Get the email of the authenticated user. */
@@ -236,23 +232,36 @@ export function createAuthService(config: AuthConfig) {
     }
   }
 
-  /** Get the current user's role. New/unmapped users default to "member". */
-  async function getCurrentUserRole(req: Request): Promise<{ email: string; role: Role }> {
+  /**
+   * Get the current user's role. New/unmapped users default to "member".
+   *
+   * Returns null when there is no authenticated identity (no cookie/Bearer,
+   * revoked or expired session, session-store failure, identity-less token).
+   * An unauthenticated request is never treated as admin. The "admin" sentinel
+   * (bypass / fallbackIdentity) still resolves to the admin role.
+   */
+  async function getCurrentUserRole(req: Request): Promise<{ email: string; role: Role } | null> {
     const email = await getSessionEmail(req);
-    if (!email || email === "admin") return { email: email || "admin", role: "admin" };
+    if (!email) return null;
+    if (email === "admin") return { email: "admin", role: "admin" };
     const role = await getOrCreateMember(email);
     return { email, role };
   }
 
   /**
-   * RBAC middleware: returns 403 Response if user lacks required role, or null if authorized.
+   * RBAC middleware: returns 401 Response if the request is unauthenticated,
+   * 403 Response if the user lacks the required role, or null if authorized.
    *
    * Hierarchy semantics: if any of the `allowed` roles is satisfied by the user's rank
    * (user's rank ≥ that allowed role's rank), the user is authorized. Without this,
    * `requireRole(req, "member")` used to 403 admin users (original issue #952).
    */
   async function requireRole(req: Request, ...allowed: Role[]): Promise<Response | null> {
-    const { role } = await getCurrentUserRole(req);
+    const current = await getCurrentUserRole(req);
+    if (!current) {
+      return Response.json({ error: "認証が必要です" }, { status: 401 });
+    }
+    const { role } = current;
     const userRank = ROLE_RANK[role] ?? -1;
     const minAllowedRank = Math.min(...allowed.map((r) => ROLE_RANK[r] ?? Infinity));
     if (userRank >= minAllowedRank) return null;
