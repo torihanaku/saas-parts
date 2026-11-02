@@ -14,11 +14,15 @@
  *      hammer the backing store on every hot-path request.
  *   3. Fall back to a static `slug='admin'` lookup when adminEmail is empty or
  *      the literal sentinel "admin".
- *   4. Resolve members by team-member email first, then default-tenant fallback
- *      (preserves prior behaviour for unmapped emails).
+ *   4. Resolve members by team-member email first.
  *   5. Backfill: when a team-member row exists but its tenant_id is NULL, look up
- *      a tenant by owner email / email domain before falling through to the
- *      default tenant (#952 hotfix).
+ *      a tenant by owner email (#952 hotfix). Email-domain backfill is opt-in
+ *      (`backfillByEmailDomain`).
+ *
+ * SA-0003 (2026-11-02, fail-closed): getTenantId は未ログイン・未登録・lookup 例外の
+ * 利用者を既定テナント（運営者のテナント）へ落とさず null を返す。既定テナントへ送るのは
+ * "admin" センチネルと adminEmail の本人だけ。旧挙動は `fallbackUnmappedToDefaultTenant`
+ * で明示的にオプトインした場合だけ（ログイン済みの未登録 email に限る）。
  *
  * 依存の切り離し:
  *   - Supabase (dashboard_team_members / tenants テーブル) への参照 → `TenantStore`
@@ -76,6 +80,23 @@ export interface TenantResolverOptions<TReq = unknown> {
   adminEmail?: string;
   /** 警告ロガー (デフォルト: JSON を console.warn)。 */
   logWarn?: TenantWarnLogger;
+  /**
+   * 既定 false。true のとき、ログイン済みで member 行もバックフィルも当たらない email を
+   * 既定テナント（運営者のテナント）へ送る（旧挙動）。
+   *
+   * 危険: 誰でもログインできる構成で true にすると、未登録の第三者が運営者のテナントの
+   * データを読み書きできる（SA-0003）。招待制などで「ログインできる＝運営者側の人」と
+   * 保証できる場合だけ使うこと。未ログイン（email が null/空）と lookup 例外は true でも null。
+   */
+  fallbackUnmappedToDefaultTenant?: boolean;
+  /**
+   * 既定 false。true のとき、member 行の tenant_id が NULL で owner_email の完全一致が
+   * 外れた場合に、email ドメインが一致するテナントでもバックフィルする（#952 の旧挙動）。
+   *
+   * 危険: gmail.com などの共有ドメインでは、無関係な利用者が同じドメインの別テナントに
+   * 紐づく。自社ドメインだけで運用し、ドメイン＝所属と保証できる場合だけ使うこと。
+   */
+  backfillByEmailDomain?: boolean;
 }
 
 export interface TenantResolver<TReq = unknown> {
@@ -91,9 +112,18 @@ export interface TenantResolver<TReq = unknown> {
    */
   getOrCreateDefaultTenant(): Promise<string | null>;
   /**
-   * Resolve the tenant_id for the current request's user.
-   * Looks up the team member by email and returns their tenant_id.
-   * Falls back to getOrCreateDefaultTenant for system admin / unmapped users.
+   * Resolve the tenant_id for the current request's user (fail-closed).
+   *
+   * Resolution order:
+   *   1. no session email (null / "") → null（既定テナントを作らない）
+   *   2. "admin" sentinel → getOrCreateDefaultTenant()
+   *   3. member lookup threw → warn + null（adminEmail の本人でも null）
+   *   4. member.tenant_id set → that value
+   *   5. member row with NULL tenant_id → owner_email exact match backfill
+   *      (+ domain match only when `backfillByEmailDomain: true`)
+   *   6. adminEmail itself → getOrCreateDefaultTenant()
+   *   7. `fallbackUnmappedToDefaultTenant: true` → getOrCreateDefaultTenant()
+   *   8. otherwise → null
    */
   getTenantId(req: TReq): Promise<string | null>;
   /** Reset the cached default-tenant id (for tests). */
@@ -106,6 +136,8 @@ export function createTenantResolver<TReq = unknown>(
   const { store, getSessionEmail } = options;
   const adminEmail = options.adminEmail || "";
   const logWarn = options.logWarn ?? defaultTenantWarnLogger;
+  const fallbackUnmappedToDefaultTenant = options.fallbackUnmappedToDefaultTenant === true;
+  const backfillByEmailDomain = options.backfillByEmailDomain === true;
 
   let cachedDefaultTenantId: string | null = null;
 
@@ -154,9 +186,10 @@ export function createTenantResolver<TReq = unknown>(
 
   /**
    * Best-effort: backfill `tenant_id` for a team-member row that has the column NULL
-   * by looking up the tenant whose owner email matches the user's email (or domain).
-   * Avoids the silent fall-through to default tenant when the user already has a
-   * tenant but their team-member row hasn't been linked yet (#952 hotfix).
+   * by looking up the tenant whose owner email matches the user's email exactly.
+   * Domain match is attempted only when `backfillByEmailDomain` is true (SA-0003:
+   * shared domains such as gmail.com would otherwise link unrelated users).
+   * Store errors are treated as "not found" (#952 hotfix).
    */
   async function findTenantByEmailOrDomain(email: string): Promise<string | null> {
     // Try owner_email exact match first.
@@ -166,7 +199,8 @@ export function createTenantResolver<TReq = unknown>(
     } catch {
       /* fall through */
     }
-    // Then try by email domain match against any tenant owner with the same domain.
+    if (!backfillByEmailDomain) return null;
+    // Opt-in: email domain match against any tenant owner with the same domain.
     const domain = email.split("@")[1];
     if (!domain) return null;
     try {
@@ -226,26 +260,38 @@ export function createTenantResolver<TReq = unknown>(
 
   async function getTenantId(req: TReq): Promise<string | null> {
     const email = await getSessionEmail(req);
-    if (!email || email === "admin") return getOrCreateDefaultTenant();
+    // (1) 未ログイン → null。既定テナントを作らない（SA-0003）。
+    if (!email) return null;
+    // (2) "admin" センチネル → 既定テナント（今までどおり）。
+    if (email === "admin") return getOrCreateDefaultTenant();
 
+    let member: TenantMemberRow | null;
     try {
-      const member = await store.findMemberByEmail(email);
-      if (member) {
-        if (member.tenant_id) return member.tenant_id;
-        // Member row exists but tenant_id is NULL — try to find a tenant by
-        // owner email or domain so we don't silently fall through to the default
-        // and trap legitimate users on the wrong tenant (#952 hotfix).
-        const linkable = await findTenantByEmailOrDomain(email);
-        if (linkable) return linkable;
-      }
+      member = await store.findMemberByEmail(email);
     } catch (e: unknown) {
+      // (3) lookup 失敗 → fail-closed（adminEmail の本人でも null）。
       logWarn("tenant: team_members lookup threw", {
         email,
         error: (e as Error).message,
       });
+      return null;
     }
-    // Admin email also falls back to default tenant.
-    return getOrCreateDefaultTenant();
+
+    if (member) {
+      // (4) 紐づき済み。
+      if (member.tenant_id) return member.tenant_id;
+      // (5) member 行はあるが tenant_id が NULL — owner_email 完全一致（opt-in でドメイン）で
+      // バックフィル (#952 hotfix)。
+      const linkable = await findTenantByEmailOrDomain(email);
+      if (linkable) return linkable;
+    }
+
+    // (6) システムオーナー本人 → 既定テナント。
+    if (adminEmail && email === adminEmail) return getOrCreateDefaultTenant();
+    // (7) 明示オプトイン時だけ、ログイン済みの未登録 email を既定テナントへ。
+    if (fallbackUnmappedToDefaultTenant) return getOrCreateDefaultTenant();
+    // (8) 解決できない → null（呼び出し側で 403 等にする）。
+    return null;
   }
 
   return {

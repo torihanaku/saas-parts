@@ -12,12 +12,12 @@
 |---|---|---|
 | `001_multitenant_foundation.sql` | `team_members` に `status`（active/invited/suspended CHECK）と `tenant_id`（tenants FK）を追加。インデックス2本＋service_role のみ許可する RLS | `202603280001_multitenant_foundation.sql` |
 | `002_agency_mode_foundation.sql` | 代理店モードの土台。`tenants.type`（direct/agency）＋`managed_clients uuid[]`、`team_members.assigned_clients`＋3層 role CHECK 拡張、`audit_log` に `risk_level`/`archived_to_gcs`/`gcs_archive_path`、`v_agency_accessible_clients` view | `202604240001_001_agency_mode_foundation.sql` |
-| `003_product_subscriptions.sql` | product-aware 課金。`products` / `product_plans` / `tenant_product_subscriptions`（Stripe customer/subscription 紐付け・tenant×product UNIQUE）/ `tenant_product_entitlements`。RLS 有効化＋seed 例 | `20260510_dd_product_subscriptions.sql` |
+| `003_product_subscriptions.sql` | product-aware 課金。`products` / `product_plans` / `tenant_product_subscriptions`（Stripe customer/subscription 紐付け・tenant×product UNIQUE）/ `tenant_product_entitlements`。RLS（authenticated は自テナントの SELECT のみ・書き込みは service_role のみ）＋REVOKE＋seed 例 | `20260510_dd_product_subscriptions.sql` |
 | `004_stripe_webhook_events.sql` | Stripe Webhook の冪等性テーブル（event_id PK。リトライ時の二重処理防止） | `202603280002_stripe_webhook_events.sql` |
 | `005_audit_logs.sql` | シンプルな append-only 監査ログ `audit_logs`（INSERT/SELECT ポリシーのみ＝実質 immutable） | `202603250010_create_audit_logs.sql` |
 | `006_audit_hash_chain.sql` | `audit_log` へのハッシュチェーン列追加（prev_hash/entry_hash 等・BYTEA）＋`(tenant_id, entry_hash)` UNIQUE＋UPDATE/DELETE REVOKE で改ざん検知 | `202604200003_003_audit_hash_chain.sql` |
 | `007_consent_registry.sql` | GDPR 同意台帳 `consent_registry`（tenant×user×purpose PK・revoked_at で撤回）＋`auth.users.deleted_member_flag`（権限不足時はスキップ） | `202604200005_005_consent_registry.sql` |
-| `008_email_deliveries.sql` | テナント別メール配信ログ `email_deliveries`（bounce 率監視用。status CHECK・tenant RLS・監視用インデックス2本） | `20260507_dd_email_deliveries.sql` |
+| `008_email_deliveries.sql` | テナント別メール配信ログ `email_deliveries`（bounce 率監視用。status CHECK・tenant RLS（authenticated は SELECT のみ・書き込みは service_role のみ）・監視用インデックス2本。再適用可） | `20260507_dd_email_deliveries.sql` |
 | `_helpers_triggers_rls.sql` | 特定テーブルに紐づかない**汎用トリガー・RLS ヘルパー集**（下記「再利用トリガー・RLSヘルパー」参照） | 複数マイグレーションに散在する共通パターンを集約 |
 
 ## 再利用トリガー・RLSヘルパー
@@ -78,16 +78,65 @@ consent_registry (007・tenant_id/user_id は FK なしの疎結合)
 | `consent_registry` | `sup_consent_registry` | 同上（`idx_consent_active` はそのままで可） |
 | `tenants(id)` (008 の FK) | `teams(id)` | 元実装ではテナント親テーブルが `teams` だった。本テンプレートは他ファイルと揃えて `tenants` に統一済み。自環境の親テーブルに合わせる |
 | `{{PRODUCT_KEY}}` ほか (003 の seed) | Folia 製品 5 行の実値 | 自プロダクトの key/name/subdomain/path に置換。アプリ起動時に同期するならこの seed 自体削除も可 |
-| `current_tenant_id()` (008) | 同名関数 | JWT クレーム等から現在の tenant_id を返す SQL 関数を各自定義（例: `(auth.jwt() ->> 'tenant_id')::uuid` を返す STABLE 関数） |
+| `current_tenant_id()` (003/008) | 同名関数 | JWT クレーム等から現在の tenant_id を返す SQL 関数を各自定義（例: `(auth.jwt() ->> 'tenant_id')::uuid` を返す STABLE 関数） |
 | `audit_log` vs `audit_logs` | 同じ二重構造 | 元リポには両方存在（`audit_logs`=シンプル版 #005、`audit_log`=tenant 対応版で 002/006 が拡張）。新規プロジェクトでは片方に統一し、005 を使うなら 002/006 の対象テーブル名・列（`tenant_id`, `occurred_at`）を合わせること |
 
 ## 適用時の注意
 
-- 001/002 の RLS は「API は常に service_role キーでアクセスする」前提。anon/authenticated から直接触る構成なら tenant 判定ポリシー（008 の形式）に差し替える
-- 003 の `tenant_product_subscriptions` / `tenant_product_entitlements` は `TO authenticated` の tenant 分離ポリシー＋`TO service_role` の全許可を明示（`current_tenant_id()` 関数が前提）。ENABLE だけでポリシー未定義だとテーブルオーナーがバイパスしてテナント分離が効かないため
-- 004 / 005 のポリシーは `TO service_role` にロールを明示（`USING (true)` を PUBLIC に開くと anon/authenticated が webhook イベントや監査ログの PII を横断参照できてしまうため）。005 の audit_logs を anon/authenticated から読ませたい場合は tenant_id 列を足して 008 形式のポリシーにする
+- 001/002 の RLS は「API は常に service_role キーでアクセスする」前提。anon/authenticated から直接**読ませる**構成なら、`FOR SELECT TO authenticated USING (tenant_id = (SELECT current_tenant_id()))` の読み取りポリシー（003/008 の形式）を足す。書き込みまで authenticated に開くかはテーブルごとに判断し、課金・権限・監査・ログ系には開かない
+- 003 と 008 の権限モデル:
+  - **authenticated**: 自テナントの行を `SELECT` するだけ（`<t>_tenant_select` ポリシー・`FOR SELECT`）。`SELECT` 以外の権限（`INSERT`/`UPDATE`/`DELETE`/`TRUNCATE`/`TRIGGER`/`REFERENCES`、PG17 以上なら `MAINTAIN` も）はテンプレート内の `REVOKE` で外してある
+  - **anon**: ロールがあれば同じ権限を `REVOKE`（ロールが無い素の Postgres では飛ばす）。テナント表（契約・権利・配信ログ）には anon 向けポリシーが無いので読めない。`products` / `product_plans` は読める（下記）
+  - **service_role**: `<t>_service`（`FOR ALL ... USING (TRUE) WITH CHECK (TRUE)`）で全行を読み書きする。Stripe webhook での契約・権利の更新、メール webhook での配信ログの取り込みはこのキーで行う
+  - `products` / `product_plans` は全テナント共通のカタログ。RLS を有効にし、読み取りは全ロール（`<t>_read`・`FOR SELECT USING (TRUE)`。実際に読めるかは `SELECT` 権限次第）、書き込みは service_role（`<t>_service`）とテーブルオーナーだけ。`syncProductsToDb()` などの同期は service_role かテーブルオーナーで行う
+  - 5 表とも `BEFORE TRUNCATE` トリガー（`<t>_deny_truncate` → 関数 `deny_truncate_unless_owner()`）で、テーブルオーナー（とそのメンバー・スーパーユーザー）以外の `TRUNCATE` を `42501` で拒否する。`TRUNCATE` には RLS が効かないため。service_role も拒否される
+    - 仕組み: 関数は実行したロール（`current_user`）がテーブルオーナーのロールのメンバーかを `pg_catalog.pg_has_role` と `pg_catalog.pg_class.relowner` で判定する。関数に `SET search_path = pg_catalog, pg_temp` を付け、カタログ名も `pg_catalog.` で完全修飾しているので、呼び出し側が一時表 `pg_temp.pg_class` を作ってオーナーを偽装しても判定は変わらない（`test/billing_rls.sql` の AC-65 で確認）
+    - 前提（これが崩れると止まらない）: トリガーが有効のまま残っていること（無効化・削除はテーブルオーナーにしかできない）／呼び出し側がスーパーユーザーでも、テーブルオーナーのロールのメンバーでもないこと／`session_replication_role = replica` に切り替えられないこと（切り替えると通常のトリガーは発火しない。既定ではスーパーユーザーだけが設定でき、PG15 以上で `GRANT SET ON PARAMETER session_replication_role` を与えると一般ロールも設定できてしまう）／関数 `deny_truncate_unless_owner()` をオーナー以外が書き換えられないこと
+  - ホスト側で `GRANT ALL` を戻した場合に止まるもの・止まらないもの（authenticated について `test/billing_rls.sql` の AC-62 で確認。anon も書き込み系ポリシーが無いので同じ）:
+    - 止まる: authenticated/anon の `INSERT`/`UPDATE`/`DELETE`（5 表とも書き込み系ポリシーが無いので RLS で拒否か 0 行）と `TRUNCATE`（上の `BEFORE TRUNCATE` トリガーで拒否。上記の前提が保たれている場合に限る。AC-62・AC-65 で確認）
+    - 止まらない: `TRIGGER`/`REFERENCES`/`MAINTAIN` 権限は戻ってしまう（ポリシーでは止められない）。`GRANT ALL` を戻したらテンプレートを流し直して `REVOKE` をかけ直すこと
+    - 止まらない（特に危険）: `TRIGGER` 権限が戻ると、authenticated/anon が契約・権利表に自作の `BEFORE UPDATE`/`BEFORE INSERT` トリガーを付けられる。そのトリガーは service_role の更新（Stripe webhook など）の中で動くので、書き込まれる `plan_key`・`status`・`limit_value` を書き換えて課金なしの上位プラン化（課金昇格）に繋がりうる。テンプレートを流し直せば `REVOKE` で `TRIGGER` 権限は外れるが、**既に付けられたトリガーは消えない**ので、`SELECT tgrelid::regclass, tgname FROM pg_trigger WHERE NOT tgisinternal;` で見覚えの無いトリガーが無いか確かめ、あれば `DROP TRIGGER` すること
+- 003/008 の前提: `current_tenant_id()` 関数と、ロール `authenticated` / `service_role` が存在すること（Supabase には最初からある。素の Postgres では先に `CREATE ROLE`）。`anon` は任意（無ければ REVOKE を飛ばす）。ENABLE だけでポリシー未定義だとテーブルオーナーがバイパスしてテナント分離が効かないため、ポリシーは必ず明示している
+- 003 と 008 は何度流しても通る（旧ポリシーを `DROP POLICY IF EXISTS` してから作り直す）。`psql -v ON_ERROR_STOP=1 -f ...` での再適用を想定している
+- 004 / 005 のポリシーは `TO service_role` にロールを明示（`USING (true)` を PUBLIC に開くと anon/authenticated が webhook イベントや監査ログの PII を横断参照できてしまうため）。005 の audit_logs を anon/authenticated から読ませたい場合は tenant_id 列を足して 008 形式の読み取りポリシー（`FOR SELECT TO authenticated`）にする
 - 006 は追記専用化のため `REVOKE UPDATE, DELETE ... FROM PUBLIC` を含む。管理オペレーションも UPDATE 不可になる点に注意
 - ハッシュチェーン（006）の prev_hash/entry_hash の計算・検証はアプリ側の責務（このテンプレートはスキーマのみ）
+
+## 破壊的変更（SA-0001 の修正・2026-11）
+
+旧版の 003/008 は `tenant_product_subscriptions` / `tenant_product_entitlements` / `email_deliveries` に `FOR ALL TO authenticated` の tenant ポリシー（`<t>_tenant`）を付けていた。これだとテナントの一般利用者が、自テナントの `plan_key`・`status`・`limit_value` を書き換えたり、配信ログを偽造・削除したりできた。新版では次のように変わる。
+
+- authenticated は上の 3 表を **読むだけ**になる。authenticated（Supabase の anon キー＋ユーザー JWT）で直接書いていたアプリは、`42501 permission denied` で拒否されるか 0 行更新になる。書き込みはサーバー側で service_role キーを使う形に移すこと
+- 上の 3 表と `products` / `product_plans` から、authenticated と anon の `SELECT` 以外の権限（`INSERT`/`UPDATE`/`DELETE`/`TRUNCATE`/`TRIGGER`/`REFERENCES`、PG17 以上なら `MAINTAIN`）を外す
+- `products` / `product_plans` に RLS が付く（読み取りは全ロール、書き込みは service_role とテーブルオーナーだけ）。authenticated/anon で直接カタログを書いていたアプリは拒否される
+- 5 表に `BEFORE TRUNCATE` トリガーが付き、テーブルオーナー以外（service_role を含む）の `TRUNCATE` は `42501` で拒否される。関数 `deny_truncate_unless_owner()` が増える（003/008 で共通・`CREATE OR REPLACE`）
+- ポリシー名が変わる: `<t>_tenant`（FOR ALL）は削除され、`<t>_tenant_select`（FOR SELECT）になる。`<t>_service` は変わらない
+- 008 は旧版が `DROP POLICY IF EXISTS` を持たず再適用で落ちたが、新版は何度流しても通る
+
+### 適用済みの DB を直す手順
+
+1. 新しい 003 と 008 をそのまま流し直す（`psql -v ON_ERROR_STOP=1 -f 003_product_subscriptions.sql` → `008_email_deliveries.sql`。テーブル名をリネームしているならポリシー名・テーブル名も同じ置換をしてから流す）。旧ポリシーは DROP され、読み取り専用のポリシーと REVOKE が入る
+2. authenticated に書き込み系のポリシーが残っていないことを確かめる。次のクエリが **0 行**なら OK:
+
+   ```sql
+   SELECT tablename, policyname, cmd, roles
+     FROM pg_policies
+    WHERE tablename IN ('tenant_product_subscriptions', 'tenant_product_entitlements', 'email_deliveries')
+      AND 'authenticated' = ANY (roles)
+      AND cmd IN ('ALL', 'INSERT', 'UPDATE', 'DELETE');
+   ```
+
+3. 書き込み権限が外れていることを確かめる。次のクエリが **0 行**なら OK:
+
+   ```sql
+   SELECT r AS role, t AS table_name, p AS privilege
+     FROM unnest(ARRAY['authenticated', 'anon']) AS r,
+          unnest(ARRAY['tenant_product_subscriptions', 'tenant_product_entitlements',
+                       'email_deliveries', 'products', 'product_plans']) AS t,
+          unnest(ARRAY['INSERT', 'UPDATE', 'DELETE', 'TRUNCATE']) AS p
+    WHERE EXISTS (SELECT 1 FROM pg_roles WHERE rolname = r)
+      AND has_table_privilege(r, t, p);
+   ```
 
 ## 依存 / 想定ランタイム
 

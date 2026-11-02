@@ -536,34 +536,200 @@ describe("RBAC", () => {
     expect(getSecureOrigin(req, url)).toBe("https://localhost:3000");
   });
 
-  it("getCurrentUserRole returns admin for default session (no email)", async () => {
+  it("AC-27: getCurrentUserRole returns admin for default session (no email)", async () => {
     const cookie = await auth.createSessionCookie();
     const req = new Request("http://localhost/api/test", {
       headers: { Cookie: `session=${cookie}` },
     });
-    // Default session has email "admin" → getCurrentUserRole returns admin role
-    const { email, role } = await auth.getCurrentUserRole(req);
-    expect(email).toBe("admin");
-    expect(role).toBe("admin");
+    // Default session has email "admin" (fallbackIdentity) → getCurrentUserRole returns admin role
+    expect(await auth.getCurrentUserRole(req)).toEqual({ email: "admin", role: "admin" });
   });
 
-  it("getCurrentUserRole returns member role for regular user", async () => {
+  it("AC-26: getCurrentUserRole returns member role for regular user", async () => {
     const svc = makeAuth({ roleResolver: vi.fn().mockResolvedValue("member") });
     const cookie = await svc.createSessionCookie("user@example.com");
     const req = new Request("http://localhost/api/test", {
       headers: { Cookie: `session=${cookie}` },
     });
 
-    const { email, role } = await svc.getCurrentUserRole(req);
-    expect(email).toBe("user@example.com");
-    expect(role).toBe("member");
+    expect(await svc.getCurrentUserRole(req)).toEqual({ email: "user@example.com", role: "member" });
   });
 
-  it("getCurrentUserRole returns admin for unauthenticated request", async () => {
+  it("AC-16: getCurrentUserRole returns null for unauthenticated request", async () => {
     const req = new Request("http://localhost/api/test");
-    // No session → getSessionEmail returns null → getCurrentUserRole defaults to admin
-    const { email, role } = await auth.getCurrentUserRole(req);
-    expect(email).toBe("admin");
-    expect(role).toBe("admin");
+    // No session → getSessionEmail returns null → getCurrentUserRole returns null (never admin)
+    expect(await auth.getCurrentUserRole(req)).toBeNull();
+  });
+});
+
+// --- SA-0002: セッションが取れないときに管理者扱いにしない（監査 V2 #0 を反転） ---
+
+const FAKE_UUID = "550e8400-e29b-41d4-a716-446655440000";
+
+/** 監査の再現（V2 #0）と同じ形の Map ベースのストア。revoked / throwIt で失効・障害を作る。 */
+function makeRevocableStore() {
+  const state = { revoked: false, throwIt: false };
+  const rows = new Map<string, { email: string; expiresAt: Date }>();
+  const store = {
+    createSession: vi.fn(async (s: { id: string; email: string; expiresAt: Date }) => {
+      rows.set(s.id, { email: s.email, expiresAt: s.expiresAt });
+      return true;
+    }),
+    getSession: vi.fn(async (id: string) => {
+      if (state.throwIt) throw new Error("db down");
+      return state.revoked ? null : (rows.get(id) ?? null);
+    }),
+  };
+  return { state, store };
+}
+
+function cookieReq(token: string): Request {
+  return new Request("http://localhost/admin", { headers: { Cookie: `session=${token}` } });
+}
+
+async function expect401(res: Response | null) {
+  expect(res).not.toBeNull();
+  expect(res!.status).toBe(401);
+  const body = await res!.json();
+  expect(body.error).toBe("認証が必要です");
+  // 401 本文に管理者ロールを示す値が入っていないこと
+  expect(JSON.stringify(body)).not.toContain('"admin"');
+}
+
+describe("SA-0002: unauthenticated requests are never admin (G4)", () => {
+  it("AC-14: requireRole(req, 'admin') returns 401 without cookie or Bearer", async () => {
+    const req = new Request("http://localhost/admin");
+    await expect401(await auth.requireRole(req, "admin"));
+  });
+
+  it("AC-15: requireRole(req, 'viewer') returns 401 without cookie or Bearer", async () => {
+    const req = new Request("http://localhost/admin");
+    await expect401(await auth.requireRole(req, "viewer"));
+  });
+
+  it("AC-16: getCurrentUserRole returns null without cookie or Bearer (store-backed service)", async () => {
+    const { store } = makeRevocableStore();
+    const svc = makeAuth({ adminEmail: "owner@corp.com", sessionStore: store });
+    expect(await svc.getCurrentUserRole(new Request("http://localhost/admin"))).toBeNull();
+  });
+});
+
+describe("SA-0002: revoked / failing / identity-less sessions are rejected (G5)", () => {
+  it("AC-17: requireRole(req, 'admin') returns 401 after the stored session is revoked", async () => {
+    const { state, store } = makeRevocableStore();
+    const svc = makeAuth({ adminEmail: "owner@corp.com", sessionStore: store });
+    const token = await svc.createSessionCookie("member@corp.com");
+    // 前提: ストア経由の uuid トークンで、失効前は member として解決される
+    expect(store.createSession).toHaveBeenCalledTimes(1);
+    expect(await svc.getCurrentUserRole(cookieReq(token))).toEqual({
+      email: "member@corp.com",
+      role: "member",
+    });
+
+    state.revoked = true;
+    await expect401(await svc.requireRole(cookieReq(token), "admin"));
+    expect(await svc.getCurrentUserRole(cookieReq(token))).toBeNull();
+  });
+
+  it("AC-18: requireRole(req, 'viewer') returns 401 when the session store throws", async () => {
+    const { state, store } = makeRevocableStore();
+    const svc = makeAuth({ adminEmail: "owner@corp.com", sessionStore: store });
+    const token = await svc.createSessionCookie("member@corp.com");
+    state.throwIt = true;
+    await expect401(await svc.requireRole(cookieReq(token), "viewer"));
+    expect(store.getSession).toHaveBeenCalled();
+  });
+
+  it("AC-19: requireRole(req, 'admin') returns 401 for a validly signed legacy token without email", async () => {
+    const legacy = auth.signToken(`auth:${Date.now() + 86400000}`);
+    expect(auth.verifyToken(legacy)).toBe(true); // 署名は正しい
+    await expect401(await auth.requireRole(cookieReq(legacy), "admin"));
+  });
+
+  it("AC-20: requireRole(req, 'admin') returns 401 for a session:{uuid} token on a store-less service", async () => {
+    const uuidToken = auth.signToken(`session:${FAKE_UUID}:${Date.now() + 86400000}`);
+    expect(auth.verifyToken(uuidToken)).toBe(true);
+    await expect401(await auth.requireRole(cookieReq(uuidToken), "admin"));
+  });
+});
+
+describe("SA-0002: checkAuth consults the session store (G6)", () => {
+  it("AC-21: checkAuth is false when getSession returns null (revoked)", async () => {
+    const { state, store } = makeRevocableStore();
+    const svc = makeAuth({ sessionStore: store });
+    const token = await svc.createSessionCookie("member@corp.com");
+    state.revoked = true;
+    expect(await svc.checkAuth(cookieReq(token))).toBe(false);
+    expect(store.getSession).toHaveBeenCalled();
+  });
+
+  it("AC-22: checkAuth is false when getSession throws", async () => {
+    const { state, store } = makeRevocableStore();
+    const svc = makeAuth({ sessionStore: store });
+    const token = await svc.createSessionCookie("member@corp.com");
+    state.throwIt = true;
+    expect(await svc.checkAuth(cookieReq(token))).toBe(false);
+  });
+
+  it("AC-23: checkAuth is false when the stored session's expiresAt is in the past", async () => {
+    const getSession = vi.fn().mockResolvedValue({
+      email: "stale@example.com",
+      expiresAt: new Date(Date.now() - 1000),
+    });
+    const svc = makeAuth({
+      sessionStore: { createSession: vi.fn().mockResolvedValue(true), getSession },
+    });
+    // トークン自体の期限は先（ストア側の期限だけが切れている）
+    const uuidToken = svc.signToken(`session:${FAKE_UUID}:${Date.now() + 86400000}`);
+    expect(await svc.checkAuth(cookieReq(uuidToken))).toBe(false);
+    expect(getSession).toHaveBeenCalledWith(FAKE_UUID);
+  });
+
+  it("AC-24: checkAuth is true when getSession returns an unexpired {email}", async () => {
+    const getSession = vi.fn().mockResolvedValue({
+      email: "stored@example.com",
+      expiresAt: new Date(Date.now() + 86400000),
+    });
+    const svc = makeAuth({
+      sessionStore: { createSession: vi.fn().mockResolvedValue(true), getSession },
+    });
+    const uuidToken = svc.signToken(`session:${FAKE_UUID}:${Date.now() + 86400000}`);
+    expect(await svc.checkAuth(cookieReq(uuidToken))).toBe(true);
+  });
+
+  it("AC-25: checkAuth is true for createSessionCookie('user@example.com') on a store-less service", async () => {
+    const cookie = await auth.createSessionCookie("user@example.com");
+    expect(await auth.checkAuth(cookieReq(cookie))).toBe(true);
+  });
+});
+
+describe("SA-0002: existing correct behavior is preserved (G7)", () => {
+  it("AC-26: getCurrentUserRole returns {email, role:'member'} when roleResolver says 'member'", async () => {
+    const svc = makeAuth({ roleResolver: vi.fn().mockResolvedValue("member") });
+    const cookie = await svc.createSessionCookie("user@example.com");
+    expect(await svc.getCurrentUserRole(cookieReq(cookie))).toEqual({
+      email: "user@example.com",
+      role: "member",
+    });
+  });
+
+  it("AC-27: getCurrentUserRole returns {email:'admin', role:'admin'} for createSessionCookie() (fallbackIdentity)", async () => {
+    const cookie = await auth.createSessionCookie();
+    expect(await auth.getCurrentUserRole(cookieReq(cookie))).toEqual({ email: "admin", role: "admin" });
+  });
+
+  it("AC-28: bypass request passes requireRole(req, 'admin') and checkAuth", async () => {
+    const svc = makeAuth({
+      isBypassRequest: (req) => req.headers.get("X-E2E-Bypass") === "fake-bypass-token",
+    });
+    const req = () => new Request("http://localhost/admin", { headers: { "X-E2E-Bypass": "fake-bypass-token" } });
+    expect(await svc.requireRole(req(), "admin")).toBeNull();
+    expect(await svc.checkAuth(req())).toBe(true);
+  });
+
+  it("AC-29: requireSuperAdmin returns null for the adminEmail user's own session", async () => {
+    const svc = makeAuth({ adminEmail: "owner@example.com" });
+    const cookie = await svc.createSessionCookie("owner@example.com");
+    expect(await svc.requireSuperAdmin(cookieReq(cookie))).toBeNull();
   });
 });

@@ -16,6 +16,8 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 
 import { createRequireClientAccess } from "./require-client-access";
 import type { TeamMemberRow, TenantRow } from "./store";
+// AC-43: 修正後の実物の resolver を注入する（workspace 依存は無いので相対パスで読む・design.md §④）
+import { createTenantResolver, type TenantStore } from "../../tenant-resolver/src/index";
 
 const mockSessionEmail = vi.fn<() => Promise<string | null>>();
 const mockGetTenantId = vi.fn<() => Promise<string | null>>();
@@ -247,5 +249,96 @@ describe("requireClientAccess — tenant fallback via getTenantId", () => {
     const res = await requireClientAccess(makeReq(), CLIENT_A);
     expect(res).toBeNull();
     expect(mockGetTenantId).toHaveBeenCalled();
+  });
+});
+
+describe("requireClientAccess — member 行の無い利用者 (SA-0003, G10)", () => {
+  it("AC-41: 未登録の email (member=null) は getTenantId が clientId を返しても 403", async () => {
+    mockSessionEmail.mockResolvedValue("unregistered@evil.example");
+    mockFindMemberByEmail.mockResolvedValue(null);
+    mockGetTenantId.mockResolvedValue(CLIENT_A);
+    const res = await requireClientAccess(makeReq(), CLIENT_A);
+    expect(res).not.toBeNull();
+    expect(res!.status).toBe(403);
+    expect(mockGetTenantId).not.toHaveBeenCalled();
+  });
+
+  it("AC-42: 未登録の email の 403 で logAudit が access_denied・resourceId=clientId で 1 回呼ばれる", async () => {
+    mockSessionEmail.mockResolvedValue("unregistered@evil.example");
+    mockFindMemberByEmail.mockResolvedValue(null);
+    mockGetTenantId.mockResolvedValue(CLIENT_A);
+    await requireClientAccess(makeReq(), CLIENT_A);
+    expect(mockLogAudit).toHaveBeenCalledTimes(1);
+    const [, evt] = mockLogAudit.mock.calls[0]!;
+    expect(evt).toMatchObject({ action: "access_denied", resourceId: CLIENT_A });
+  });
+
+  // 監査 V2 #9 の再現テストを反転: 実物の resolver を挟んでも未登録者は tenant-admin に入れない
+  function adminTenantStore(over: Partial<TenantStore> = {}): TenantStore {
+    return {
+      findMemberByEmail: async (e: string) => (e === "alice@acme.com" ? { tenant_id: "tenant-acme" } : null),
+      findTenantByOwnerEmail: async () => null,
+      findTenantBySlug: async (s: string) => (s === "admin" ? "tenant-admin" : null),
+      findTenantByDomain: async () => null,
+      createTenant: async () => "tenant-admin",
+      ...over,
+    };
+  }
+
+  it("AC-41: 監査再現 V2#9 の反転 — member 行の無い stranger は実物の resolver 経由でも tenant-admin に 403", async () => {
+    const resolver = createTenantResolver<string>({
+      store: adminTenantStore(),
+      getSessionEmail: (e) => e,
+      logWarn: () => {},
+    });
+    const rca = createRequireClientAccess<string>({
+      store: { findMemberByEmail: async () => null, findTenantById: async () => null },
+      getSessionEmail: async (e) => e,
+      getTenantId: (e) => resolver.getTenantId(e),
+    });
+    const res = await rca("stranger@evil.example", "tenant-admin");
+    expect(res).not.toBeNull();
+    expect(res!.status).toBe(403);
+    expect((await rca("stranger@evil.example", "tenant-acme"))?.status).toBe(403);
+  });
+
+  it("AC-43: member 行はあるが tenant_id NULL の stranger は、修正後の実物の resolver を注入しても tenant-admin に 403", async () => {
+    const resolver = createTenantResolver<string>({
+      store: adminTenantStore({
+        findMemberByEmail: async (e: string) =>
+          e === "stranger@evil.example" ? { tenant_id: null } : e === "alice@acme.com" ? { tenant_id: "tenant-acme" } : null,
+      }),
+      getSessionEmail: (e) => e,
+      logWarn: () => {},
+    });
+    const rca = createRequireClientAccess<string>({
+      store: {
+        findMemberByEmail: async (e: string) =>
+          e === "stranger@evil.example" ? member({ email: e, role: "member", tenant_id: null }) : null,
+        findTenantById: async () => null,
+      },
+      getSessionEmail: async (e) => e,
+      getTenantId: (e) => resolver.getTenantId(e),
+    });
+    const res = await rca("stranger@evil.example", "tenant-admin");
+    expect(res).not.toBeNull();
+    expect(res!.status).toBe(403);
+  });
+
+  it("AC-44: member の tenant_id が null で getTenantId=CLIENT_A なら通す (null)", async () => {
+    mockSessionEmail.mockResolvedValue("unlinked@example.com");
+    mockFindMemberByEmail.mockResolvedValue(member({ role: "member", tenant_id: null }));
+    mockGetTenantId.mockResolvedValue(CLIENT_A);
+    const res = await requireClientAccess(makeReq(), CLIENT_A);
+    expect(res).toBeNull();
+    expect(mockLogAudit).not.toHaveBeenCalled();
+  });
+
+  it("AC-45: getSessionEmail が null なら 401", async () => {
+    mockSessionEmail.mockResolvedValue(null);
+    const res = await requireClientAccess(makeReq(), CLIENT_A);
+    expect(res).not.toBeNull();
+    expect(res!.status).toBe(401);
+    expect(mockFindMemberByEmail).not.toHaveBeenCalled();
   });
 });

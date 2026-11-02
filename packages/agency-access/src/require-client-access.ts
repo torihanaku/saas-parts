@@ -8,6 +8,7 @@
  *   - agency_member: team member の assigned_clients に clientId 含む → pass
  *   - client_viewer: member の tenant_id === clientId → pass
  *   - direct role (admin/editor/viewer/member): 自身の tenant_id === clientId → pass
+ *   - member 行が無い (未登録の email) → 所属テナント無しとして扱う (getTenantId は呼ばない)
  *   - それ以外 → 403 + audit log (risk_level: medium, action: access_denied)
  *
  * 使用例:
@@ -37,7 +38,11 @@ export interface RequireClientAccessDeps<TReq = Request> {
   store: AgencyAccessStore;
   /** リクエストからセッション email を取り出す (元: getSessionEmail)。 */
   getSessionEmail: (req: TReq) => Promise<string | null>;
-  /** member 行に tenant_id が無いときのフォールバック解決 (元: getTenantId)。 */
+  /**
+   * member 行の tenant_id が NULL のときだけ呼ぶフォールバック解決 (元: getTenantId)。
+   * member 行が無い (未登録の email) ときは呼ばない — 既定テナントへのフォールバックで
+   * 他テナントに入れてしまうため (SA-0003)。
+   */
   getTenantId: (req: TReq) => Promise<string | null>;
   /** 403 時の監査記録 (元: logAudit)。省略可。 */
   logAudit?: (req: TReq, event: AccessDeniedAuditEvent) => Promise<void> | void;
@@ -97,7 +102,9 @@ export function createRequireClientAccess<TReq = Request>(
     // 1) user の role + tenant_id + assigned_clients を取得
     const member = await store.findMemberByEmail(email);
     const role = (member?.role ?? "member") as TeamMemberRole;
-    const userTenantId = member?.tenant_id ?? (await getTenantId(req));
+    // member 行が無い (未登録の email) なら所属テナントは無い。getTenantId は呼ばない
+    // (システムオーナーでも同じ。SA-0003)。
+    const userTenantId = member ? (member.tenant_id ?? (await getTenantId(req))) : null;
 
     // 2) 自身の tenant === client なら常に pass (direct role, client_viewer 両方)
     if (userTenantId && userTenantId === clientId) {
