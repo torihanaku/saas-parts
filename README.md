@@ -5,7 +5,7 @@
 [![RLS Isolation](https://github.com/torihanaku/saas-parts/actions/workflows/rls-test.yml/badge.svg)](https://github.com/torihanaku/saas-parts/actions/workflows/rls-test.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 
-SaaS開発でよく必要になる「配管」を、実運用SaaSから抽出・脱結合した **自己完結・依存注入式・テスト付き** のTypeScript部品集です（bun / npm workspaces monorepo）。**全112パッケージ＝汎用96＋機能キット10＋テンプレート6・約3,443テストgreen**。
+SaaS開発でよく必要になる「配管」を、実運用SaaSから抽出・脱結合した **自己完結・依存注入式・テスト付き** のTypeScript部品集です（bun / npm workspaces monorepo）。**全113パッケージ＝汎用96＋機能キット11＋テンプレート6・3,619テストgreen**。
 
 認証・課金(Stripe)・マルチテナント/RLS・監査ログ・GDPR・レート制限・Webhook配信 … といった「作るのは面倒だが、間違えると事故になる20%」を、そのまま使える形で提供します。
 
@@ -38,18 +38,18 @@ SaaS開発でよく必要になる「配管」を、実運用SaaSから抽出・
 
 | パッケージ | 用途 | runtime | テスト |
 |---|---|---|---|
-| auth-session | HMAC署名+AES-GCMのセッション/招待トークン、Cookie/Bearer認証、RBAC | node | 80 |
+| auth-session | HMAC署名+AES-GCMのセッション/招待トークン、Cookie/Bearer認証、RBAC | node | 100 |
 | security-headers | CSP/HSTS等ヘッダー・CORS許可リスト・CSRF Originチェック | any | 41 |
-| oauth-manager | OAuth 2.0認可コードフロー（PKCE/state CSRF/リフレッシュ） | node | 52 |
+| oauth-manager | OAuth 2.0認可コードフロー（PKCE/state CSRF/リフレッシュ） | node | 54 |
 | saml-sp | SAML 2.0 SP（アサーション検証/メタデータXML） | node | 30 |
 | rate-limiter | スライディングウィンドウ・レートリミッター（ティア/IPリスト/統計） | node\|bun | 32 |
-| http-helpers | gzip/ETag/ページネーション/タイムアウトfetch | node | 21 |
-| cache | Redis注入+メモリフォールバックのキャッシュ層 | any | 44 |
-| persistence | 注入DAL上の汎用CRUD `PersistenceLayer<T>` | any | 25 |
-| supabase-dal | テーブル非依存のSupabase RESTラッパー | any | 34 |
+| http-helpers | gzip/ETag/ページネーション/タイムアウトfetch | node | 23 |
+| cache | Redis注入+メモリフォールバックのキャッシュ層 | any | 45 |
+| persistence | 注入DAL上の汎用CRUD `PersistenceLayer<T>` | any | 30 |
+| supabase-dal | テーブル非依存のSupabase RESTラッパー | any | 41 |
 | feature-flags | envトグル+テナント別オーバーライド+監査つきフラグ判定 | any | 41 |
 | env-config | zodベース `defineEnv` 環境変数ハーネス | any | 16 |
-| job-scheduler | 名前付きジョブのインターバル実行スケジューラ | any | 32 |
+| job-scheduler | 名前付きジョブのインターバル実行スケジューラ | any | 34 |
 | webhook-delivery | 署名付きWebhook配信（監査ログ/バックオフ再送） | node | 14 |
 | claude-api | Anthropic Messages APIラッパー（Tool Use/使用量フック） | any | 32 |
 | embeddings | マルチプロバイダ埋め込み抽象化+コストガードレール | any | 50 |
@@ -57,62 +57,62 @@ SaaS開発でよく必要になる「配管」を、実運用SaaSから抽出・
 | react-hooks | useIsMobile/useFetch/useFocusTrap/フラグ/AuthContext | browser | 22 |
 | infra-templates | Dockerfile/CI/pre-push/検証スクリプト雛形（Bun+Cloud Run） | template | — |
 | **─ バッチ2 ─** | | | |
-| tenant-resolver | メール→tenant_id解決（キャッシュ/ドメインバックフィル/ガード） | node | 20 |
+| tenant-resolver | メール→tenant_id解決（キャッシュ/ドメインバックフィル/ガード） | node | 34 |
 | tenant-secrets | テナント別暗号化シークレット保管庫（BYOK・AES-256-GCM） | node | 32 |
-| agency-access | 代理店マルチクライアント委任（3層role・アクセス制御・監査） | node | 26 |
-| stripe-billing | Stripe Webhook（署名検証/冪等性）＋Checkout/Portal | node | 25 |
+| agency-access | 代理店マルチクライアント委任（3層role・アクセス制御・監査） | node | 33 |
+| stripe-billing | Stripe Webhook（署名検証/冪等性）＋Checkout/Portal | node | 26 |
 | usage-quota | プラン別アクション日次クォータ（UTC 0時リセット） | node/edge | 29 |
 | product-registry | 製品×プラン×Stripe Price×エンタイトルメントのレジストリ | node/edge | 18 |
-| audit-log | SHA-256ハッシュチェーン付き監査ログ＋改ざん検証 | node | 19 |
-| gdpr | GDPRカスケード削除＋残渣検証＋JSON/CSVエクスポート | node | 23 |
+| audit-log | SHA-256ハッシュチェーン付き監査ログ＋改ざん検証 | node | 20 |
+| gdpr | GDPRカスケード削除＋残渣検証＋JSON/CSVエクスポート | node | 25 |
 | consent | 目的ベース同意管理（キャッシュ/失効カスケード/法的根拠） | node/edge | 17 |
-| email | Resend APIラッパー＋メールテンプレ（招待/トライアル/ドリップ） | node/edge | 15 |
+| email | Resend APIラッパー＋メールテンプレ（招待/トライアル/ドリップ） | node/edge | 22 |
 | push-notifications | Web Push土台（購読検証/VAPID/注入式sender） | node/edge | 32 |
 | reauth | 再認証トークン＋タイミング攻撃緩和（OTP/2FA可） | node | 18 |
 | api-keys | 公開APIキー管理（SHA-256ハッシュ保存/スコープ/失効） | node/edge | 20 |
 | resilience | リトライ+サーキットブレーカー+TTL付きLRU | any | 30 |
 | logger | PIIマスキング構造化ログ+リクエストコンテキスト | node | 30 |
-| validation | 入力バリデーション＋エラー封筒 | node/edge | 15 |
+| validation | 入力バリデーション＋エラー封筒 | node/edge | 16 |
 | transcribe-client | AssemblyAI話者分離書き起こしラッパー | node | 11 |
-| transcript-parser | 字幕VTT/SRT/plain→話者付き素テキスト変換 | any | 19 |
-| storage-upload | Supabase Storageテナント分離アップロード | node/edge | 6 |
-| browser-utils | BOM付きCSVダウンロード+日付フォーマッタ | browser | 12 |
+| transcript-parser | 字幕VTT/SRT/plain→話者付き素テキスト変換 | any | 21 |
+| storage-upload | Supabase Storageテナント分離アップロード | node/edge | 11 |
+| browser-utils | BOM付きCSVダウンロード+日付フォーマッタ | browser | 15 |
 | sql-templates | Postgresマイグレーション雛形8本（テナント/課金/監査/GDPR） | SQL | — |
 | **─ バッチ3: アルゴリズム ─** | | | |
-| bm25 | BM25ランキング | any | 17 |
+| bm25 | BM25ランキング | any | 20 |
 | thompson-bandit | ThompsonサンプリングA/B割当 | any | 16 |
 | stats-sim | モンテカルロ+MMM弾力性抽出 | any | 21 |
-| sql-generator | 自然言語→SQL+SELECT限定バリデータ | any | 26 |
+| sql-generator | 自然言語→SQL+SELECT限定バリデータ | any | 31 |
 | anomaly-detection | 閾値異常検出器+監視オーケストレータ | any | 32 |
 | **─ バッチ3: セキュリティ/運用 ─** | | | |
-| security-utils | Webhook署名/SSRF対策URL検証/安全path/PIIハッシュ | node/edge | 42 |
+| security-utils | Webhook署名/SSRF対策URL検証/安全path/PIIハッシュ | node/edge | 76 |
 | rls-jwt | RLS段階ロールアウト用テナントJWT | node | 22 |
 | canary-rollout | 決定的ハッシュ段階ロールアウト | any | 7 |
 | deployment-snapshot | デプロイ前スナップショット+ロールバック記録 | any | 5 |
-| audit-archive | 監査イベントJSONLコールドアーカイブ | any | 7 |
-| config-management | 設定カタログ+外部サービスヘルスチェック | node/edge | 51 |
+| audit-archive | 監査イベントJSONLコールドアーカイブ | any | 8 |
+| config-management | 設定カタログ+外部サービスヘルスチェック | node/edge | 53 |
 | **─ バッチ3: ビジネス ─** | | | |
-| okr-service | OKR CRUD+自動進捗更新 | any | 20 |
-| lead-scorer | 3軸リードスコアリング+MQL判定 | any | 13 |
-| benchmark-aggregator | k-匿名業界ベンチマーク集計 | node | 24 |
-| template-marketplace | テンプレ市場（匿名化/投稿/クローン/レビュー） | node | 51 |
+| okr-service | OKR CRUD+自動進捗更新 | any | 21 |
+| lead-scorer | 3軸リードスコアリング+MQL判定 | any | 14 |
+| benchmark-aggregator | k-匿名業界ベンチマーク集計 | node | 26 |
+| template-marketplace | テンプレ市場（匿名化/投稿/クローン/レビュー） | node | 52 |
 | customer-intelligence | 顧客プロファイル+チャーン/購買意欲 | any | 17 |
 | widget-store | ダッシュボード/ウィジェット永続化 | node/edge | 32 |
 | bigquery-admin | テナント別暗号化BQ認証情報+クエリ実行 | node | 20 |
 | **─ バッチ3: 通信/フロント ─** | | | |
 | slack-harness | Slackユーザー解決+Block Kit構築/DM | node/edge | 22 |
 | channel-summarizer | マルチチャネル統合LLM要約 | any | 16 |
-| email-decision-parser | メール返信から承認/却下抽出 | any | 14 |
-| image-gen | マルチプロバイダAI画像生成 | node/bun | 24 |
+| email-decision-parser | メール返信から承認/却下抽出 | any | 17 |
+| image-gen | マルチプロバイダAI画像生成 | node/bun | 26 |
 | notifications | アプリ内通知フルスタック（server+client） | any/browser | 22 |
 | command-palette | コマンドパレットclient | browser | 20 |
-| live-state | polling+SSE状態同期フック | browser | 9 |
+| live-state | polling+SSE状態同期フック | browser | 10 |
 | analytics-client | 計測フック（sendBeacon対応） | browser | 10 |
 | push-client | Web Push購読ライフサイクルフック | browser | 13 |
 | **─ バッチ3: 機能キット ─** | | | |
-| kit-approval-workflow | 承認ワークフロー（申請→リスク評価→Slack承認→監査+稟議+エスカレーション） | node/bun | 66 |
+| kit-approval-workflow | 承認ワークフロー（申請→リスク評価→Slack承認→監査+稟議+エスカレーション） | node/bun | 71 |
 | kit-causal-inference | 因果推論エンジン（DID/PSM/RDD/MMM/変化点/反実仮想/WhatIf 12手法） | any | 119 |
-| kit-ai-agent | AIエージェント基盤（計画→承認→実行→ロールバック+MCP雛形） | node/bun | 60 |
+| kit-ai-agent | AIエージェント基盤（計画→承認→実行→ロールバック+MCP雛形） | node/bun | 71 |
 | kit-decision-memory | 意思決定ログ/why検索/組織記憶/オンボーディングAI | node/bun | 75 |
 | **─ バッチ4 ─** | | | |
 | custom-domains | BYODカスタムドメイン（CNAME検証+SSLプロビジョニング） | node/bun | 33 |
@@ -124,19 +124,19 @@ SaaS開発でよく必要になる「配管」を、実運用SaaSから抽出・
 | kit-pattern-dna | 組織パターンDNA学習・判定（文体/成功要因/反応予測） | node/browser | 107 |
 | kit-chief-of-staff | AI経営アシスタント（ingest→digest→ブリーフィング→Q&A→タスク） | node/bun | 89 |
 | kit-research-navigator | 調査アシスタント（シグナル取込→仮説カード→学び記録） | node/bun | 68 |
-| kit-integration-manager | 外部SaaS統合マネージャー（Provider契約+Nango実装） | any | 68 |
+| kit-integration-manager | 外部SaaS統合マネージャー（Provider契約+Nango実装） | any | 69 |
 | **─ バッチ5: キット ─** | | | |
-| kit-ai-workforce | 「AI社員」チーム編成・稼働（状態機械+SSE/BM25/キャラCRUD。書籍2冊同梱） | node+React | 42 |
+| kit-ai-workforce | 「AI社員」チーム編成・稼働（状態機械+SSE/BM25/キャラCRUD。書籍2冊同梱） | node+React | 61 |
 | kit-devops-metrics | DORA4指標+デプロイ運用（健全性/タイムライン/昇格制御） | node/bun | 86 |
 | **─ バッチ5: 業務機能 ─** | | | |
-| hiring | 採用（求人票/応募者トラッキング/公開応募/GDPR削除） | node | 36 |
+| hiring | 採用（求人票/応募者トラッキング/公開応募/GDPR削除） | node | 40 |
 | documents | 文書CRUD+テンプレAI生成 | node | 18 |
 | transcripts-manager | 書き起こし管理/アクション抽出/音声メタ | node | 27 |
 | skills-service | スキルCRUD+AI推薦 | node | 21 |
 | setup-wizard | 初期セットアップ段階ガイド | node | 43 |
 | saas-inventory | SaaS利用棚卸し（検出/コスト/重複検知） | node | 10 |
-| white-label-branding | テナント別ブランディング設定+パートナー管理 | node | 24 |
-| daily-briefing | 毎朝AIブリーフィング編成 | node | 17 |
+| white-label-branding | テナント別ブランディング設定+パートナー管理 | node | 30 |
+| daily-briefing | 毎朝AIブリーフィング編成 | node | 20 |
 | slack-reports | 定期レポートBlock Kit組立4種+registry | node | 12 |
 | **─ バッチ5: 意思決定・実験 ─** | | | |
 | bias-detector | 認知バイアス6種のAI検知 | node/browser | 39 |
@@ -145,18 +145,18 @@ SaaS開発でよく必要になる「配管」を、実運用SaaSから抽出・
 | memory-connectors | Notion/Slack意思決定抽出+埋め込みコスト管理 | node | 31 |
 | **─ バッチ5: マーケ・ドメイン ─** | | | |
 | ad-budget-optimizer | 広告予算最適化・再配分・入札変更・ROI予測 | node | 58 |
-| cpa-guardrail | CPA閾値監視→広告停止提案 | node | 7 |
+| cpa-guardrail | CPA閾値監視→広告停止提案 | node | 8 |
 | analytics-normalizer | GA4/GSC/Ads異種メトリクス統一正規化 | node | 25 |
 | ai-visibility-monitor | AI検索でのブランド言及監視 | node | 11 |
-| brand-lint | 表現lint+却下事例ルール自動進化 | node | 32 |
-| content-generation | ペルソナ別生成/多変量/原子化/リミックス | node | 70 |
+| brand-lint | 表現lint+却下事例ルール自動進化 | node | 33 |
+| content-generation | ペルソナ別生成/多変量/原子化/リミックス | node | 72 |
 | challenger-copy | Safe/Edgy 2案生成+フィードバック学習 | node | 27 |
 | press-media | プレスリリース生成/記者CRM/配信タイミング | node | 52 |
 | abm | アカウント階層化/エンゲージ/戦略生成 | node | 17 |
 | brand-crisis-monitor | SNS炎上監視/感情分類/スパイク検知 | node | 17 |
-| legal-first-opinion | 法務文書AIファーストオピニオン | node | 9 |
+| legal-first-opinion | 法務文書AIファーストオピニオン | node | 11 |
 | autonomous-deploy | 承認→段階実行→タイムラインの自律デプロイ | node | 23 |
-| asset-debt-scanner | 資産劣化巡回スキャン→修繕提案（7スキャナ） | node | 20 |
+| asset-debt-scanner | 資産劣化巡回スキャン→修繕提案（7スキャナ） | node | 21 |
 | **─ バッチ5: テンプレート ─** | | | |
 | eval-lab-py | LLM評価実験ラボ（FastAPI+SQLite・Python） | template | — |
 | openapi-pipeline | client/server型共有パイプライン | template | — |
