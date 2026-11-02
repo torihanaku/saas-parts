@@ -85,11 +85,14 @@ consent_registry (007・tenant_id/user_id は FK なしの疎結合)
 
 - 001/002 の RLS は「API は常に service_role キーでアクセスする」前提。anon/authenticated から直接**読ませる**構成なら、`FOR SELECT TO authenticated USING (tenant_id = (SELECT current_tenant_id()))` の読み取りポリシー（003/008 の形式）を足す。書き込みまで authenticated に開くかはテーブルごとに判断し、課金・権限・監査・ログ系には開かない
 - 003 と 008 の権限モデル:
-  - **authenticated**: 自テナントの行を `SELECT` するだけ（`<t>_tenant_select` ポリシー・`FOR SELECT`）。`INSERT`/`UPDATE`/`DELETE`/`TRUNCATE` 権限はテンプレート内の `REVOKE` で外してある
-  - **anon**: ロールがあれば同じく書き込み権限を `REVOKE`（ポリシーは無いので読めもしない）
+  - **authenticated**: 自テナントの行を `SELECT` するだけ（`<t>_tenant_select` ポリシー・`FOR SELECT`）。`SELECT` 以外の権限（`INSERT`/`UPDATE`/`DELETE`/`TRUNCATE`/`TRIGGER`/`REFERENCES`、PG17 以上なら `MAINTAIN` も）はテンプレート内の `REVOKE` で外してある
+  - **anon**: ロールがあれば同じ権限を `REVOKE`（ロールが無い素の Postgres では飛ばす）。テナント表（契約・権利・配信ログ）には anon 向けポリシーが無いので読めない。`products` / `product_plans` は読める（下記）
   - **service_role**: `<t>_service`（`FOR ALL ... USING (TRUE) WITH CHECK (TRUE)`）で全行を読み書きする。Stripe webhook での契約・権利の更新、メール webhook での配信ログの取り込みはこのキーで行う
-  - `products` / `product_plans` は RLS 無しの共有マスタ。authenticated/anon からは書き込み権限を `REVOKE` してあり、`syncProductsToDb()` などの同期は service_role かテーブルオーナーで行う
-  - ポリシー（FOR SELECT）と権限（REVOKE）の二重で止めるので、ホスト側で `GRANT ALL` を戻しても authenticated は書き込めない
+  - `products` / `product_plans` は全テナント共通のカタログ。RLS を有効にし、読み取りは全ロール（`<t>_read`・`FOR SELECT USING (TRUE)`。実際に読めるかは `SELECT` 権限次第）、書き込みは service_role（`<t>_service`）とテーブルオーナーだけ。`syncProductsToDb()` などの同期は service_role かテーブルオーナーで行う
+  - 5 表とも `BEFORE TRUNCATE` トリガー（`<t>_deny_truncate` → 関数 `deny_truncate_unless_owner()`）で、テーブルオーナー（とそのメンバー・スーパーユーザー）以外の `TRUNCATE` を `42501` で拒否する。`TRUNCATE` には RLS が効かないため。service_role も拒否される
+  - ホスト側で `GRANT ALL` を戻した場合に止まるもの・止まらないもの（authenticated について `test/billing_rls.sql` の AC-62 で確認。anon も書き込み系ポリシーが無いので同じ）:
+    - 止まる: authenticated/anon の `INSERT`/`UPDATE`/`DELETE`（5 表とも書き込み系ポリシーが無いので RLS で拒否か 0 行）と `TRUNCATE`（トリガーで拒否）
+    - 止まらない: `TRIGGER`/`REFERENCES`/`MAINTAIN` 権限は戻ってしまう（ポリシーでは止められない）。`GRANT ALL` を戻したらテンプレートを流し直して `REVOKE` をかけ直すこと
 - 003/008 の前提: `current_tenant_id()` 関数と、ロール `authenticated` / `service_role` が存在すること（Supabase には最初からある。素の Postgres では先に `CREATE ROLE`）。`anon` は任意（無ければ REVOKE を飛ばす）。ENABLE だけでポリシー未定義だとテーブルオーナーがバイパスしてテナント分離が効かないため、ポリシーは必ず明示している
 - 003 と 008 は何度流しても通る（旧ポリシーを `DROP POLICY IF EXISTS` してから作り直す）。`psql -v ON_ERROR_STOP=1 -f ...` での再適用を想定している
 - 004 / 005 のポリシーは `TO service_role` にロールを明示（`USING (true)` を PUBLIC に開くと anon/authenticated が webhook イベントや監査ログの PII を横断参照できてしまうため）。005 の audit_logs を anon/authenticated から読ませたい場合は tenant_id 列を足して 008 形式の読み取りポリシー（`FOR SELECT TO authenticated`）にする
@@ -101,7 +104,9 @@ consent_registry (007・tenant_id/user_id は FK なしの疎結合)
 旧版の 003/008 は `tenant_product_subscriptions` / `tenant_product_entitlements` / `email_deliveries` に `FOR ALL TO authenticated` の tenant ポリシー（`<t>_tenant`）を付けていた。これだとテナントの一般利用者が、自テナントの `plan_key`・`status`・`limit_value` を書き換えたり、配信ログを偽造・削除したりできた。新版では次のように変わる。
 
 - authenticated は上の 3 表を **読むだけ**になる。authenticated（Supabase の anon キー＋ユーザー JWT）で直接書いていたアプリは、`42501 permission denied` で拒否されるか 0 行更新になる。書き込みはサーバー側で service_role キーを使う形に移すこと
-- 上の 3 表と `products` / `product_plans` から、authenticated と anon の `INSERT`/`UPDATE`/`DELETE`/`TRUNCATE` 権限を外す
+- 上の 3 表と `products` / `product_plans` から、authenticated と anon の `SELECT` 以外の権限（`INSERT`/`UPDATE`/`DELETE`/`TRUNCATE`/`TRIGGER`/`REFERENCES`、PG17 以上なら `MAINTAIN`）を外す
+- `products` / `product_plans` に RLS が付く（読み取りは全ロール、書き込みは service_role とテーブルオーナーだけ）。authenticated/anon で直接カタログを書いていたアプリは拒否される
+- 5 表に `BEFORE TRUNCATE` トリガーが付き、テーブルオーナー以外（service_role を含む）の `TRUNCATE` は `42501` で拒否される。関数 `deny_truncate_unless_owner()` が増える（003/008 で共通・`CREATE OR REPLACE`）
 - ポリシー名が変わる: `<t>_tenant`（FOR ALL）は削除され、`<t>_tenant_select`（FOR SELECT）になる。`<t>_service` は変わらない
 - 008 は旧版が `DROP POLICY IF EXISTS` を持たず再適用で落ちたが、新版は何度流しても通る
 
